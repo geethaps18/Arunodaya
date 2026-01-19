@@ -94,69 +94,55 @@ export async function GET(req: Request) {
     const normalize = (v?: string | null) =>
       v ? v.trim().toLowerCase().replace(/\s+/g, "-") : null;
 
-    // ✅ GET params
     const category = normalize(searchParams.get("category"));
     const subCategory = normalize(searchParams.get("subCategory"));
     const subSubCategory = normalize(searchParams.get("subSubCategory"));
 
-    // ✅ THIS WAS MISSING
     const where: Record<string, any> = {};
 
-    // ✅ visibility logic
     if (siteId) {
       where.siteId = siteId;
     } else {
       where.status = "ACTIVE";
     }
 
-    // ✅ category filters
     if (category) where.category = category;
     if (subCategory) where.subCategory = subCategory;
     if (subSubCategory) where.subSubCategory = subSubCategory;
 
-    const total = await prisma.product.count({ where });
+    const [total, productsRaw] = await Promise.all([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: pageSize,
+        include: {
+          brand: { select: { id: true, name: true } },
+          variants: {
+            select: {
+              id: true,
+              size: true,
+              color: true,
+              stock: true,
+              images: true,
+            },
+          },
+        },
+      }),
+    ]);
 
-    const productsRaw = await prisma.product.findMany({
-  where,
-  orderBy: { createdAt: "desc" },
-  skip,
-  take: pageSize,
-  include: {
-    brand: {
-      select: {
-        id: true,
-        name: true,
-      },
-    },
-    variants: {
-      select: {
-        id: true,
-        size: true,
-        color: true,
-        stock: true,
-        images: true,
-      },
-    },
-  },
-});
+    const products = productsRaw.map((p) => ({
+      ...p,
+      brandName: p.brand?.name || p.brandName || "BSCFASHION",
+    }));
 
-const products = productsRaw.map((p) => ({
-  ...p,
-  brandName: p.brand?.name || p.brandName || "BSCFASHION",
-}));
-
-return NextResponse.json({
-  products,
-  total,
-  hasMore: total > page * pageSize,
-  page,
-});
-
+    const hasMore = skip + products.length < total;
 
     return NextResponse.json({
       products,
       total,
-      hasMore: total > page * pageSize,
+      hasMore,
       page,
     });
   } catch (err) {
