@@ -123,10 +123,10 @@ const loadingMore = isLoadingMore;
 
 
 </div>
-      {/* Fixed Footer */}
-      <div className="fixed bottom-0 left-0 w-full z-50 bg-white border-t shadow-lg">
-        <Footer />
-      </div>
+    <div className="sticky bottom-0 w-full z-50 bg-white border-t shadow-lg">
+  <Footer />
+</div>
+
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useInfiniteStore } from "@/store/useInfiniteStore";
-
 export function useInfiniteProducts(key: string, apiUrl: string) {
   const {
     key: currentKey,
@@ -21,26 +20,29 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
   } = useInfiniteStore();
 
   const [total, setTotal] = useState(0);
+const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ ADD HERE 👇
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const loadingRef = useRef(false);
   const restoredRef = useRef(false);
   const pageRef = useRef(page);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  /* keep page ref synced */
+
   useEffect(() => {
     pageRef.current = page;
   }, [page]);
 
-  /* reset when key changes */
-  useEffect(() => {
-    if (currentKey !== key) {
-      reset(key);
-      setTotal(0);
-    }
-  }, [key, currentKey, reset]);
+  // 🔄 Reset when key changes
+ useEffect(() => {
+  if (currentKey !== key) {
+    reset(key);
+    setTotal(0); // ✅ reset total on category change
+  }
+}, [key, currentKey, reset]);
+
 
   const buildUrl = (p: number) => {
     const sep = apiUrl.includes("?") ? "&" : "?";
@@ -52,17 +54,24 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     if (p !== 1 && !hasMore) return;
 
     loadingRef.current = true;
-    p === 1 ? setIsLoading(true) : setIsLoadingMore(true);
+   if (p === 1) {
+  setIsLoading(true);        // first load
+} else {
+  setIsLoadingMore(true);   // infinite scroll load
+}
+
 
     try {
-      const res = await fetch(buildUrl(p), { cache: "no-store" });
-      const data = await res.json();
+      const res = await fetch(buildUrl(p), {
+        cache: "no-store",
+      });
+const data = await res.json();
+const incoming = data.products ?? [];
 
-      const incoming = data.products ?? [];
+if (typeof data.total === "number") {
+  setTotal(data.total); // ✅ STORE REAL TOTAL
+}
 
-      if (typeof data.total === "number") {
-        setTotal(data.total);
-      }
 
       if (p === 1) {
         setProducts(incoming);
@@ -75,20 +84,26 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
-      setIsLoadingMore(false);
+setIsLoadingMore(false);
+
     }
   };
 
-  /* load data when page changes */
+  // 🚀 Load when page changes
   useEffect(() => {
     loadPage(page);
   }, [page]);
 
-  /* ✅ IntersectionObserver (Safari + all screens safe) */
-  useEffect(() => {
+  // ♾ Infinite scroll
+useEffect(() => {
+  if (!loadMoreRef.current) return;
+
+  let observer: IntersectionObserver | null = null;
+
+  const observe = () => {
     if (!loadMoreRef.current) return;
 
-    const observer = new IntersectionObserver(
+    observer = new IntersectionObserver(
       ([entry]) => {
         if (
           entry.isIntersecting &&
@@ -102,39 +117,30 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
       },
       {
         root: null,
-        rootMargin:
-          window.innerHeight < 700 ? "120px" : "300px",
+        rootMargin: "400px", // iOS safe
         threshold: 0,
       }
     );
 
     observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, setPage]);
+  };
 
-  /* 🔁 AUTO-LOAD if content is shorter than viewport (CRITICAL FIX) */
-  useEffect(() => {
-    if (!hasMore) return;
-    if (loadingRef.current) return;
+  // 🔥 wait for Safari layout
+  requestAnimationFrame(observe);
 
-    const docHeight = document.documentElement.scrollHeight;
-    const viewHeight = window.innerHeight;
+  return () => observer?.disconnect();
+}, [hasMore, products.length, setPage]);
 
-    if (docHeight <= viewHeight + 100) {
-      const next = pageRef.current + 1;
-      pageRef.current = next;
-      setPage(next);
-    }
-  }, [products, hasMore]);
 
-  /* save scroll position */
+
+  // 💾 Save scroll
   useEffect(() => {
     const save = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", save, { passive: true });
     return () => window.removeEventListener("scroll", save);
   }, [setScrollY]);
 
-  /* restore page */
+  // 🔁 Restore page
   useEffect(() => {
     if (lastLoadedPage > 1) {
       setPage(lastLoadedPage);
@@ -142,21 +148,20 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     }
   }, []);
 
-  /* restore scroll (Safari safe) */
+  // 🔁 Restore scroll
   useEffect(() => {
     if (restoredRef.current || !products.length) return;
     restoredRef.current = true;
-
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: scrollY, behavior: "auto" });
-    });
+    window.scrollTo(0, scrollY);
   }, [products, scrollY]);
 
-  return {
-    products,
-    total,
-    isLoading,
-    isLoadingMore,
-    loadMoreRef,
-  };
+ return {
+  products,
+  total,
+  isLoading,
+  isLoadingMore,
+  loadMoreRef,
+};
+
+
 }
