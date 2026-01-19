@@ -79,9 +79,7 @@ async function uploadVideoToCloudinary(file: File): Promise<string | null> {
 }
 
 
-// ----------------------
-// GET Products
-// ----------------------
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -155,15 +153,7 @@ export async function GET(req: Request) {
 }
 
 
-// ----------------------
-// POST — Add Product
-// ----------------------
-// ----------------------
-// POST — Add Product
-// ----------------------
-// ----------------------
-// POST — Add Product
-// ----------------------
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
