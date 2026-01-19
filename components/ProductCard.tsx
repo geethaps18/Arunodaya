@@ -86,32 +86,6 @@ export default function ProductCard({
   );
 
   /* -------------------- ADD TO BAG -------------------- */
-  const handleSizeClick = async (
-    size: string,
-    e: React.MouseEvent<HTMLSpanElement>
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    try {
-      const res = await fetch("/api/bag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          size,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      setBagItems(data.items);
-      toast.success(`${product.name} (${size}) added to bag`);
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
-    }
-  };
 
   /* ==================== JSX ==================== */
   return (
@@ -147,18 +121,11 @@ export default function ProductCard({
           </button>
         </div>
 
-        {/* RATING */}
-        {rating > 0 && (
-          <div
-            className={`absolute bottom-2 left-2 text-white text-xs font-semibold px-2 py-1 rounded flex items-center gap-1 ${
-              rating < 3 ? "bg-yellow-500" : "bg-green-600"
-            }`}
-          >
-            ★ {rating.toFixed(1)}
-          </div>
-        )}
+   
+
 
        {/* SIZES (from variants) */}
+{/* SIZES (display only, not clickable) */}
 <div
   className={`absolute bottom-0 left-0 right-0 flex flex-wrap justify-center gap-1 p-2 bg-white/80 backdrop-blur-md transition-all duration-300 ${
     !isMobile && hovered
@@ -166,26 +133,22 @@ export default function ProductCard({
       : "opacity-0 translate-y-full"
   }`}
 >
-
   {variantSizes.length > 0 ? (
     variantSizes.map((size) => (
       <span
         key={size}
-        onClick={(e) => handleSizeClick(size, e)}
-        className="text-gray-800 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        className="text-gray-500 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 cursor-default select-none pointer-events-none"
       >
         {size}
       </span>
     ))
   ) : (
-    <span
-      onClick={(e) => handleSizeClick("One Size", e)}
-      className="text-gray-800 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 hover:bg-gray-900 hover:text-white transition cursor-pointer"
-    >
+    <span className="text-gray-500 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 cursor-default select-none pointer-events-none">
       One Size
     </span>
   )}
 </div>
+
 
       </div>
 
@@ -198,6 +161,24 @@ export default function ProductCard({
              <p className="text-xs uppercase tracking-wide text-gray-500 mt-1">
   {product.brandName}
 </p>
+
+{product.rating > 0 && (
+  <div className="mt-1 flex items-center gap-1 text-[12px] text-gray-500">
+    <span className="font-medium text-gray-700">
+      {product.rating.toFixed(1)}
+    </span>
+
+    <span className="text-gray-400 leading-none">★</span>
+
+    {product.reviewCount && (
+      <span className="text-gray-400">
+        ({product.reviewCount})
+      </span>
+    )}
+  </div>
+)}
+
+
 
         {/* PRICE */}
 <div className="flex items-center gap-2 mt-2">

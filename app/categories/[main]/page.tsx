@@ -20,12 +20,13 @@ export default function MainCategoryPage() {
   // 🔥 Hook MUST always be at the top — before ANY return
   const key = `main-${mainSlug || "none"}`;
 const apiUrl = `/api/products?category=${mainSlug}`;
-
-  const {
+const {
   products,
   isLoading,
   isLoadingMore,
+  loadMoreRef, // 👈 REQUIRED
 } = useInfiniteProducts(key, apiUrl);
+
 
   
 
@@ -92,10 +93,11 @@ const apiUrl = `/api/products?category=${mainSlug}`;
     ) : null}
       {/* Products */}
 <main className="flex-grow sm:p-6 pb-2">
-{isLoading && products.length === 0 ? (
-  <LoadingRing />
-)
- : products.length === 0 ? (
+  {isLoading && products.length === 0 ? (
+    <div className="flex justify-center py-20">
+      <LoadingRing />
+    </div>
+  ) : products.length === 0 ? (
     <div className="text-gray-500 mt-4 text-center">
       No products available in this category.
     </div>
@@ -107,11 +109,18 @@ const apiUrl = `/api/products?category=${mainSlug}`;
         ))}
       </div>
 
-     {isLoadingMore && <LoadingRing />}
+      {isLoadingMore && (
+        <div className="flex justify-center py-8">
+          <LoadingRing />
+        </div>
+      )}
 
+      {/* 👇 REQUIRED for infinite scroll */}
+      <div ref={loadMoreRef} className="h-12 w-full" />
     </>
   )}
 </main>
+
 
 
       <Header />

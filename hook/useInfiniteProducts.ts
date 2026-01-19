@@ -29,12 +29,12 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
   const pageRef = useRef(page);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  /* keep page ref in sync */
+  /* keep page ref synced */
   useEffect(() => {
     pageRef.current = page;
   }, [page]);
 
-  /* reset on key change */
+  /* reset when key changes */
   useEffect(() => {
     if (currentKey !== key) {
       reset(key);
@@ -79,12 +79,12 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     }
   };
 
-  /* load when page changes */
+  /* load data when page changes */
   useEffect(() => {
     loadPage(page);
   }, [page]);
 
-  /* ✅ iOS SAFE infinite scroll */
+  /* ✅ IntersectionObserver (Safari + all screens safe) */
   useEffect(() => {
     if (!loadMoreRef.current) return;
 
@@ -101,8 +101,9 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
         }
       },
       {
-        root: null,          // MUST be null for iOS
-        rootMargin: "300px",
+        root: null,
+        rootMargin:
+          window.innerHeight < 700 ? "120px" : "300px",
         threshold: 0,
       }
     );
@@ -110,6 +111,21 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
   }, [hasMore, setPage]);
+
+  /* 🔁 AUTO-LOAD if content is shorter than viewport (CRITICAL FIX) */
+  useEffect(() => {
+    if (!hasMore) return;
+    if (loadingRef.current) return;
+
+    const docHeight = document.documentElement.scrollHeight;
+    const viewHeight = window.innerHeight;
+
+    if (docHeight <= viewHeight + 100) {
+      const next = pageRef.current + 1;
+      pageRef.current = next;
+      setPage(next);
+    }
+  }, [products, hasMore]);
 
   /* save scroll position */
   useEffect(() => {
@@ -141,6 +157,6 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     total,
     isLoading,
     isLoadingMore,
-    loadMoreRef, // 👈 IMPORTANT
+    loadMoreRef,
   };
 }

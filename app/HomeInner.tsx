@@ -32,10 +32,12 @@ const {
   total,
   isLoading,
   isLoadingMore,
+  loadMoreRef, // 👈 ADD THIS
 } = useInfiniteProducts(
   "home",
   "/api/products?home=true"
 );
+;
 
 const initialLoading = isLoading && products.length === 0;
 const loadingMore = isLoadingMore;
@@ -94,7 +96,7 @@ const loadingMore = isLoadingMore;
 
 
         {/* Products Grid */}
-        <main className="flex-grow sm:p-6 pb-2">
+<main className="flex-grow sm:p-6 pb-2">
   {initialLoading ? (
     <div className="flex justify-center py-20">
       <LoadingRing />
@@ -112,9 +114,13 @@ const loadingMore = isLoadingMore;
           <LoadingRing />
         </div>
       )}
+
+      {/* 👇 REQUIRED */}
+      <div ref={loadMoreRef} className="h-12 w-full" />
     </>
   )}
 </main>
+
 
 </div>
       {/* Fixed Footer */}

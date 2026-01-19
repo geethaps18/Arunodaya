@@ -781,14 +781,33 @@ console.log(product.fit, product.fabricCare, product.features);
             </div>
           </div>
 
-      <div className="space-y-1 p-1">
+            <div className="flex items-center gap-1 ">
   <p className="text-xs uppercase tracking-wide text-gray-500">
     {product.brandName ?? "BSCFASHION"}
   </p>
 </div>
 
+  <div className="flex items-center gap-1">
+{product.rating > 0 && (
+  <div className="mt-1 flex items-center gap-1 text-[12px] text-gray-500">
+    <span className="font-medium text-gray-700">
+      {product.rating.toFixed(1)}
+    </span>
+    
+
+    <span className="text-gray-400 leading-none">★</span>
+
+    {product.reviewCount && (
+      <span className="text-gray-400">
+        ({product.reviewCount})
+      </span>
+    )}
+  </div>
+)}
+</div>
+ <div className="flex items-center gap-1">
 {colors.length > 0 && (
-  <div className="mt-3">
+  <div className="mt-1">
     <p className="text-sm font-medium text-gray-700 mb-2">
       Color {selectedColor && `: ${selectedColor}`}
     </p>
@@ -820,7 +839,7 @@ console.log(product.fit, product.fabricCare, product.features);
       ))}
     </div>
   </div>
-)}
+)}</div>
 
 
     <div
@@ -906,54 +925,6 @@ console.log(product.fit, product.fabricCare, product.features);
 </div>
 
 
-
-
-       
-
-
-
-
-          {/* ⭐ RATING SUMMARY — show only when reviews exist */}
-          {totalReviews > 0 && (
-            <div className="mt-6 bg-white p-4 rounded-lg ">
-              <h2 className="text-lg font-semibold mb-3">Ratings & Reviews</h2>
-
-              <div className="flex items-center gap-4 mb-4">
-                <div className="text-xl font-bold text-green-600">★ {product.rating?.toFixed(1)}</div>
-                <div className="text-sm text-gray-600">
-                  {totalReviews} Ratings
-                  <div className="text-green-700 font-medium">✔ Verified by BSCFASHION Users</div>
-                </div>
-              </div>
-
-             {ratingBreakdown.map((item) => {
-  const percent = totalReviews > 0 ? (item.count / totalReviews) * 100 : 0;
-
-  return (
-    <div key={item.star} className="flex items-center gap-3 mb-2">
-      <span className="w-20 font-medium text-gray-700">
-        {ratingLabels[item.star]}
-      </span>
-
-      <div className="flex-1 bg-gray-200 h-2 rounded">
-        <div
-          className="bg-green-500 h-full rounded"
-          style={{ width: `${percent}%` }}
-        ></div>
-      </div>
-
-      <span className="text-sm w-10 text-right text-gray-600">
-        {item.count}
-      </span>
-    </div>
-  );
-})}
-</div>
-          )}
-
-
-         
-
 {/* ----------------- OUT OF STOCK UI ----------------- */}
 <div className="hidden md:flex flex-col gap-3 mt-4">
 {isProductOutOfStock ? (
@@ -1008,7 +979,7 @@ console.log(product.fit, product.fabricCare, product.features);
   
   
 </div>
-<div className="mt-6 divide-y">
+<div className=" divide-y">
   <ProductAccordion
     title="Product Description"
     content={product.description}
@@ -1086,7 +1057,8 @@ console.log(product.fit, product.fabricCare, product.features);
 
       {/* Similar products */}
       {similarProducts.length > 0 && (
-        <div className="mt-10 max-w-6xl mx-auto">
+        <div className="mt-12 w-full px-0.5 sm:px-6 lg:px-12">
+
           <h2 className="text-lg font-medium mb-4">You May Also Like</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">
             {similarProducts.map((p) => (

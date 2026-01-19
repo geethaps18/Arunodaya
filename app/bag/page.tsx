@@ -22,7 +22,7 @@ export default function BagPage() {
   const { wishlist, toggleWishlist } = useWishlist();
 
   // --- Discount logic (can move into context if global) ---
-  const discount = subtotal > 2000 ? 200 : 0;
+  const discount = subtotal > 10000 ? 200 : 0;
   const finalTotal = total - discount;
 
   // --- Handlers ---
