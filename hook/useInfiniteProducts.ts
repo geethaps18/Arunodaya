@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useInfiniteStore } from "@/store/useInfiniteStore";
+
 export function useInfiniteProducts(key: string, apiUrl: string) {
   const {
     key: currentKey,
@@ -20,28 +21,26 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
   } = useInfiniteStore();
 
   const [total, setTotal] = useState(0);
-
-  // ✅ ADD HERE 👇
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const loadingRef = useRef(false);
   const restoredRef = useRef(false);
   const pageRef = useRef(page);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-
+  /* keep page ref in sync */
   useEffect(() => {
     pageRef.current = page;
   }, [page]);
 
-  // 🔄 Reset when key changes
- useEffect(() => {
-  if (currentKey !== key) {
-    reset(key);
-    setTotal(0); // ✅ reset total on category change
-  }
-}, [key, currentKey, reset]);
-
+  /* reset on key change */
+  useEffect(() => {
+    if (currentKey !== key) {
+      reset(key);
+      setTotal(0);
+    }
+  }, [key, currentKey, reset]);
 
   const buildUrl = (p: number) => {
     const sep = apiUrl.includes("?") ? "&" : "?";
@@ -53,24 +52,17 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     if (p !== 1 && !hasMore) return;
 
     loadingRef.current = true;
-   if (p === 1) {
-  setIsLoading(true);        // first load
-} else {
-  setIsLoadingMore(true);   // infinite scroll load
-}
-
+    p === 1 ? setIsLoading(true) : setIsLoadingMore(true);
 
     try {
-      const res = await fetch(buildUrl(p), {
-        cache: "no-store",
-      });
-const data = await res.json();
-const incoming = data.products ?? [];
+      const res = await fetch(buildUrl(p), { cache: "no-store" });
+      const data = await res.json();
 
-if (typeof data.total === "number") {
-  setTotal(data.total); // ✅ STORE REAL TOTAL
-}
+      const incoming = data.products ?? [];
 
+      if (typeof data.total === "number") {
+        setTotal(data.total);
+      }
 
       if (p === 1) {
         setProducts(incoming);
@@ -83,44 +75,50 @@ if (typeof data.total === "number") {
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
-setIsLoadingMore(false);
-
+      setIsLoadingMore(false);
     }
   };
 
-  // 🚀 Load when page changes
+  /* load when page changes */
   useEffect(() => {
     loadPage(page);
   }, [page]);
 
-  // ♾ Infinite scroll
+  /* ✅ iOS SAFE infinite scroll */
   useEffect(() => {
-    const onScroll = () => {
-      if (loadingRef.current || !hasMore) return;
+    if (!loadMoreRef.current) return;
 
-     if (
-  window.innerHeight + window.scrollY >=
-  document.documentElement.scrollHeight - 500
-) {
-  const next = pageRef.current + 1;
-  pageRef.current = next;
-  setPage(next);
-}
-    };
-    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          hasMore &&
+          !loadingRef.current
+        ) {
+          const next = pageRef.current + 1;
+          pageRef.current = next;
+          setPage(next);
+        }
+      },
+      {
+        root: null,          // MUST be null for iOS
+        rootMargin: "300px",
+        threshold: 0,
+      }
+    );
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
   }, [hasMore, setPage]);
 
-  // 💾 Save scroll
+  /* save scroll position */
   useEffect(() => {
     const save = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", save, { passive: true });
     return () => window.removeEventListener("scroll", save);
   }, [setScrollY]);
 
-  // 🔁 Restore page
+  /* restore page */
   useEffect(() => {
     if (lastLoadedPage > 1) {
       setPage(lastLoadedPage);
@@ -128,19 +126,21 @@ setIsLoadingMore(false);
     }
   }, []);
 
-  // 🔁 Restore scroll
+  /* restore scroll (Safari safe) */
   useEffect(() => {
     if (restoredRef.current || !products.length) return;
     restoredRef.current = true;
-    window.scrollTo(0, scrollY);
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY, behavior: "auto" });
+    });
   }, [products, scrollY]);
 
- return {
-  products,
-  total,
-  isLoading,
-  isLoadingMore,
-};
-
-
+  return {
+    products,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMoreRef, // 👈 IMPORTANT
+  };
 }
