@@ -133,12 +133,7 @@ useEffect(() => {
 
 
 
-  // 💾 Save scroll
-  useEffect(() => {
-    const save = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", save, { passive: true });
-    return () => window.removeEventListener("scroll", save);
-  }, [setScrollY]);
+
 
   // 🔁 Restore page
   useEffect(() => {
