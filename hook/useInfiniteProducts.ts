@@ -8,7 +8,7 @@ export function useInfiniteProducts(key: string, apiUrl: string) {
     products,
     page,
     lastLoadedPage,
-    scrollY,
+ 
     hasMore,
     reset,
     setProducts,
@@ -27,7 +27,7 @@ const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const loadingRef = useRef(false);
-  const restoredRef = useRef(false);
+
   const pageRef = useRef(page);
 
 
@@ -143,13 +143,7 @@ useEffect(() => {
     }
   }, []);
 
-  // 🔁 Restore scroll
-  useEffect(() => {
-    if (restoredRef.current || !products.length) return;
-    restoredRef.current = true;
-    window.scrollTo(0, scrollY);
-  }, [products, scrollY]);
-
+ 
  return {
   products,
   total,
