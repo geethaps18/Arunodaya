@@ -781,30 +781,27 @@ console.log(product.fit, product.fabricCare, product.features);
             </div>
           </div>
 
-            <div className="flex items-center gap-1 ">
+            <div className="flex items-center gap-2 mt-1">
   <p className="text-xs uppercase tracking-wide text-gray-500">
     {product.brandName ?? "BSCFASHION"}
   </p>
-</div>
 
-  <div className="flex items-center gap-1">
-{product.rating > 0 && (
-  <div className="mt-1 flex items-center gap-1 text-[12px] text-gray-500">
-    <span className="font-medium text-gray-700">
-      {product.rating.toFixed(1)}
-    </span>
-    
-
-    <span className="text-gray-400 leading-none">★</span>
-
-    {product.reviewCount && (
-      <span className="text-gray-400">
-        ({product.reviewCount})
+  {product.rating > 0 && (
+    <div className="flex items-center gap-1 text-[12px] text-gray-500">
+      
+      <span className="font-medium text-gray-700">
+        {product.rating.toFixed(1)}
       </span>
-    )}
-  </div>
-)}
+      <span className="leading-none">★</span>
+      {product.reviewCount && (
+        <span className="text-gray-400">
+          ({product.reviewCount})
+        </span>
+      )}
+    </div>
+  )}
 </div>
+
  <div className="flex items-center gap-1">
 {colors.length > 0 && (
   <div className="mt-1">
@@ -1057,7 +1054,7 @@ console.log(product.fit, product.fabricCare, product.features);
 
       {/* Similar products */}
       {similarProducts.length > 0 && (
-        <div className="mt-12 w-full px-0.5 sm:px-6 lg:px-12">
+        <div className="mt-12 w-full px-2 sm:px-6 lg:px-12">
 
           <h2 className="text-lg font-medium mb-4">You May Also Like</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">

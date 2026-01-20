@@ -14,6 +14,7 @@ import {
 } from "@/utils/wishlistPending";
 import { useWishlistInfinite } from "@/hook/useWishlistInfinite";
 import LoadingRing from "@/components/LoadingRing";
+import { useCart } from "@/app/context/BagContext";
 
 
 export default function WishlistPage() {

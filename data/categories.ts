@@ -39,7 +39,7 @@ export const categories: SubCategory[] = [
           { id: genId(), name: "Distressed Jeans", image: "/images/distressed-jeans.png", subCategories: [] },
       ] },
       { id: genId(), name: "Hoodies", image: "/images/hoodies.png", subCategories: []},
-      { id: genId(), name: "Jackets", image: "/images/jackt.png", subCategories: []},
+      { id: genId(), name: "Jackets", image: "/images/jackets-men.png", subCategories: []},
       { id: genId(), name: "Trousers", image: "/images/trousers.png", subCategories: [
         { id: genId(), name: "Formal Trousers", image: "/images/formal-trouser.png", subCategories: [] },
           { id: genId(), name: "Chinos", image: "/images/chinos.png", subCategories: [] },

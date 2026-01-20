@@ -15,6 +15,7 @@ interface ProductCardProps {
   product: ProductCardProduct;
   wishlist?: boolean;
   onWishlistToggle?: () => void;
+  
 }
 
 export default function ProductCard({
@@ -158,25 +159,26 @@ export default function ProductCard({
           {product.name}
         </h3>
 
-             <p className="text-xs uppercase tracking-wide text-gray-500 mt-1">
-  {product.brandName}
-</p>
+  <div className="flex items-center gap-2 mt-1">
+  <p className="text-xs uppercase tracking-wide text-gray-500">
+    {product.brandName ?? "BSCFASHION"}
+  </p>
 
-{product.rating > 0 && (
-  <div className="mt-1 flex items-center gap-1 text-[12px] text-gray-500">
-    <span className="font-medium text-gray-700">
-      {product.rating.toFixed(1)}
-    </span>
-
-    <span className="text-gray-400 leading-none">★</span>
-
-    {product.reviewCount && (
-      <span className="text-gray-400">
-        ({product.reviewCount})
+  {rating > 0 && (
+    <div className="flex items-center gap-1 text-[12px] text-gray-500">
+      <span className="font-medium text-gray-700">
+        {rating.toFixed(1)}
       </span>
-    )}
-  </div>
-)}
+      <span className="leading-none text-gray-400">★</span>
+      {reviewCount > 0 && (
+        <span className="text-gray-400">
+          ({reviewCount})
+        </span>
+      )}
+    </div>
+  )}
+</div>
+
 
 
 

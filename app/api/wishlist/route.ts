@@ -28,13 +28,26 @@ export async function GET(req: NextRequest) {
     });
 
     // Fetch paginated wishlist items
-    const entries = await prisma.wishlist.findMany({
-      where: { userId },
-      include: { product: true },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: PAGE_SIZE,
-    });
+  const entries = await prisma.wishlist.findMany({
+  where: { userId },
+  include: {
+    product: {
+      include: {
+        variants: {
+          where: { stock: { gt: 0 } },
+          select: {
+            size: true,
+            stock: true,
+          },
+        },
+      },
+    },
+  },
+  orderBy: { createdAt: "desc" },
+  skip,
+  take: PAGE_SIZE,
+});
+
 
     const products = entries
       .filter((entry) => entry.product !== null)
