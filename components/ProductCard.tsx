@@ -161,7 +161,7 @@ export default function ProductCard({
 
   <div className="flex items-center gap-2 mt-1">
   <p className="text-xs uppercase tracking-wide text-gray-500">
-    {product.brandName ?? "BSCFASHION"}
+    {product.brandName ?? "ARUNODAYA"}
   </p>
 
   {rating > 0 && (

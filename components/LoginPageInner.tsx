@@ -146,8 +146,8 @@ const redirectTo = rawRedirect.startsWith("/")
         <div className="flex justify-center mb-4">
          <Link href="/">
   <img
-    src="/images/logo.png"
-    alt="BSCFashion Logo"
+    src="/images/arunodaya.png"
+    alt="arunodaya Logo"
     className="w-40 h-40 object-contain cursor-pointer"
   />
 </Link>

@@ -44,13 +44,13 @@ export default function AdminSellersPage() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-semibold">Sellers</h1>
+        <h1 className="text-3xl font-semibold">Online Stores</h1>
 
         <Link
           href="/admin/sellers/create"
           className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900 text-sm"
         >
-          + Create Seller
+          + Create Online Store
         </Link>
       </div>
 
@@ -59,7 +59,7 @@ export default function AdminSellersPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left px-4 py-3">Seller</th>
+              <th className="text-left px-4 py-3">Store</th>
               <th className="text-left px-4 py-3">Phone</th>
               <th className="text-left px-4 py-3">Website</th>
               <th className="text-left px-4 py-3">Status</th>
@@ -104,7 +104,7 @@ export default function AdminSellersPage() {
             {sellers.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                  No sellers found
+                  No online stores found
                 </td>
               </tr>
             )}

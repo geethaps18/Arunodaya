@@ -158,7 +158,7 @@ return (
 );
 ```
 
-### Logo
+### 
 
 ```sh
 npm install react-icons

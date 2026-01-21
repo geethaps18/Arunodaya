@@ -25,23 +25,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "B.S. Channabasappa & Sons — Trusted since 1938.",
+  title: "Arunodaya",
   description:
-    "B.S. Channabasappa & Sons — Est. 1938 | Sarees, Men’s Wear, Kids, and Home.",
+    "Arunodaya Collections Sarees, Men’s Wear, Kids, and Home.",
   icons: {
-    icon: "/images/logo.png",
+    icon: "/images/arunodaya.png",
   },
   openGraph: {
-    title: "BSCFASHION",
-    description: "B.S. Channabasappa & Sons — Trusted since 1938.",
-    url: "https://www.bscfashion.in",
-    siteName: "BSCFASHION",
+    title: "Arunodaya",
+    description: "Arunodaya Collections",
+    url: "https://www.arunodaya.in",
+    siteName: "Arunodaya",
     images: [
       {
-        url: "/images/logo.png",
+        url: "/images/arunodaya.png",
         width: 800,
         height: 800,
-        alt: "BSCFASHION Logo",
+        alt: "arunodaya Logo",
       },
     ],
     locale: "en_IN",

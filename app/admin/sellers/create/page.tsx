@@ -26,10 +26,11 @@ export default function AdminCreateSellerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name || !form.phone || !form.brandName) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+   if (!form.name || !form.phone || !form.brandName || !form.email) {
+  toast.error("Please fill all required fields");
+  return;
+}
+
 
     setLoading(true);
 
@@ -45,12 +46,11 @@ export default function AdminCreateSellerPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to create seller");
+        throw new Error(data.error || "Failed to create online store");
       }
 
-      toast.success("Seller & site created successfully");
+      toast.success("Online store created successfully");
 
-      // Redirect to sellers list (or dashboard)
       router.push("/admin/sellers");
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
@@ -62,21 +62,21 @@ export default function AdminCreateSellerPage() {
   return (
     <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">
-        Create Seller & Website
+        Create Online Store
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Seller Name */}
+        {/* Store Name */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Seller Name *
+            Store Name *
           </label>
           <input
             type="text"
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="Ravi Web"
+            placeholder="Arunodaya – Davanagere"
             className="w-full border rounded-lg px-4 py-2"
             required
           />
@@ -85,7 +85,7 @@ export default function AdminCreateSellerPage() {
         {/* Phone */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Phone Number *
+            Store Phone Number *
           </label>
           <input
             type="text"
@@ -101,34 +101,40 @@ export default function AdminCreateSellerPage() {
         {/* Email */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Email (optional)
+            Store Login Email
           </label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="seller@email.com"
-            className="w-full border rounded-lg px-4 py-2"
-          />
+         <input
+  type="email"
+  name="email"
+  value={form.email}
+  onChange={handleChange}
+  placeholder="store@email.com"
+  className="w-full border rounded-lg px-4 py-2"
+  required
+/>
+
+          <p className="text-xs text-gray-500 mt-1">
+           Store Email (Must be a new, unused email)
+
+          </p>
         </div>
 
-        {/* Brand / Site Name */}
+        {/* Storefront Name */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Brand / Website Name *
+            Storefront Name *
           </label>
           <input
             type="text"
             name="brandName"
             value={form.brandName}
             onChange={handleChange}
-            placeholder="Ravi Web Fashion"
+            placeholder="Arunodaya Collections"
             className="w-full border rounded-lg px-4 py-2"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
-            This will be used to create the seller website
+            This will be used to create the online storefront
           </p>
         </div>
 
@@ -138,7 +144,7 @@ export default function AdminCreateSellerPage() {
           disabled={loading}
           className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-900 disabled:opacity-50"
         >
-          {loading ? "Creating..." : "Create Seller"}
+          {loading ? "Creating..." : "Create Online Store"}
         </button>
       </form>
     </div>

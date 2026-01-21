@@ -19,7 +19,7 @@ const menu = [
   { name: "Products", href: "/admin/products", icon: PackageSearch },
   { name: "Customers", href: "/admin/customers", icon: Users2 },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-   { name: "Sellers", href: "/admin/sellers", icon: Store },
+   { name: "Online Stores", href: "/admin/sellers", icon: Store },
   { name: "Settings", href: "/admin/settings", icon: Settings },
   
 ];
@@ -30,27 +30,25 @@ export default function Sidebar() {
   return (
     <aside className="w-64 border-r bg-white h-screen fixed left-0 top-0 p-4 shadow-sm">
 
-      {/* ---------------- LOGO + TITLE (HORIZONTAL) ---------------- */}
-      <Link href="/" className="flex items-center gap-3 mb-8 cursor-pointer px-2">
-        
-        {/* Logo */}
-        <div className="w-12 h-12 bg-yellow-300 border rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm">
-          <img
-            src="/images/logo.png"
-            alt="BSCFASHION Logo"
-            className="max-w-full max-h-full object-contain"
-          />
-        </div>
+      <Link
+  href="/"
+  className="flex flex-col  gap-2 mb-8 cursor-pointer px-2"
+>
+  {/* Logo */}
+  <div className="w-25 h-12">
+    <img
+      src="/images/arunodaya.png"
+      alt="Arunodaya Logo"
+      className="max-w-full max-h-full object-contain"
+    />
+  </div>
 
-        {/* Store Name & Subtitle */}
-        <div className="flex flex-col leading-tight">
-          <span className="text-lg font-bold">
-            BSC<span className="text-yellow-500">FASHION</span>
-          </span>
-          <span className="text-xs text-gray-500">Admin Panel</span>
-        </div>
+  {/* Subtitle */}
+  <span className="text-xs text-gray-500">
+    Admin Panel
+  </span>
+</Link>
 
-      </Link>
       {/* ------------------------------------------------------------ */}
 
       {/* Nav Links */}

@@ -8,24 +8,27 @@ export default function DesktopFooter() {
       <div className="max-w-7xl mx-auto px-8 py-16 grid grid-cols-4 gap-12 text-sm text-gray-600">
 
         {/* BRAND */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 tracking-wide">
-            BSCFASHION
-          </h2>
+      <div>
+  <div className="w-32 h-12 mb-2">
+    <img
+      src="/images/arunodaya.png"
+      alt="Arunodaya Logo"
+      className="h-full w-auto object-contain"
+    />
+  </div>
+
 
           <p className="mt-2 font-medium text-gray-800">
-            B.S. Channabasappa & Sons
+            Arunodaya Collections
           </p>
 
           <p className="text-xs text-gray-500 mt-1">
-            Since 1938 · Trusted by Generations
+            Quality Fashion · Trusted Retail
           </p>
 
           <p className="mt-4 text-sm leading-relaxed text-gray-700">
-            Discover timeless sarees, men’s wear, kids’ wear, and home essentials —
-            <span className="block font-semibold mt-1">
-              ಬಟ್ಟೆ ಅಂದರೆ BSC.
-            </span>
+            Discover premium sarees, ethnic wear, western fashion, kids’ wear,
+            jewellery, and home essentials.
           </p>
         </div>
 
@@ -97,7 +100,7 @@ export default function DesktopFooter() {
           <h4 className="font-semibold text-gray-900 mb-4">
             CONTACT
           </h4>
-          <p>Email: support@bscfashion.com</p>
+          <p>Email: support@arunodaya.com</p>
           <p className="mt-2">Phone: +91 XXXXX XXXXX</p>
           <p className="mt-2">Karnataka, India</p>
         </div>
@@ -105,7 +108,7 @@ export default function DesktopFooter() {
       </div>
 
       <div className="border-t py-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} B.S. Channabasappa & Sons. All rights reserved.
+        © {new Date().getFullYear()} Arunodaya Collections. All rights reserved.
       </div>
     </footer>
   );

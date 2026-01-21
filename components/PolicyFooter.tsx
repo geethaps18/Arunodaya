@@ -19,7 +19,7 @@ export default function PolicyFooter() {
       </div>
 
       <p className="text-[10px] text-gray-400 mt-2">
-        © {new Date().getFullYear()} BSCFASHION. All rights reserved.
+        © {new Date().getFullYear()} Arunodaya. All rights reserved.
       </p>
     </div>
   );

@@ -218,21 +218,24 @@ useEffect(() => {
   </div>
 )}
         {/* LOGO */}
+{/* LOGO + BRAND TEXT */}
+{pathname === "/" && (
 <div
-  className={`
-    w-12 h-12 bg-yellow-300 border rounded-lg
-    flex items-center justify-center overflow-hidden p-1 shadow-sm
-    cursor-pointer
-    ${pathname !== "/" ? "hidden lg:flex" : "flex"}
-  `}
+  className=" w-32 h-12"
   onClick={() => router.push("/")}
 >
+  {/* SUN ICON */}
   <img
-    src="/images/logo.png"
-    alt="BSCFASHION Logo"
-    className="max-w-full max-h-full object-contain"
+    src="/images/arunodaya.png"
+    alt="Arunodaya Logo"
+    className="h-full w-full object-contain"
   />
-</div>
+
+
+
+  </div>
+)}
+
 
 {/* CATEGORY BAR */}
 <div ref={categoryBarRef} className="hidden lg:block relative">

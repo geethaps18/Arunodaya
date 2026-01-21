@@ -22,12 +22,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // 📦 BODY
+    // 📦 READ BODY FIRST
     const { name, phone, email, brandName } = await req.json();
 
-    if (!name || !phone || !brandName) {
+    if (!name || !phone || !email || !brandName) {
       return NextResponse.json(
-        { error: "Name, phone, and brand name are required" },
+        { error: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    // 🚫 BLOCK reused emails (THIS WAS MISSING)
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          error:
+            "This email is already used for login. Please use a new store email.",
+        },
         { status: 400 }
       );
     }
@@ -38,7 +53,7 @@ export async function POST(req: Request) {
       strict: true,
     })}-${Date.now()}`;
 
-    // 🔁 TRANSACTION (SAFE)
+    // 🔁 TRANSACTION
     const result = await prisma.$transaction(async (tx) => {
       const seller = await tx.user.create({
         data: {
@@ -53,7 +68,6 @@ export async function POST(req: Request) {
         data: {
           ownerId: seller.id,
           name: brandName,
-    
           slug,
           template: "default",
           color: "#000000",
@@ -80,7 +94,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { error: "Failed to create seller" },
+      { error: "Failed to create online store" },
       { status: 500 }
     );
   }
@@ -91,7 +105,6 @@ export async function POST(req: Request) {
 ========================= */
 export async function GET() {
   try {
-    // 🔐 ADMIN AUTH CHECK
     const userId = await getOwnerId();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

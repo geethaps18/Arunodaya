@@ -20,10 +20,10 @@ export default function Hero() {
   };
 
   const slides = [
-    { src: "/images/slide1.png", href: "/categories/saree" },
-    { src: "/images/slide2.png", href: "/categories/western" },
-    { src: "/images/slide3.png", href: "/categories/men" },
-    { src: "/images/slide4.png", href: "/categories" },
+    { src: "/images/arcslide1.png", href: "/categories/kids" },
+    { src: "/images/arcslide2.png", href: "/categories/western" },
+    { src: "/images/arcslide3.png", href: "/categories/men" },
+    { src: "/images/arcslide4.png", href: "/categories" },
   ];
 
   return (

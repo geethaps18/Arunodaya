@@ -1,31 +1,32 @@
 import { prisma } from "@/lib/db";
 import { getOwnerId } from "@/utils/getOwnerId";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 export default async function BuilderPage() {
+  // 1️⃣ Get logged-in user id
   const ownerId = await getOwnerId();
 
   if (!ownerId) {
     redirect("/login");
   }
 
+  // 2️⃣ Fetch site FIRST (before using it)
   const site = await prisma.site.findFirst({
     where: { ownerId },
     select: {
       id: true,
       name: true,
       slug: true,
-    
       createdAt: true,
     },
   });
 
-  // 🔥 Force site creation
+  // 3️⃣ Handle no site case
   if (!site) {
     redirect("/builder/site/new");
   }
 
+  // 4️⃣ Now it is SAFE to use `site`
   return (
     <div className="p-6 space-y-8">
       {/* HEADER */}
@@ -41,7 +42,7 @@ export default async function BuilderPage() {
       {/* SITE INFO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="border rounded-xl p-5 bg-white shadow-sm">
-          <p className="text-sm text-gray-500">Store Name</p>
+          <p className="text-sm text-gray-500">Online Store Name</p>
           <p className="font-semibold text-lg">{site.name}</p>
         </div>
 
@@ -59,10 +60,6 @@ export default async function BuilderPage() {
           </p>
         </div>
       </div>
-
-      
-
-     
     </div>
   );
 }
