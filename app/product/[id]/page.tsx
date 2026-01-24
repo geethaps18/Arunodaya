@@ -576,7 +576,8 @@ addToCart(
   selectedSize!,
   selectedColor,
   selectedVariant.id,
-  finalImages
+  finalImages,
+  selectedVariant.stock
 );
 ;
 

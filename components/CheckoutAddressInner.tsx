@@ -302,12 +302,17 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormVisible(true);
   };
 
-  const handleContinue = () => {
-    if (!selectedAddress) return toast.error("Please select an address");
-    router.push(
-      `/checkout/payment?total=${calcTotalFromBag()}&addressId=${selectedAddress.id}`
-    );
-  };
+const handleContinue = () => {
+  if (!selectedAddress) {
+    toast.error("Please add or select an address to continue");
+    return;
+  }
+
+  router.push(
+    `/checkout/payment?subtotal=${subtotal}&shipping=${shipping}&discount=${discount}&total=${total}&totalCount=${totalCount}&addressId=${selectedAddress.id}`
+  );
+};
+
 
    if (!userId)
     return (
@@ -434,18 +439,16 @@ return (
 
     {/* Desktop Button */}
     <div className="hidden lg:block">
-      <Link
-        href={{
-          pathname: "/checkout/payment",
-          query: { subtotal, shipping, discount, total, totalCount, addressId: selectedAddress?.id, },
-        }}
-      >
-        <button
-        onClick={handleContinue}
-        className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-3 hover:shadow-lg transition">
-          Continue Payment
-        </button>
-      </Link>
+   <div className="hidden lg:block">
+  <button
+    onClick={handleContinue}
+    className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500
+               text-gray-900 font-semibold py-3 hover:shadow-lg transition"
+  >
+    Continue Payment
+  </button>
+</div>
+
     </div>
   </div>
 </div>
@@ -455,20 +458,16 @@ return (
   <div className="flex-1 text-center py-4 font-semibold text-lg text-gray-900 border-r">
     ₹{total}
   </div>
-  <Link
-    href={{
-      pathname: "/checkout/payment",
-      query: { shipping, discount, total, totalCount, addressId: selectedAddress?.id, },
-    }}
-    className="flex-1"
-  >
-    
-    <button 
+ <div className="flex-1">
+  <button
     onClick={handleContinue}
-    className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition">
-      Continue Payment
-    </button>
-  </Link>
+    className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500
+               text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition"
+  >
+    Continue Payment
+  </button>
+</div>
+
 </div>
 </div>
 

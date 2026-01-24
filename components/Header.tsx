@@ -217,24 +217,22 @@ useEffect(() => {
     <ArrowLeft className="w-5 h-5 text-gray-700" />
   </div>
 )}
-        {/* LOGO */}
-{/* LOGO + BRAND TEXT */}
-{pathname === "/" && (
+      {/* LOGO */}
 <div
-  className=" w-32 h-12"
+  className={`
+    w-32 h-12 cursor-pointer
+    ${pathname === "/" ? "block" : "hidden"}
+    lg:block
+  `}
   onClick={() => router.push("/")}
 >
-  {/* SUN ICON */}
   <img
     src="/images/arunodaya.png"
     alt="Arunodaya Logo"
     className="h-full w-full object-contain"
   />
+</div>
 
-
-
-  </div>
-)}
 
 
 {/* CATEGORY BAR */}

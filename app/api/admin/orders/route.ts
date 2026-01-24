@@ -19,9 +19,12 @@ export async function GET() {
             packed: true,
             packedAt: true,
            confirmedAt:true,
+           
             product: {
-              select: {
-                images: true, // ⭐ fallback if image is null
+      select: {
+        images: true,
+        isPlatform: true,
+        sellerId: true,// ⭐ fallback if image is null
               },
             },
           },
@@ -31,24 +34,37 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      orders: orders.map((o) => ({
-        ...o,
+   orders: orders.map((o) => ({
+  ...o,
 
-        // ⭐ Convert timestamps to strings
-        createdAt: o.createdAt?.toISOString() ?? null,
-        confirmedAt: o.confirmedAt?.toISOString() ?? null,
-        shippedAt: o.shippedAt?.toISOString() ?? null,
-        outForDeliveryAt: o.outForDeliveryAt?.toISOString() ?? null,
-        deliveredAt: o.deliveredAt?.toISOString() ?? null,
+  items: o.items.map((it) => ({
+    ...it,
 
-        // ⭐ Parse JSON address safely
-        address:
-          o.address
-            ? typeof o.address === "string"
-              ? JSON.parse(o.address)
-              : o.address
-            : null,
-      })),
+    // 🔥 FLATTEN HERE
+    isPlatform: it.product?.isPlatform ?? false,
+    sellerId: it.product?.sellerId ?? null,
+
+    image:
+      it.image ||
+      it.product?.images?.[0] ||
+      null,
+  })),
+
+  createdAt: o.createdAt?.toISOString() ?? null,
+  confirmedAt: o.confirmedAt?.toISOString() ?? null,
+  shippedAt: o.shippedAt?.toISOString() ?? null,
+  outForDeliveryAt: o.outForDeliveryAt?.toISOString() ?? null,
+  deliveredAt: o.deliveredAt?.toISOString() ?? null,
+
+  address:
+    o.address
+      ? typeof o.address === "string"
+        ? JSON.parse(o.address)
+        : o.address
+      : null,
+}))
+
+      ,
     });
   } catch (error) {
     console.error("ADMIN ORDERS ERROR:", error);

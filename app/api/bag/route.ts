@@ -40,6 +40,7 @@ function mapBagItem(item: any) {
     size: item.size,
     color: item.color,
     variantId: item.variantId,
+   stock: item.variant?.stock ?? 0,
 
     price: item.price, // ✅ ADD THIS LINE
 
@@ -108,31 +109,38 @@ export async function POST(req: NextRequest) {
   const finalColor = color || "nocolor";
 
   // ✅ Fetch variant (SOURCE OF TRUTH)
-  const variant = await prisma.productVariant.findUnique({
-    where: { id: variantId },
-  });
+// ✅ Fetch variant (SOURCE OF TRUTH)
+const variant = await prisma.productVariant.findUnique({
+  where: { id: variantId },
+});
 
-  if (!variant) {
-    return NextResponse.json(
-      { error: "Variant not found" },
-      { status: 404 }
-    );
-  }
+if (!variant) {
+  return NextResponse.json({ error: "Variant not found" }, { status: 404 });
+}
 
-  // ✅ Price snapshot (CRITICAL)
-  const finalPrice = variant.price;
+// ✅ Check existing bag item
+const existing = await prisma.bag.findFirst({
+  where: {
+    userId,
+    productId,
+    variantId,
+    size: finalSize,
+    color: finalColor,
+  },
+});
+const nextQty = existing ? existing.quantity + 1 : 1;
 
-  // ✅ Check existing bag item
-  const existing = await prisma.bag.findFirst({
-    where: {
-      userId,
-      productId,
-      variantId,
-      size: finalSize,
-      color: finalColor,
-    },
-  });
+if (nextQty > variant.stock) {
+  return NextResponse.json(
+    { error: `Only ${variant.stock} items available` },
+    { status: 400 }
+  );
+}
 
+
+
+
+const finalPrice = variant.price;
   if (existing) {
     await prisma.bag.update({
       where: { id: existing.id },
@@ -172,20 +180,47 @@ export async function POST(req: NextRequest) {
 // =====================
 export async function PUT(req: NextRequest) {
   const userId = getUserId(req);
-  if (!userId) return NextResponse.json({ items: [] }, { status: 401 });
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { bagId, quantity, size }: BagItemPayload = await req.json();
+
   if (!bagId) {
     return NextResponse.json({ error: "Missing bagId" }, { status: 400 });
   }
 
-  const item = await prisma.bag.findUnique({ where: { id: bagId } });
+  // ✅ 1. FETCH BAG ITEM FIRST
+  const item = await prisma.bag.findUnique({
+    where: { id: bagId },
+  });
+
   if (!item) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
-  // quantity update
+  // =====================
+  // ✅ QUANTITY UPDATE (WITH STOCK CHECK)
+  // =====================
   if (quantity !== undefined) {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: item.variantId! },
+    });
+
+    if (!variant) {
+      return NextResponse.json(
+        { error: "Variant not found" },
+        { status: 404 }
+      );
+    }
+
+    if (quantity > variant.stock) {
+      return NextResponse.json(
+        { error: `Only ${variant.stock} items available` },
+        { status: 400 }
+      );
+    }
+
     if (quantity <= 0) {
       await prisma.bag.delete({ where: { id: bagId } });
     } else {
@@ -196,23 +231,26 @@ export async function PUT(req: NextRequest) {
     }
   }
 
-  // size update
+  // =====================
+  // ✅ SIZE UPDATE
+  // =====================
   if (size) {
-   const existing = await prisma.bag.findFirst({
-  where: {
-    userId,
-    productId: item.productId,
-    size,
-    color: item.color ?? "nocolor", // ✅ IMPORTANT
-  },
-});
-
+    const existing = await prisma.bag.findFirst({
+      where: {
+        userId,
+        productId: item.productId,
+        variantId: item.variantId,
+        size,
+        color: item.color ?? "nocolor",
+      },
+    });
 
     if (existing) {
       await prisma.bag.update({
         where: { id: existing.id },
         data: { quantity: existing.quantity + item.quantity },
       });
+
       await prisma.bag.delete({ where: { id: bagId } });
     } else {
       await prisma.bag.update({
@@ -224,10 +262,12 @@ export async function PUT(req: NextRequest) {
 
   const items = await prisma.bag.findMany({
     where: { userId },
-    include: { product: true },
+    include: { product: true, variant: true },
   });
+
   return NextResponse.json({ items: items.map(mapBagItem) });
 }
+
 
 // =====================
 // DELETE BAG ITEM

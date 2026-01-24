@@ -28,8 +28,19 @@ type SellerOrderItem = {
 export default function BuilderOrdersClient() {
   const { siteId } = useSite();
   const [orders, setOrders] = useState<SellerOrderItem[]>([]);
+  const [packingId, setPackingId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const markAsPacked = async (orderItemId: string) => {
+ const markAsPacked = async (orderItemId: string) => {
+  // ✅ OPTIMISTIC UI UPDATE
+  setOrders(prev =>
+    prev.map(item =>
+      item.id === orderItemId
+        ? { ...item, confirmedAt: new Date().toISOString() }
+        : item
+    )
+  );
+
   const t = toast.loading("Marking as packed...");
 
   try {
@@ -42,11 +53,17 @@ export default function BuilderOrdersClient() {
     if (!res.ok) throw new Error("Failed");
 
     toast.success("Order marked as packed", { id: t });
-    fetchOrders(); // 🔁 refresh list
+
+    // optional: re-sync from backend
+    fetchOrders();
   } catch {
     toast.error("Failed to update order", { id: t });
+
+    // ❌ rollback if API fails
+    fetchOrders();
   }
 };
+
 
 
   const fetchOrders = async () => {
@@ -137,16 +154,25 @@ export default function BuilderOrdersClient() {
           {/* Status */}
           <div className="text-xs">
       {!item.confirmedAt ? (
-  <button
-    onClick={() => markAsPacked(item.id)}
-    className="px-4 py-2 text-sm rounded-lg bg-green-600 text-white"
-  >
-    Mark as Packed
-  </button>
+<button
+  disabled={packingId === item.id}
+  onClick={() => {
+    setPackingId(item.id);        // ✅ set loading state
+    markAsPacked(item.id);        // ✅ trigger action
+  }}
+  className={`px-4 py-2 text-sm rounded-lg text-white
+    ${packingId === item.id ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}
+  `}
+>
+  Mark as Packed
+</button>
+
+
 ) : (
-  <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700">
-    Packed
-  </span>
+ <span className="text-xs text-gray-500">
+  Packed at {new Date(item.confirmedAt!).toLocaleString("en-IN")}
+</span>
+
 )}
 </div>
 

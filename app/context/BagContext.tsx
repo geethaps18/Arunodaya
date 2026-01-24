@@ -30,7 +30,7 @@ export interface BagItem {
   variantId?: string | null;
 
   price: number;          // 🔥 ADD THIS
-
+  stock: number; 
   quantity: number;
   uniqueKey: string;
 }
@@ -42,7 +42,7 @@ interface BagContextType {
   subtotal: number;
   shipping: number;
   total: number;
-
+  isSyncing: boolean;
   
 addToCart: (
   product: Product,
@@ -50,7 +50,8 @@ addToCart: (
   size?: string,
   color?: string,
   variantId?: string,
-  images?: string[]
+  images?: string[],
+  stock?: number  
 ) => Promise<void>;
 
 
@@ -84,6 +85,7 @@ interface BagProviderProps {
 
 export const BagProvider = ({ children }: BagProviderProps) => {
   const [bagItems, setBagItems] = useState<BagItem[]>([]);
+const [isSyncing, setIsSyncing] = useState(false);
 
   // -------------------
   // Fetch bag from backend
@@ -120,55 +122,65 @@ export const BagProvider = ({ children }: BagProviderProps) => {
   // -------------------
 const addToCart = async (
   product: Product,
-   price: number,
+  price: number,
   size?: string,
   color?: string,
   variantId?: string,
-  images: string[] = [] 
+  images: string[] = [],
+  stock: number = Infinity
 ) => {
+  if (product.availableSizes?.length && !size) {
+    toast.error("Please select a size");
+    return;
+  }
 
-    if (product.availableSizes?.length && !size) {
-      toast.error("Please select a size");
+  if (!variantId) {
+    toast.error("Variant missing. Please select size and color.");
+    return;
+  }
+
+  const uniqueKey = `${product.id}-${size || "default"}-${color || "nocolor"}`;
+  const existingItem = bagItems.find(i => i.uniqueKey === uniqueKey);
+
+  // 🔥 STOCK VALIDATION
+  if (existingItem) {
+    if (existingItem.quantity + 1 > stock) {
+      toast.error(`Only ${stock} items in stock`);
       return;
     }
-    if (!variantId) {
-  toast.error("Variant missing. Please select size and color.");
-  return;
-}
 
-const uniqueKey = `${product.id}-${size || "default"}-${color || "nocolor"}`;
+    await updateQuantity(uniqueKey, existingItem.quantity + 1);
+    return;
+  }
 
-    const existingItem = bagItems.find((i) => i.uniqueKey === uniqueKey);
+  if (stock < 1) {
+    toast.error("Out of stock");
+    return;
+  }
 
-    if (existingItem) {
-      await updateQuantity(uniqueKey, existingItem.quantity + 1);
-      return;
-    }
+  const res = await fetch("/api/bag", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      productId: product.id,
+      size,
+      color,
+      variantId,
+    }),
+  });
 
-    try {
-      await fetch("/api/bag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-body: JSON.stringify({
-  productId: product.id,
-  size,
-  color,
-  variantId,
-  price, // 🔥 REQUIRED
-  images,
-}),
+  const data = await res.json();
 
+  if (!res.ok) {
+    toast.error(data.error || "Unable to add item");
+    return;
+  }
 
+  await fetchBag();
+  toast.success("Added to bag");
+};
 
-      });
-      await fetchBag();
-      toast.success("Added to bag");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to add to bag");
-    }
-  };
   const clearCart = async () => {
   try {
     // Remove all items from the cart
@@ -206,24 +218,35 @@ body: JSON.stringify({
     }
   };
 
-  const updateQuantity = async (uniqueKey: string, quantity: number) => {
-    const item = bagItems.find((i) => i.uniqueKey === uniqueKey);
-    if (!item) return;
+const updateQuantity = async (uniqueKey: string, quantity: number) => {
+  const item = bagItems.find((i) => i.uniqueKey === uniqueKey);
+  if (!item) return;
 
-    try {
-      await fetch("/api/bag", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ bagId: item.id, quantity }),
-      });
-      await fetchBag();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update quantity");
-    }
-  };
-  
+  // 🔥 OPTIMISTIC UI
+  setBagItems((prev) =>
+    prev.map((i) =>
+      i.uniqueKey === uniqueKey ? { ...i, quantity } : i
+    )
+  );
+
+  setIsSyncing(true);
+
+  try {
+    await fetch("/api/bag", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ bagId: item.id, quantity }),
+    });
+  } catch {
+    toast.error("Failed to update quantity");
+    fetchBag(); // rollback
+  } finally {
+    setIsSyncing(false);
+  }
+};
+
+
 
   const updateSize = async (uniqueKey: string, newSize: string) => {
     const item = bagItems.find((i) => i.uniqueKey === uniqueKey);
@@ -296,6 +319,7 @@ body: JSON.stringify({
         subtotal,
         shipping,
         total,
+        isSyncing,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -304,6 +328,7 @@ body: JSON.stringify({
         refreshBag: fetchBag,
         setBagItems,
         clearCart,
+      
       }}
     >
       {children}

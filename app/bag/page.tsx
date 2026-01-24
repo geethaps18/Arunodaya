@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import { toast } from "react-hot-toast";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/app/context/BagContext";
@@ -17,7 +19,9 @@ export default function BagPage() {
     updateQuantity,
     removeFromCart,
     updateSize,
+     isSyncing, 
   } = useCart();
+
 
   const { wishlist, toggleWishlist } = useWishlist();
 
@@ -26,12 +30,22 @@ export default function BagPage() {
   const finalTotal = total - discount;
 
   // --- Handlers ---
-  const handleQuantity = (uniqueKey: string, change: number) => {
-    const item = bagItems.find((i) => i.uniqueKey === uniqueKey);
-    if (!item) return;
-    const newQty = Math.max(1, item.quantity + change);
-    updateQuantity(uniqueKey, newQty);
-  };
+const handleQuantity = (uniqueKey: string, change: number) => {
+  const item = bagItems.find(i => i.uniqueKey === uniqueKey);
+  if (!item) return;
+
+  const maxStock = item.stock;
+  const newQty = item.quantity + change;
+
+  if (newQty > maxStock) {
+    toast.error(`Only ${maxStock} items in stock`);
+    return;
+  }
+
+  if (newQty < 1) return;
+
+  updateQuantity(uniqueKey, newQty);
+};
 
   const handleSizeChange = (uniqueKey: string, size: string) => {
     if (!size) return;
@@ -275,7 +289,7 @@ export default function BagPage() {
           }}
           className="flex-1"
         >
-          <button className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition">
+         <button disabled={isSyncing} className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition">
             Continue
           </button>
         </Link>

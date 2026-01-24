@@ -53,7 +53,6 @@ export default function AdminOrdersPage() {
   const [refreshToggle, setRefreshToggle] = useState(false);
   
 const getShipping = (amount: number) => (amount < 1000 ? 100 : 0);
-
   const DB_TO_LABEL: Record<string, string> = {
     PENDING: "Order Placed",
     CONFIRMED: "Confirmed",
@@ -192,7 +191,7 @@ const getShipping = (amount: number) => (amount < 1000 ? 100 : 0);
 
       const products = order.items.map((p) => ({
         name: p.name,
-        brandName: p.brandName ?? "BSCFASHION",
+        brandName: p.brandName ?? "Arunodaya",
         qty: p.quantity,
         price: p.price,
       }));
@@ -319,14 +318,13 @@ const allPacked =
   Array.isArray(order.items) &&
   order.items.length > 0 &&
   order.items.every((it: any) => {
-    // ✅ Our own products are considered packed by default
-    if ((it.brandName ?? "").toUpperCase() === "BSCFASHION") {
-      return true;
-    }
+    // ✅ Platform/Admin products are auto-packed
+    if (it.isPlatform === true) return true;
 
-    // ❗ Marketplace sellers must explicitly pack
+    // ❗ Marketplace seller products must pack
     return it.packed === true;
   });
+
 
 
           // Determine completed index for timeline highlight
