@@ -331,7 +331,7 @@ return (
       <CheckoutStepper />
       <div className="max-w-5xl mx-auto p-4 sm:p-6 relative grid md:grid-cols-3 gap-6">
 
-      <div className="md:col-span-40 space-y-6">
+      <div className="md:col-span-3 space-y-6">
 {/* LEFT: Selected Address */}
 <div className="md:col-span-2">
   {selectedAddress ? (
@@ -350,17 +350,13 @@ return (
           )}
         </div>
 
-        {/* Name + Phone */}
-        <p className="text-sm font-medium text-gray-800">
-          {selectedAddress.name} 
-          </p>
-          <p className="text-sm font-medium text-gray-80">
-          Phone : {selectedAddress.phone}
        
-              <p className="text-sm font-medium text-gray-80">
-          Email : {selectedAddress.email}
-          </p>
-             </p>
+          <div className="text-sm text-gray-800 space-y-1">
+  <p className="font-medium">{selectedAddress.name}</p>
+  <p>Phone: {selectedAddress.phone}</p>
+  <p>Email: {selectedAddress.email}</p>
+</div>
+
         
 
         {/* Full Address */}
@@ -374,7 +370,8 @@ return (
       {/* Change Button */}
       <button
         onClick={() => setShowAddressModal(true)}
-        className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded transition"
+        className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2.5 rounded transition"
+
       >
         CHANGE
       </button>
@@ -411,15 +408,20 @@ return (
             alt={item.product?.name}
             className="w-20 h-20 object-cover rounded"
           />
-          <div className="flex-1 text-sm text-gray-700">
-            Delivery by{" "}
-            <span className="font-medium">
-              {new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString(
-                "en-IN",
-                { weekday: "short", month: "short", day: "numeric" }
-              )}
-            </span>
-          </div>
+         <div className="flex-1 text-sm text-gray-700 space-y-1">
+  <p className="font-medium">{item.product?.name}</p>
+  <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
+  <p>
+    Delivery by{" "}
+    <span className="font-medium">
+      {new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString(
+        "en-IN",
+        { weekday: "short", month: "short", day: "numeric" }
+      )}
+    </span>
+  </p>
+</div>
+
         </div>
       ))
     )}
@@ -437,8 +439,7 @@ return (
       </div>
     </div>
 
-    {/* Desktop Button */}
-    <div className="hidden lg:block">
+   
    <div className="hidden lg:block">
   <button
     onClick={handleContinue}
@@ -451,7 +452,7 @@ return (
 
     </div>
   </div>
-</div>
+
 
 {/* Mobile Bottom Button (stays fixed) */}
 <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md z-50 flex lg:hidden">
@@ -521,16 +522,33 @@ return (
       </div>
 
       {/* Edit/Delete Buttons */}
-      <div className="flex flex-col gap-2">
-        <FiEdit2
-          className="text-blue-500 cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); handleEdit(addr); }}
-        />
-        <FiTrash2
-          className="text-red-500 cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); handleDelete(addr.id); }}
-        />
-      </div>
+<div className="flex flex-col gap-2 z-10">
+  <button
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleEdit(addr);
+    }}
+    className="p-2 rounded hover:bg-blue-50 flex items-center justify-center"
+  >
+    <FiEdit2 className="text-blue-500 text-lg" />
+  </button>
+
+  <button
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleDelete(addr.id);
+    }}
+    className="p-2 rounded hover:bg-red-50 flex items-center justify-center"
+  >
+    <FiTrash2 className="text-red-500 text-lg" />
+  </button>
+</div>
+
+
     </label>
   );
 })}
