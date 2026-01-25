@@ -393,10 +393,11 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
         </div>
 
         {idx !== steps.length - 1 && (
-          <div
-            className={`absolute top-4 left-1/2 w-full h-[2px] -z-10
-              ${idx < currentIndex ? "bg-green-500" : "bg-gray-200"}`}
-          />
+<div
+  className={`absolute top-4 left-full w-[calc(100%-2rem)] h-[2px] -z-10
+    ${idx < currentIndex ? "bg-green-500" : "bg-gray-200"}`}
+/>
+
         )}
 
         <span className="text-xs mt-2">{step.label}</span>
