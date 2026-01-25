@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  LogOut,
-  Mail,
-  Phone,
-  Banknote,
-  Save,
-  X,
+  Package,
+  Heart,
   MapPin,
+  LogOut,
 } from "lucide-react";
+
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import toast from "react-hot-toast";
@@ -20,17 +18,6 @@ import LoadingRing from "@/components/LoadingRing";
 import { signOut } from "next-auth/react";
 
 // ----------------- Types -----------------
-interface Account {
-  name: string;
-  email: string;
-  phone: string;
-  bankName?: string;
-  accountNumber?: string;
-  ifsc?: string;
-  branch?: string;
-  pincode?: string;
-  address?: string;
-}
 
 interface Order {
   id: string;
@@ -80,9 +67,10 @@ interface Address {
 export default function AccountInner() {
   const router = useRouter();
 
-  const [tab, setTab] = useState<
-    "bank-details" | "orders" | "wishlist" | "addresses"
-  >("bank-details");
+ const [tab, setTab] = useState<
+  "orders" | "wishlist" | "addresses"|"logout"
+>("orders");
+
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -92,17 +80,7 @@ export default function AccountInner() {
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [addressForm, setAddressForm] = useState<Partial<Address>>({});
 
-  const [account, setAccount] = useState<Account>({
-    name: "",
-    email: "",
-    phone: "",
-    bankName: "",
-    accountNumber: "",
-    ifsc: "",
-    branch: "",
-    pincode: "",
-    address: "",
-  });
+  
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
@@ -115,10 +93,7 @@ export default function AccountInner() {
       setLoading(true);
       try {
         // Account / Bank Details
-        const resProfile = await fetch("/api/account");
-        if (!resProfile.ok) throw new Error("Unauthorized");
-        const dataProfile = await resProfile.json();
-        setAccount(dataProfile || {});
+       
 
         // Orders
         const resOrders = await fetch("/api/orders");
@@ -153,49 +128,7 @@ export default function AccountInner() {
     fetchData();
   }, [router]);
 
-  // ----------------- Bank Details -----------------
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const key = e.target.name as keyof Account;
-    setAccount({ ...account, [key]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!editing) {
-      setEditing(true);
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const { bankName, accountNumber, ifsc, branch } = account;
-
-      const res = await fetch("/api/account", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bankName, accountNumber, ifsc, branch }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setAccount(data);
-        toast.success("✅ Bank details updated successfully!");
-        setEditing(false);
-      } else {
-        toast.error("⚠️ " + (data.error || "Update failed"));
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("⚠️ Something went wrong!");
-    } finally {
-      setSaving(false);
-    }
-  };
-
- const handleLogout = async () => {
+const handleLogout = async () => {
   deleteCookie("token", { path: "/" });
   sessionStorage.clear();
 
@@ -205,6 +138,8 @@ export default function AccountInner() {
   });
 };
 
+
+     
 
   // ----------------- Address -----------------
   const startEditAddress = (addr: Address) => {
@@ -252,13 +187,14 @@ export default function AccountInner() {
     }
   };
 
-  // ----------------- Fields -----------------
-  const fields = [
-    { label: "Bank Name", name: "bankName", icon: <Banknote className="w-5 h-5 text-yellow-500" /> },
-    { label: "Account Number", name: "accountNumber", icon: <Banknote className="w-5 h-5 text-yellow-500" /> },
-    { label: "IFSC Code", name: "ifsc", icon: <Banknote className="w-5 h-5 text-yellow-500" /> },
-    { label: "Branch", name: "branch", icon: <Banknote className="w-5 h-5 text-yellow-500" /> },
-  ];
+const tabs = [
+  { key: "orders", label: "Orders", icon: Package },
+  { key: "wishlist", label: "Wishlist", icon: Heart },
+  { key: "addresses", label: "Addresses", icon: MapPin },
+  { key: "logout", label: "Logout", icon: LogOut },
+] as const;
+
+
 
   // ----------------- UI -----------------
  return (
@@ -267,24 +203,50 @@ export default function AccountInner() {
 
     <main className="max-w-5xl mx-auto mt-20 px-4 sm:px-6 lg:px-8 space-y-6">
       
-      {/* Tabs */}
-      <div className="flex border-b mb-6">
-        {["bank-details", "orders", "wishlist", "addresses"].map((t) => (
-          <button
-            key={t}
-            className={`px-4 py-2 -mb-px font-medium ${
-              tab === t
-                ? "border-b-2 border-yellow-500 text-yellow-600"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-            onClick={() => setTab(t as any)}
-          >
-            {t === "bank-details"
-              ? "Bank Details"
-              : t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
+
+<div className="flex justify-around border-b pb-2 mb-6">
+  {tabs.map(({ key, label, icon: Icon }) => {
+    const active = tab === key;
+
+    return (
+      <button
+        key={key}
+        onClick={() => {
+          if (key === "logout") {
+            handleLogout();
+          } else {
+            setTab(key as any);
+          }
+        }}
+        className={`flex flex-col items-center gap-1 px-3 py-2 text-xs font-medium transition
+          ${
+            key === "logout"
+              ? "text-red-600 hover:text-red-700"
+              : active
+              ? "text-yellow-600"
+              : "text-gray-500 hover:text-gray-700"
+          }
+        `}
+      >
+        <Icon
+          className={`w-5 h-5 ${
+            key === "logout"
+              ? "text-red-600"
+              : active
+              ? "text-yellow-500"
+              : ""
+          }`}
+        />
+        {label}
+
+        {active && key !== "logout" && (
+          <span className="w-6 h-0.5 bg-yellow-500 rounded-full mt-1" />
+        )}
+      </button>
+    );
+  })}
+</div>
+
 
       {/* ✅ Loader ONLY when loading */}
       {loading ? (
@@ -293,52 +255,7 @@ export default function AccountInner() {
         </div>
       ) : (
         <>
-            {/* Bank Details Form */}
-            {tab === "bank-details" && (
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6 bg-white shadow-lg rounded-2xl p-6"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {fields.map(({ label, name, icon }) => (
-                    <div key={name} className="flex flex-col relative">
-                      <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
-                      <div className="relative">
-                        <div className="absolute left-3 top-2.5">{icon}</div>
-                        <input
-                          type="text"
-                          name={name}
-                          value={account[name as keyof Account] || ""}
-                          onChange={handleChange}
-                          readOnly={!editing}
-                          className={`pl-10 pr-3 py-2 w-full border rounded-lg ${
-                            editing
-                              ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                              : "bg-gray-100 cursor-not-allowed"
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full py-2 bg-yellow-500 text-black font-medium rounded-lg hover:bg-yellow-600 transition"
-                >
-                  {editing ? (saving ? "💾 Saving..." : "💾 Save Changes") : "✏️ Edit Bank Details"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-5 h-5" /> Logout
-                </button>
-              </form>
-            )}
+           
 
             {/* Orders */}
             {tab === "orders" && (
@@ -470,22 +387,7 @@ export default function AccountInner() {
                             placeholder="Pincode"
                             className="border p-2 w-full rounded"
                           />
-                          <div className="flex gap-2">
-                          <button
-  onClick={saveAddress}
-  disabled={saving}
-  className="bg-yellow-500 text-black px-3 py-1 rounded"
->
-  {saving ? "Saving..." : <> <Save className="w-4 h-4" /> Save </>}
-</button>
-
-                            <button
-                              onClick={cancelEditAddress}
-                              className="bg-gray-400 text-white px-3 py-1 rounded flex items-center gap-1"
-                            >
-                              <X className="w-4 h-4" /> Cancel
-                            </button>
-                          </div>
+                       
                         </>
                       ) : (
                         <>
@@ -511,9 +413,12 @@ export default function AccountInner() {
             )}
           </>
         )}
+
+
         </main>
       
-      
+
+
       <Footer />
     </>
   );
