@@ -484,15 +484,23 @@ return (
 
   return (
     <label
+    
       key={addr.id}
       className={`border p-3 rounded block cursor-pointer flex justify-between items-start gap-2 ${
         isSelected ? "border-yellow-400 bg-yellow-50" : "border-gray-200"
       }`}
       onClick={() => {
         setSelectedAddress(addr);
-        setShowAddressModal(false);
       }}
     >
+  <input
+    type="radio"
+    checked={selectedAddress?.id === addr.id}
+    onChange={() => setSelectedAddress(addr)}
+    onClick={(e) => e.stopPropagation()}
+    className="mt-1"
+  />
+
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           {/* Type Badge with Icon */}
@@ -588,6 +596,8 @@ return (
                   <input type="checkbox" checked={isDefault} onChange={()=>setIsDefault(!isDefault)}/> Set as default
                 </label>
 
+
+
                 <div className="flex gap-2 mt-2">
                   <button type="button" onClick={handleSaveAddress} disabled={!!pincodeError} className={`flex-1 py-2 rounded font-medium ${pincodeError?"bg-gray-400 text-white cursor-not-allowed":"bg-yellow-400 hover:bg-yellow-500 text-black"}`}>
                     {editingId?"Update Address":"Save Address"}
@@ -596,6 +606,15 @@ return (
                 </div>
               </div>
             )}
+            {!formVisible && addresses.length > 0 && (
+  <button
+    disabled={!selectedAddress}
+    onClick={() => setShowAddressModal(false)}
+    className="w-full bg-yellow-400 py-2 font-semibold mt-3 disabled:opacity-50"
+  >
+    Deliver Here
+  </button>
+)}
 
             <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onClick={()=>{setShowAddressModal(false); resetForm();}}>✕</button>
           </div>
