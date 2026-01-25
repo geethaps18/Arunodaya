@@ -378,8 +378,58 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
             {new Date(order.createdAt).toLocaleDateString()}
           </div>
         </div>
+        {/* MOBILE ORDER STATUS */}
+{/* MOBILE ORDER TRACKING – MEESHO STYLE */}
+<div className="md:hidden bg-white border rounded p-4 space-y-4">
+  {steps.map((step, idx) => {
+    const isCompleted = idx <= currentIndex;
 
-        <div className="flex justify-between items-center text-center mb-4 relative">
+    return (
+      <div key={step.key} className="flex gap-3">
+        {/* LEFT ICON + LINE */}
+ <div className="relative flex flex-col items-center">
+  {/* ICON */}
+  <div
+    className={`z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs
+      ${isCompleted ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"}`}
+  >
+    {idx === 2 ? <Truck size={14} /> : idx === 4 ? <Home size={14} /> : "✓"}
+  </div>
+
+  {/* CONNECTING LINE */}
+  {idx !== steps.length - 1 && (
+    <div
+      className={`absolute top-6 bottom-0 w-[2px]
+        ${idx < currentIndex ? "bg-green-500" : "bg-gray-300"}`}
+    />
+  )}
+</div>
+
+
+        {/* RIGHT CONTENT */}
+        <div className="pb-4">
+          <p className="text-sm font-medium">{step.label}</p>
+
+          {step.ts && (
+            <p className="text-xs text-gray-500">
+              {new Date(step.ts).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+
+
+{/* DESKTOP STEPPER */}
+<div className="hidden md:flex justify-between items-center text-center mb-4 relative">
   {steps.map((step, idx) => {
     const isCompleted = idx <= currentIndex;
 
@@ -392,13 +442,19 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
           {idx === 2 ? <Truck size={16} /> : idx === 4 ? <Home size={16} /> : "✓"}
         </div>
 
-        {idx !== steps.length - 1 && (
-<div
-  className={`absolute top-4 left-full w-[calc(100%-2rem)] h-[2px] -z-10
-    ${idx < currentIndex ? "bg-green-500" : "bg-gray-200"}`}
-/>
+{idx !== steps.length - 1 && (
+  <div
+    className={`absolute top-4 h-[2px] -z-10
+      ${idx + 1 <= currentIndex ? "bg-green-500" : "bg-gray-200"}`}
+    style={{
+      left: "50%",
+      width: "100%",
+    }}
+  />
+)}
 
-        )}
+
+
 
         <span className="text-xs mt-2">{step.label}</span>
 
@@ -416,6 +472,7 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
     );
   })}
 </div>
+
 
 
         {/* Estimated Delivery */}
