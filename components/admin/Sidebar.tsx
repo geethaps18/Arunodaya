@@ -9,7 +9,8 @@ import {
   Users2,
   BarChart3,
   Settings,
-  Store,
+ UserCog,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -19,63 +20,96 @@ const menu = [
   { name: "Products", href: "/admin/products", icon: PackageSearch },
   { name: "Customers", href: "/admin/customers", icon: Users2 },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-   { name: "Online Stores", href: "/admin/sellers", icon: Store },
+  { name: "Staff", href: "/admin/sellers", icon: UserCog, },
   { name: "Settings", href: "/admin/settings", icon: Settings },
-  
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r bg-white h-screen fixed left-0 top-0 p-4 shadow-sm">
+    <>
+      {/* 🔹 Mobile overlay */}
+      {open && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+        />
+      )}
 
-      <Link
-  href="/"
-  className="flex flex-col  gap-2 mb-8 cursor-pointer px-2"
->
-  {/* Logo */}
-  <div className="w-25 h-12">
-    <img
-      src="/images/arunodaya.png"
-      alt="Arunodaya Logo"
-      className="max-w-full max-h-full object-contain"
-    />
-  </div>
+      {/* 🔹 Sidebar */}
+      <aside
+        className={clsx(
+          // base
+          "w-64 bg-white border-r shadow-sm",
 
-  {/* Subtitle */}
-  <span className="text-xs text-gray-500">
-    Admin Panel
-  </span>
-</Link>
+          // position
+          "fixed left-0 top-0 z-50 h-screen",
 
-      {/* ------------------------------------------------------------ */}
+          // animation
+          "transition-transform duration-200 ease-in-out",
 
-      {/* Nav Links */}
-      <nav className="space-y-1 mt-6">
-        {menu.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/admin" && pathname.startsWith(item.href));
+          // mobile slide
+          open ? "translate-x-0" : "-translate-x-full",
 
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all",
-                isActive
-                  ? "bg-yellow-500 text-white font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
-              )}
-            >
-              <item.icon size={18} />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
+          // desktop always visible
+          "md:translate-x-0"
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b">
+          <Link href="/" className="flex flex-col gap-1">
+            <div className="h-10">
+              <img
+                src="/images/arunodaya.png"
+                alt="Arunodaya Logo"
+                className="max-h-full object-contain"
+              />
+            </div>
+            <span className="text-xs text-gray-500">Admin Panel</span>
+          </Link>
 
-    </aside>
+          {/* Close (mobile only) */}
+          <button onClick={onClose} className="md:hidden">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Nav */}
+        <nav className="px-3 py-4 space-y-1 overflow-y-auto h-[calc(100vh-80px)]">
+          {menu.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/admin" &&
+                pathname.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => {
+                  if (window.innerWidth < 768) onClose();
+                }}
+                className={clsx(
+                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  isActive
+                    ? "bg-yellow-500 text-white font-medium"
+                    : "text-gray-700 hover:bg-gray-100"
+                )}
+              >
+                <item.icon size={18} />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

@@ -271,7 +271,8 @@ const getShipping = (amount: number) => (amount < 1000 ? 100 : 0);
 
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-1 py-12 sm:px-6 lg:px-12 space-y-6">
+
    <div className="flex items-center justify-between">
   <h1 className="text-3xl font-semibold">Orders</h1>
 
@@ -336,16 +337,27 @@ const allPacked =
           });
 
           return (
-            <div key={order.id} className="bg-white p-4 rounded-xl shadow border space-y-3">
+           <div className="bg-white rounded-xl shadow border p-5 space-y-5">
+
               <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    Order ID: <span className="text-gray-600">{order.id}</span>
-                  </h2>
-                  <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
-                    {label}
-                  </span>
-                </div>
+               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+  <div>
+    <h2 className="text-sm text-gray-500">Order ID</h2>
+    <p className="font-semibold text-gray-800 break-all">
+      {order.id}
+    </p>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
+      {label}
+    </span>
+    <span className="text-xs text-gray-400">
+      {formatTS(order.createdAt)}
+    </span>
+  </div>
+</div>
+
 
                 <div className="flex gap-2">
                   <button
@@ -355,7 +367,7 @@ const allPacked =
                       e.preventDefault();
                       downloadLabel(order.id);
                     }}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-sm"
+                    className="flex items-center gap-2 bg-green-600 text-white px-2 py-2 rounded-lg hover:bg-green-700 text-sm"
                   >
                     <FileDown size={16} /> Label
                   </button>
@@ -494,11 +506,11 @@ const allPacked =
 <div className="mt-2">
   {allPacked ? (
     <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-      Packed by Seller
+      Packed by You
     </span>
   ) : (
     <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-      Waiting for Seller to Pack
+      Waiting for Staff to Pack
     </span>
   )}
 </div>

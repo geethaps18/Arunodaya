@@ -41,25 +41,26 @@ export default function AdminSellersPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+     <div className="px-1 py-12 sm:px-6 lg:px-12">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-semibold">Online Stores</h1>
+        <h1 className="text-3xl font-semibold">Staff Members</h1>
 
         <Link
           href="/admin/sellers/create"
           className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900 text-sm"
         >
-          + Create Online Store
+          + Create Staff Member
         </Link>
       </div>
 
       {/* Table */}
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div className="px-1 py-6 sm:px-6 lg:px-12">
+      <div className="bg-white border rounded-xl overflow-hidden ">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left px-4 py-3">Store</th>
+              <th className="text-left px-4 py-3">Staff</th>
               <th className="text-left px-4 py-3">Phone</th>
               <th className="text-left px-4 py-3">Website</th>
               <th className="text-left px-4 py-3">Status</th>
@@ -111,6 +112,7 @@ export default function AdminSellersPage() {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }

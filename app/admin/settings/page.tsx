@@ -79,10 +79,11 @@ const handleLogoUpload = (e: any) => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-1 py-12 sm:px-6 lg:px-12">
       <h1 className="text-3xl font-semibold">Settings</h1>
 
       {/* Business Info */}
+       <div className="px-1 py-6 sm:px-6 lg:px-12">
       <Section title="Business Information">
         <Input label="Store Name" value={storeName} onChange={setStoreName} />
         <Input label="Email" value={email} onChange={setEmail} />
@@ -90,31 +91,9 @@ const handleLogoUpload = (e: any) => {
         <Input label="Address" value={address} onChange={setAddress} />
       </Section>
 
-      {/* Logo */}
-      <Section title="Store Branding">
-        <div className="flex items-center gap-4">
-          <div className="w-32 h-32 rounded-lg border  flex items-center justify-center p-2 overflow-hidden">
-  {logoPreview ? (
-    <img
-      src={logoPreview}
-      className="max-w-full max-h-full object-contain"
-      alt="Store Logo"
-    />
-  ) : (
-    <span className="text-gray-400 text-sm">No Logo</span>
-  )}
-</div>
-
-
-          <label className="flex items-center gap-2 cursor-pointer bg-green-600 text-white px-4 py-2 rounded-lg">
-            <Upload size={18} />
-            Upload Logo
-            <input type="file" className="hidden" onChange={handleLogoUpload} />
-          </label>
-        </div>
-      </Section>
 
       {/* Payments */}
+       <div className="px-1 py-6 sm:px-6 lg:px-12">
       <Section title="Payment Settings">
         <Toggle
           label="Enable Razorpay Payments"
@@ -127,13 +106,16 @@ const handleLogoUpload = (e: any) => {
           setEnabled={setCodEnabled}
         />
       </Section>
-
+ <div className="px-1 py-6 sm:px-6 lg:px-12">
       <button
         onClick={saveSettings}
         className="bg-green-600 text-white px-6 py-3 rounded-xl font-medium text-lg hover:bg-green-700 transition"
       >
         Save Settings
       </button>
+    </div>
+    </div>
+    </div>
     </div>
   );
 }

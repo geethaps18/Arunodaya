@@ -519,7 +519,7 @@ const Tabs = ["Basic","Media","Pricing","Variants","Review"];
 
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto py-12">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold">Add Product</h2>
         <div className="flex items-center gap-2">
@@ -745,111 +745,84 @@ Soft brushed interior"
 
       
 
-          {/* Variants */}
-         {activeTab === 3 && (
-  <div>
-    <div className="flex items-center justify-between mb-3">
-      <h3 className="font-semibold">Variants</h3>
+        {activeTab === 3 && (
+  <div className="relative">
+    {/* Custom Color */}
+    <div className="border rounded p-3 space-y-2 mb-4">
+      <p className="text-sm font-medium">Add Custom Color</p>
+
+      <input
+        placeholder="Color name (e.g. Wine Red)"
+        value={customColor.name}
+        onChange={(e) =>
+          setCustomColor({ ...customColor, name: e.target.value })
+        }
+        className="border px-3 py-2 w-full"
+      />
+
+      <input
+        type="color"
+        value={customColor.hex}
+        onChange={(e) =>
+          setCustomColor({ ...customColor, hex: e.target.value })
+        }
+        className="w-16 h-10"
+      />
+
       <button
-  type="button"
-  onClick={addVariant}
-  className="flex items-center gap-2 px-3 py-2 rounded bg-black text-white"
->
-  <Plus size={16} />
-  Add Variant
-</button>
+        type="button"
+        onClick={() => {
+          if (!customColor.name) return;
+
+          if (selectedColors.some(c => c.name === customColor.name)) {
+            toast.error("Color already added");
+            return;
+          }
+
+          setSelectedColors(prev => [...prev, customColor]);
+          setCustomColor({ name: "", hex: "#000000" });
+        }}
+        className="px-3 py-1 bg-black text-white rounded"
+      >
+        Add Color
+      </button>
     </div>
 
-
-
-
-          <div className="border rounded p-3 space-y-2">
-  <p className="text-sm font-medium">Add Custom Color</p>
-
-  <input
-    placeholder="Color name (e.g. Wine Red)"
-    value={customColor.name}
-    onChange={(e) =>
-      setCustomColor({ ...customColor, name: e.target.value })
-    }
-    className="border px-3 py-2 w-full"
-  />
-
-  <input
-    type="color"
-    value={customColor.hex}
-    onChange={(e) =>
-      setCustomColor({ ...customColor, hex: e.target.value })
-    }
-    className="w-16 h-10"
-  />
-  
-
- <button
-  type="button"
-  onClick={() => {
-    if (!customColor.name) return;
-
-    if (selectedColors.some(c => c.name === customColor.name)) {
-      toast.error("Color already added");
-      return;
-    }
-
-    setSelectedColors(prev => [...prev, customColor]);
-    setCustomColor({ name: "", hex: "#000000" });
-  }}
-  className="px-3 py-1 bg-black text-white rounded"
->
-  Add Color
-</button>
-
-</div>
-
-
-
-    <div className="space-y-4">
+    {/* Variants List */}
+    <div className="space-y-4 pb-24">
       {variants.map((v, idx) => (
         <div key={v.id} className="border rounded p-3 space-y-3">
-          <div className="flex justify-between">
-            <strong>Variant #{idx + 1}</strong>
-          
-          </div>
+          <div className="font-medium">Variant #{idx + 1}</div>
 
-         <select
-  value={v.size}
-  onChange={(e) => {
-    const copy = [...variants];
-    copy[idx].size = e.target.value;
-    setVariants(copy);
-  }}
-  className="border rounded px-3 py-2 w-full"
->
-  <option value="">Select Size</option>
-  {currentSizes.map((size) => (
-    <option key={size} value={size}>
-      {size}
-    </option>
-  ))}
-</select>
+          <select
+            value={v.size}
+            onChange={(e) => {
+              const copy = [...variants];
+              copy[idx].size = e.target.value;
+              setVariants(copy);
+            }}
+            className="border rounded px-3 py-2 w-full"
+          >
+            <option value="">Select Size</option>
+            {currentSizes.map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
 
- <select
-  value={v.color}
-  onChange={(e) => {
-    const copy = [...variants];
-    copy[idx].color = e.target.value;
-    setVariants(copy);
-  }}
-  className="border rounded px-3 py-2 w-full"
->
-  <option value="">Select Color</option>
-
-  {selectedColors.map((c) => (
-    <option key={c.name} value={c.name}>
-      {c.name}
-    </option>
-  ))}
-</select>
-
+          <select
+            value={v.color}
+            onChange={(e) => {
+              const copy = [...variants];
+              copy[idx].color = e.target.value;
+              setVariants(copy);
+            }}
+            className="border rounded px-3 py-2 w-full"
+          >
+            <option value="">Select Color</option>
+            {selectedColors.map(c => (
+              <option key={c.name} value={c.name}>{c.name}</option>
+            ))}
+          </select>
 
           <input
             placeholder="Variant Price"
@@ -899,6 +872,22 @@ Soft brushed interior"
       {variants.length === 0 && (
         <p className="text-gray-500 text-sm">No variants added yet.</p>
       )}
+    </div>
+
+    {/* ✅ Sticky Add Variant Bar (BOTTOM ONLY) */}
+    <div className="fixed bottom-0 left-0 right-0 md:static bg-white border-t p-3 flex justify-between items-center z-20">
+      <span className="text-sm text-gray-600">
+        {variants.length} variant{variants.length !== 1 && "s"}
+      </span>
+
+      <button
+        type="button"
+        onClick={addVariant}
+        className="flex items-center gap-2 px-4 py-2 rounded bg-black text-white"
+      >
+        <Plus size={16} />
+        Add Variant
+      </button>
     </div>
   </div>
 )}

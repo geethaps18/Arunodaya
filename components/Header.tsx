@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Heart, ShoppingBag, X, ArrowLeft,Store, User } from "lucide-react";
+import { Search, Heart, ShoppingBag, X, ArrowLeft,UserCog, User } from "lucide-react";
 import { useCart } from "@/app/context/BagContext";
 import { useWishlist } from "@/app/context/WishlistContext";
 import { Product } from "@/types/product";
@@ -452,7 +452,7 @@ width: itemRect.width,
     title="Seller Panel"
     className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 transition"
   >
-    <Store className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 stroke-[1.2]" />
+    <UserCog className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 stroke-[1.2]" />
   </button>
 )}
     </div>

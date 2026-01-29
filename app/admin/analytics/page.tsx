@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
   }, [data]);
 
   return (
-    <div className="p-6 space-y-6">
+     <div className="max-w-6xl mx-auto py-12">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold">Analytics Dashboard</h1>

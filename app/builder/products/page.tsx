@@ -71,7 +71,7 @@ export default function BuilderProductsPage() {
 
 
   return (
-    <div className="p-6">
+    <div className="px-1 py-6 sm:px-6 lg:px-12">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold">Products</h1>

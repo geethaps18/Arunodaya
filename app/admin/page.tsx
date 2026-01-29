@@ -14,35 +14,49 @@ import {
   Heart,
 } from "lucide-react";
 
+type DashboardStats = {
+  todaySales: number;
+  totalOrders: number;
+  pendingOrders: number;
+  deliveredOrders: number;
+  totalProducts: number;
+  outOfStock: number;
+  totalCustomers: number;
+  monthlyRevenue: number;
+  topCategory: string;
+  wishlistCount?: number;
+};
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
-    try {
-      const res = await fetch("/api/admin/dashboard");
-      const data = await res.json();
-      setStats(data);
-      setLoading(false);
-    } catch (err) {
-      console.error("Dashboard load failed", err);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/admin/dashboard");
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        console.error("Dashboard load failed", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchStats();
   }, []);
 
+  /* ---------------- LOADING ---------------- */
   if (loading) {
-  return (
-    <div className="flex justify-center items-center py-20">
-      <div className="h-12 w-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
-    </div>
-  );
-}
+    return (
+      <div className="flex justify-center items-center py-24">
+        <div className="h-10 w-10 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-
+  /* ---------------- ERROR ---------------- */
   if (!stats) {
     return (
       <div className="p-6 text-center text-red-600">
@@ -51,88 +65,109 @@ export default function AdminDashboard() {
     );
   }
 
-  const statCards = [
+  /* ---------------- CARDS ---------------- */
+  const cards = [
     {
-      title: "Total Sales Today",
+      title: "Sales Today",
       value: `₹${stats.todaySales}`,
-      icon: <ShoppingBag className="w-6 h-6 text-blue-600" />,
-      color: "bg-blue-50 border-blue-200",
+      icon: ShoppingBag,
+      color: "bg-blue-50 border-blue-200 text-blue-600",
     },
     {
       title: "Total Orders",
       value: stats.totalOrders,
-      icon: <Package className="w-6 h-6 text-green-600" />,
-      color: "bg-green-50 border-green-200",
+      icon: Package,
+      color: "bg-green-50 border-green-200 text-green-600",
     },
     {
       title: "Pending Orders",
       value: stats.pendingOrders,
-      icon: <Clock className="w-6 h-6 text-yellow-600" />,
-      color: "bg-yellow-50 border-yellow-200",
+      icon: Clock,
+      color: "bg-yellow-50 border-yellow-200 text-yellow-600",
     },
     {
-      title: "Delivered Orders",
+      title: "Delivered",
       value: stats.deliveredOrders,
-      icon: <CheckCircle className="w-6 h-6 text-emerald-600" />,
-      color: "bg-emerald-50 border-emerald-200",
+      icon: CheckCircle,
+      color: "bg-emerald-50 border-emerald-200 text-emerald-600",
     },
     {
-      title: "Total Products",
+      title: "Products",
       value: stats.totalProducts,
-      icon: <Boxes className="w-6 h-6 text-purple-600" />,
-      color: "bg-purple-50 border-purple-200",
+      icon: Boxes,
+      color: "bg-purple-50 border-purple-200 text-purple-600",
     },
     {
-      title: "Out of Stock Items",
+      title: "Out of Stock",
       value: stats.outOfStock,
-      icon: <AlertTriangle className="w-6 h-6 text-red-600" />,
-      color: "bg-red-50 border-red-200",
+      icon: AlertTriangle,
+      color: "bg-red-50 border-red-200 text-red-600",
     },
     {
-      title: "Total Customers",
+      title: "Customers",
       value: stats.totalCustomers,
-      icon: <Users className="w-6 h-6 text-indigo-600" />,
-      color: "bg-indigo-50 border-indigo-200",
+      icon: Users,
+      color: "bg-indigo-50 border-indigo-200 text-indigo-600",
     },
     {
-      title: "Revenue This Month",
+      title: "Monthly Revenue",
       value: `₹${stats.monthlyRevenue}`,
-      icon: <BarChart2 className="w-6 h-6 text-teal-600" />,
-      color: "bg-teal-50 border-teal-200",
+      icon: BarChart2,
+      color: "bg-teal-50 border-teal-200 text-teal-600",
     },
     {
-      title: "Top Selling Category",
+      title: "Top Category",
       value: stats.topCategory,
-      icon: <Flame className="w-6 h-6 text-orange-600" />,
-      color: "bg-orange-50 border-orange-200",
+      icon: Flame,
+      color: "bg-orange-50 border-orange-200 text-orange-600",
     },
-   {
-  title: "Wishlist Count",
-  value: stats.wishlistCount ?? 0,
-  icon: <Heart className="w-6 h-6 text-pink-600" />,
-  color: "bg-pink-50 border-pink-200",
-},
+    {
+      title: "Wishlist",
+      value: stats.wishlistCount ?? 0,
+      icon: Heart,
+      color: "bg-pink-50 border-pink-200 text-pink-600",
+    },
   ];
 
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-semibold mb-6">Admin Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className={`border rounded-xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${stat.color}`}
-          >
-            <div className="p-3 bg-white rounded-full shadow-sm">{stat.icon}</div>
+ return (
+  <div className="space-y-4">
+    <div className="max-w-7xl mx-auto p-12 md:p-6">
 
-            <div>
-              <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
-              <p className="text-xl font-bold mt-1">{stat.value}</p>
+      {/* Title */}
+      <h1 className="text-xl md:text-3xl text-center font-semibold p-3">
+        Admin Dashboard
+      </h1>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
+        {cards.map((c, i) => {
+          const Icon = c.icon;
+
+          return (
+            <div
+              key={i}
+              className={`border rounded-xl p-4 md:p-5 flex items-center gap-3 md:gap-4 ${c.color}`}
+            >
+              {/* Icon */}
+              <div className="p-2 md:p-3 bg-white rounded-full shadow-sm">
+                <Icon className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+
+              {/* Text */}
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm text-gray-600 font-medium truncate">
+                  {c.title}
+                </p>
+                <p className="text-lg md:text-xl font-bold">
+                  {c.value}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+    </div>
     </div>
   );
 }

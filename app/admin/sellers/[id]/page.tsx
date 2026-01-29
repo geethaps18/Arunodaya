@@ -17,17 +17,24 @@ export default function AdminSellerDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="p-6">Loading store…</div>;
-  if (!seller) return <div className="p-6">Store not found</div>;
+ if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="h-12 w-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!seller) return <div className="p-6">Seller not found</div>;
 
   return (
-    <div className="p-6 space-y-6">
+     <div className="px-1 py-12 sm:px-6 lg:px-12">
       <h1 className="text-3xl font-semibold">{seller.name}</h1>
 
       {/* Store Info */}
-      <div className="bg-white border rounded-xl p-4 space-y-2">
-        <p><b>Store Phone:</b> {seller.phone}</p>
-        <p><b>Store Email:</b> {seller.email || "—"}</p>
+      <div className="px-1 py-6 sm:px-6 lg:px-12">
+      <div className="bg-white border rounded-xl p-4 space-y-2 ">
+        <p><b>Seller Phone:</b> {seller.phone}</p>
+        <p><b>Seller Email:</b> {seller.email || "—"}</p>
         <p>
           <b>Status:</b>{" "}
           {seller.blocked ? (
@@ -37,17 +44,21 @@ export default function AdminSellerDetailPage() {
           )}
         </p>
       </div>
+      </div>
 
       {/* Storefront Info */}
+       <div className="px-1 py-4 sm:px-6 lg:px-12">
       {seller.sites?.[0] && (
         <div className="bg-white border rounded-xl p-4">
           <h2 className="font-semibold mb-2">Storefront</h2>
           <p><b>Name:</b> {seller.sites[0].name}</p>
           <p><b>URL:</b> /store/{seller.sites[0].slug}</p>
         </div>
+        
       )}
-
+</div>
       {/* Activate / Deactivate Store */}
+      <div className="px-1 py-4 sm:px-6 lg:px-12">
       <button
         onClick={async () => {
           try {
@@ -64,7 +75,7 @@ export default function AdminSellerDetailPage() {
               blocked: !prev.blocked,
             }));
           } catch {
-            toast.error("Failed to update store status");
+            toast.error("Failed to update seller status");
           }
         }}
         className={`px-4 py-2 rounded-lg text-sm font-medium ${
@@ -73,8 +84,9 @@ export default function AdminSellerDetailPage() {
             : "bg-red-600 text-white"
         }`}
       >
-        {seller.blocked ? "Activate Store" : "Deactivate Store"}
+        {seller.blocked ? "Activate Seller" : "Deactivate Seller"}
       </button>
+    </div>
     </div>
   );
 }
