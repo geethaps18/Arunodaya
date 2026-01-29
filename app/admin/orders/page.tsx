@@ -335,9 +335,12 @@ const allPacked =
             const val = (s.tsKey === "createdAt" ? order.createdAt : (order as any)[s.tsKey]);
             return Boolean(val);
           });
+return (
+  <div
+    key={order.id}
+    className="bg-white rounded-xl shadow border p-5 space-y-5"
+  >
 
-          return (
-           <div className="bg-white rounded-xl shadow border p-5 space-y-5">
 
               <div className="flex justify-between items-start">
                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
