@@ -110,6 +110,8 @@ type ProductWithReviews = {
   price: number;
   mrp?: number | null;
   discount?: number | null;
+  discountAmount?: number | null; // ✅ ADD
+
 
   stock?: number;
 
@@ -775,12 +777,17 @@ console.log(product.fit, product.fabricCare, product.features);
   </span>
 )}
 
+
+
+
+
               <span className="text-gray-900">Rs.{price}</span>
               {discount > 0 && (
                 <span className="text-yellow-600 text-xs font-semibold">{discount}% OFF</span>
               )}
             </div>
           </div>
+
 
             <div className="flex items-center gap-2 mt-1">
   <p className="text-xs uppercase tracking-wide text-gray-500">

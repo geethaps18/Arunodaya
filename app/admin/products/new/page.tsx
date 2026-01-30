@@ -68,6 +68,7 @@ const [selectedColors, setSelectedColors] =
   const [mrp, setMrp] = useState("");
   const [discount, setDiscount] = useState("");
 
+const [discountAmount, setDiscountAmount] = useState("");
 
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
@@ -210,10 +211,23 @@ setSubSubCategory(subSubCat);
 }, [mode, productId]);
 
 
-  useEffect(() => {
-    const d = calcDiscount(mrp, price);
-    setDiscount(d);
-  }, [mrp, price]);
+useEffect(() => {
+  const mm = Number(mrp);
+  const pp = Number(price);
+
+  if (!mm || !pp || pp >= mm) {
+    setDiscount("");
+    setDiscountAmount("");
+    return;
+  }
+
+  const percent = Math.round(((mm - pp) / mm) * 100);
+  const amount = mm - pp;
+
+  setDiscount(String(percent));
+  setDiscountAmount(String(amount));
+}, [mrp, price]);
+
 
   function calcDiscount(m: string, p: string) {
     const mm = Number(m); const pp = Number(p);
@@ -413,9 +427,11 @@ if (resolvedBrandId) {
       form.append("description", description);
       const catPath = [category?.name, subCategory?.name, subSubCategory?.name].filter(Boolean);
       form.append("categoryPath", JSON.stringify(catPath));
-      form.append("price", String(price));
-      form.append("mrp", String(mrp));
-      form.append("discount", String(discount));
+   form.append("price", String(price));
+form.append("mrp", String(mrp));
+form.append("discount", String(discount));
+form.append("discountAmount", String(discountAmount));
+
      if (videoFile) {
   form.append("video", videoFile);
 }
@@ -735,6 +751,15 @@ Soft brushed interior"
                 {errors.price && <p className="text-sm text-red-600">{errors.price}</p>}
               </div>
               <div>
+            
+  <label className="block text-sm font-medium">Discount Amount</label>
+  <input
+    value={discountAmount}
+    readOnly
+    className="mt-1 block w-full rounded border px-3 py-2 bg-gray-50"
+  />
+</div>
+  <div>
                 <label className="block text-sm font-medium">Discount</label>
                 <input value={discount} readOnly className="mt-1 block w-full rounded border px-3 py-2 bg-gray-50" />
               </div>

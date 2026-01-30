@@ -94,9 +94,11 @@ const normalized = {
 ),
  video: product.video ?? null, 
 
-  price: product.price ?? 0,
-  mrp: product.mrp ?? null,
-  discount: product.discount ?? null,
+price: product.price ?? 0,
+mrp: product.mrp ?? null,
+discount: product.discount ?? null,
+discountAmount: product.discountAmount ?? null, // ✅ ADD THIS
+
 
   stock: product.stock ?? 0,
 

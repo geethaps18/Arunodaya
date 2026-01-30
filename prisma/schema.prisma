@@ -133,6 +133,7 @@ model Product {
   price          Float
   mrp            Float?
   discount       Int?
+   discountAmount Float?
   stock          Int      @default(0)
   siteId         String?  @db.ObjectId
   sellerId       String?  @db.ObjectId

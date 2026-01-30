@@ -272,11 +272,17 @@ export async function POST(req: Request) {
     const subCategory = normalize(categoryPath[1]);
     const subSubCategory = normalize(categoryPath[2]);
 
-    const price = Number(formData.get("price") || 0);
-    const mrp = Number(formData.get("mrp") || price);
-    const discount =
-      Number(formData.get("discount")) ||
-      (mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0);
+const price = Number(formData.get("price") || 0);
+const mrp = Number(formData.get("mrp") || price);
+
+const discount =
+  Number(formData.get("discount")) ||
+  (mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0);
+
+const discountAmount =
+  Number(formData.get("discountAmount")) ||
+  (mrp > price ? mrp - price : 0);
+
 
     /* ---------------------------------
        MEDIA & DETAILS
@@ -357,6 +363,7 @@ for (const file of files) {
         price,
         mrp,
         discount,
+        discountAmount,
         images,
         video: videoUrl,
         fit,
