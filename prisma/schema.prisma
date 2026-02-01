@@ -8,6 +8,12 @@ generator client {
   engineType = "binary"
 }
 
+model PageContent {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  slug    String @unique
+  content Json
+}
+
 model Media {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   url       String

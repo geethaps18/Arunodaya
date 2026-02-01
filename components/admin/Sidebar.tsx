@@ -21,7 +21,7 @@ const menu = [
   { name: "Customers", href: "/admin/customers", icon: Users2 },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { name: "Staff", href: "/admin/sellers", icon: UserCog, },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Settings", href: "/admin/cms", icon: Settings },
 ];
 
 export default function Sidebar({

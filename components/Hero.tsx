@@ -3,51 +3,52 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Slider from "react-slick";
+import { useMemo } from "react";
 
-export default function Hero() {
+type Slide = {
+  image: string;
+  link?: string;
+};
+
+export default function Hero({ slides = [] }: { slides: Slide[] }) {
   const router = useRouter();
 
-  const settings = {
-    dots: false,
-    arrows: false,
-    infinite: true,
-    autoplay: true,
-    autoplaySpeed: 4500,
-    speed: 700,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    pauseOnHover: false,
-  };
+  // ✅ Hooks MUST be called unconditionally
+  const settings = useMemo(
+    () => ({
+      dots: false,
+      arrows: false,
+      infinite: slides.length > 1,
+      autoplay: slides.length > 1,
+      autoplaySpeed: 4000,
+      speed: 700,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      pauseOnHover: false,
+      cssEase: "ease-in-out",
+    }),
+    [slides.length]
+  );
 
-  const slides = [
-    { src: "/images/arcslide1.png", href: "/categories/kids" },
-    { src: "/images/arcslide2.png", href: "/categories/western" },
-    { src: "/images/arcslide3.png", href: "/categories/men" },
-    { src: "/images/arcslide4.png", href: "/categories" },
-  ];
+  // ✅ Early return AFTER hooks
+  if (!slides || slides.length === 0) return null;
 
   return (
-    <section
-      className="
-        w-full overflow-hidden
-        min-h-auto
-        md:min-h-[calc(100vh-96px)]
-      "
-    >
+    <section className="w-full overflow-hidden">
       <Slider {...settings}>
         {slides.map((slide, index) => (
           <div
             key={index}
-            className="w-full cursor-pointer hover:opacity-95 transition"
-            onClick={() => router.push(slide.href)}
+            className="cursor-pointer"
+            onClick={() => slide.link && router.push(slide.link)}
           >
             <Image
-              src={slide.src}
-              alt={`BSC Hero Slide ${index + 1}`}
+              src={slide.image}
+              alt={`Hero Slide ${index + 1}`}
               width={1920}
               height={920}
               priority={index === 0}
-              className="w-full h-auto object-contain block"
+              className="w-full h-[920px] object-cover"
             />
           </div>
         ))}

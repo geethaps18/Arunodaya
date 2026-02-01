@@ -11,6 +11,10 @@ import { useInfiniteProducts } from "@/hook/useInfiniteProducts";
 
 // ✅ EXISTING recent products slider component
 import RecentProductsSlider from "@/components/home/RecentProductsSlider";
+import { useEffect, useState } from "react";
+import { Render } from "@measured/puck";
+
+import { puckConfig } from "@/cms/puck.config";
 
 const categories = [
   { name: "Men", image: "/images/men.png" },
@@ -41,6 +45,13 @@ const {
 
 const initialLoading = isLoading && products.length === 0;
 const loadingMore = isLoadingMore;
+const [cmsData, setCmsData] = useState<any>(null);
+
+useEffect(() => {
+  fetch("/api/cms/home")
+    .then(res => res.json())
+    .then(data => setCmsData(data));
+}, []);
 
 
 
@@ -81,10 +92,26 @@ const loadingMore = isLoadingMore;
           </div>
         </div>
 
-<div className="lg:-mt-10">
 
-  <Hero />
+
+<div className="lg:-mt-10">
+ {cmsData && (
+  <Render
+    config={puckConfig}
+    data={{
+      ...cmsData,
+      content: cmsData.content.filter(
+        (block: any, index: number) =>
+          block.type !== "HeroBanner" || index === 0
+      ),
+    }}
+  />
+)}
+
 </div>
+
+
+
 
 
        {/* ✅ Recent Products Slider */}
