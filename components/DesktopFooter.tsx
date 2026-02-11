@@ -9,9 +9,9 @@ export default function DesktopFooter() {
 
         {/* BRAND */}
       <div>
-  <div className="w-32 h-12 mb-2">
+  <div className="w-60 h-20 mb-2">
     <img
-      src="/images/arunodaya.png"
+      src="/images/arclogo4.png"
       alt="Arunodaya Logo"
       className="h-full w-auto object-contain"
     />

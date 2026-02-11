@@ -20,6 +20,7 @@ export interface Product {
   price: number;
   images?: string[];
   availableSizes?: string[];
+  mrp?: number; 
 }
 export interface BagItem {
   id: string;

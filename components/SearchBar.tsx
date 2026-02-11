@@ -22,13 +22,9 @@ type SearchResult =
   | { kind: "trending"; text: string };
 
 const DEFAULT_TRENDING = [
-  "Silk Saree",
-  "Cotton Saree",
-  "Men's Kurta",
-  "Kids Wear",
-  "Bedsheets",
-  "Mats",
-  "T-Shirts",
+  "Men",
+  "Women",
+  "Kids",
 ];
 
 

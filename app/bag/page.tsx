@@ -26,8 +26,21 @@ export default function BagPage() {
   const { wishlist, toggleWishlist } = useWishlist();
 
   // --- Discount logic (can move into context if global) ---
-  const discount = subtotal > 10000 ? 200 : 0;
-  const finalTotal = total - discount;
+
+  const totalMRP = bagItems.reduce((sum, item) => {
+  const mrp = item.product.mrp ?? item.price; // fallback safety
+  return sum + mrp * item.quantity;
+}, 0);
+
+const totalSelling = bagItems.reduce((sum, item) => {
+  return sum + item.price * item.quantity;
+}, 0);
+
+const totalDiscount = totalMRP - totalSelling;
+
+// keep shipping logic
+const finalOrderTotal = totalSelling + shipping;
+
 
   // --- Handlers ---
 const handleQuantity = (uniqueKey: string, change: number) => {
@@ -69,7 +82,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
       <CheckoutStepper />
       <div className="flex flex-col items-center justify-center h-[70vh] text-center p-4">
         <img
-          src="/images/empty-bag.png"
+          src="/images/empty-bag1.png"
           alt="Empty bag"
           className="w-70 mb-6"
         />
@@ -77,9 +90,9 @@ const handleQuantity = (uniqueKey: string, change: number) => {
         
         <Link
           href="/"
-          className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
+          className="bg-gradient-to-r text-white from-gray-700 via-gray-800 to-gray-900 text-gray-900 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
         >
-          Start Shopping 🛍️
+          BROWSE THE DROP 🛍️
         </Link>
       </div>
       </div>
@@ -218,78 +231,106 @@ const handleQuantity = (uniqueKey: string, change: number) => {
                 {wishlist.length} items in Wishlist
               </p>
               <Link href="/wishlist">
-                <button className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 px-4 py-2 font-semibold rounded-xl transition transform hover:-translate-y-0.5">
+                <button className="bg-gradient-to-r from-gray-600 via-gray-800 to-gray-900 text-white px-4 py-2 font-semibold rounded-xl transition transform hover:-translate-y-0.5">
                   Add from Wishlist
                 </button>
               </Link>
             </div>
           )}
 
-          {/* Price Details */}
-          <div className="bg-white shadow-md p-8 space-y-3">
-            <h2 className="font-medium text-gray-800">
-              Price Details ({totalCount} items)
-            </h2>
-            <div className="flex justify-between text-sm text-gray-700">
-              <span>Total Product Price</span>
-              <span>₹{subtotal}</span>
-            </div>
-          <div className="flex justify-between text-sm text-gray-700">
+        {/* ================= PRICE DETAILS ================= */}
+<div className="bg-white shadow-md p-8 space-y-4">
+  <h2 className="font-medium text-gray-800">
+    Price Details ({totalCount} item{totalCount > 1 ? "s" : ""})
+  </h2>
+
+  <div className="flex justify-between text-sm text-gray-700">
+    <span>Total Product Price (MRP)</span>
+    <span>₹{totalMRP}</span>
+  </div>
+
+  {totalDiscount > 0 && (
+    <>
+      <div className="flex justify-between text-sm text-green-600">
+        <span>Total Discounts</span>
+        <span>- ₹{totalDiscount}</span>
+      </div>
+
+      <p className="text-xs text-green-700">
+        You saved ₹{totalDiscount} on this order 🎉
+      </p>
+    </>
+  )}
+
+ <div className="flex justify-between text-sm text-gray-700">
   <span>
     Shipping{" "}
-    {subtotal <= 1000 && (
-      <span className="text-xs text-gray-500">(Free above ₹1000)</span>
-    )}
+    <span className="text-xs text-gray-500">
+      (Free above ₹1000)
+    </span>
   </span>
+
   <span>
     {shipping === 0 ? (
       <span className="text-green-600 font-medium">FREE</span>
     ) : (
-      `₹${shipping}`
+      <span>+ ₹{shipping}</span>
     )}
   </span>
 </div>
 
-            <div className="flex justify-between text-sm text-green-600">
-              <span>Total Discounts</span>
-              <span>- ₹{discount}</span>
-            </div>
-            <hr />
-            <div className="flex justify-between font-semibold text-gray-900 text-lg">
-              <span>Order Total</span>
-              <span>₹{finalTotal}</span>
-            </div>
 
-            {/* Desktop Button */}
-            <div className="hidden lg:block mt-4">
-              <Link
-                href={{
-                  pathname: "/checkout/address",
-                  query: { subtotal, shipping, discount, total: finalTotal, totalCount },
-                }}
-              >
-                <button className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-3 hover:shadow-lg transition">
-                  Continue
-                </button>
-              </Link>
-            </div>
-          </div>
+  <hr />
+
+  <div className="flex justify-between text-lg font-semibold text-gray-900">
+    <span>Order Total</span>
+    <span>₹{finalOrderTotal}</span>
+  </div>
+
+  {/* Desktop Button */}
+  <div className="hidden lg:block mt-4">
+    <Link
+      href={{
+        pathname: "/checkout/address",
+        query: {
+          subtotal: totalSelling,
+          shipping,
+          discount: totalDiscount,
+          total: finalOrderTotal,
+          totalCount,
+        },
+      }}
+    >
+      <button className="w-full bg-gradient-to-r from-gray-600 via-yellow-800 to-yellow-900 text-gray-900 font-semibold py-3 hover:shadow-lg transition">
+        Continue
+      </button>
+    </Link>
+  </div>
+</div>
+
         </div>
       </div>
 
       {/* Mobile Sticky Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md z-50 flex lg:hidden">
-        <div className="flex-1 text-center py-4 font-semibold text-lg text-gray-900 border-r">
-          ₹{finalTotal}
-        </div>
+        <div className="flex-1 text-center py-4 font-semibold text-lg">
+  ₹{finalOrderTotal}
+</div>
+
         <Link
           href={{
             pathname: "/checkout/address",
-            query: { subtotal, shipping, discount, total: finalTotal, totalCount },
+            query: {
+  subtotal: totalSelling,
+  shipping,
+  discount: totalDiscount,
+  total: finalOrderTotal,
+  totalCount,
+},
           }}
           className="flex-1"
         >
-         <button disabled={isSyncing} className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition">
+         <button disabled={isSyncing} className="w-full h-full bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 text-white font-semibold py-4 shadow-lg hover:shadow-xl transition">
             Continue
           </button>
         </Link>

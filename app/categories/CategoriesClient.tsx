@@ -138,15 +138,15 @@ export default function CategoriesPage() {
               onMouseEnter={() => handleMainClick(cat.name)}
               className={`flex flex-col items-center cursor-pointer text-xs font-medium transition ${
                 activeMain === cat.name
-                  ? "text-yellow-600"
-                  : "text-gray-700 hover:text-green-600"
+                  ? "text-gray-900"
+                  : "text-gray-700 hover:text-gray-600"
               }`}
             >
               
               <div
                 className={`w-14 h-14 flex items-center justify-center rounded-lg overflow-hidden border shadow-sm mb-1 transition ${
                   activeMain === cat.name
-                    ? "ring-2 ring-yellow-500"
+                    ? "ring-2 ring-gray-900"
                     : "hover:ring-1 hover:ring-gray-300"
                 }`}
               >
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
       >
         {/* Breadcrumbs */}
         <div className="mb-6 text-sm text-gray-500">
-          <Link href="/categories" className="hover:text-green-600">Categories</Link>
+          <Link href="/categories" className="hover:text-gray-600">Categories</Link>
           {path.map((p, idx) => (
             <span key={getCategoryId(p, path.slice(0, idx))}>
               {" > "}
@@ -180,7 +180,7 @@ export default function CategoriesPage() {
               ) : (
                 <Link
                   href={`/categories/${path.slice(0, idx + 1).map((s) => s.name.toLowerCase().replace(/\s+/g, "-")).join("/")}`}
-                  className="hover:text-green-600"
+                  className="hover:text-gray-600"
                 >
                   {p.name}
                 </Link>
@@ -196,10 +196,10 @@ export default function CategoriesPage() {
               key={cat.name}
               ref={(el) => { sectionRefs.current[cat.name] = el; }}
               className={`space-y-4 scroll-mt-20 rounded-lg p-3 transition ${
-                isActive ? "bg-yellow-50 border border-yellow-200" : ""
+                isActive ? "bg-gray-50 border border-gray-900" : ""
               }`}
             >
-              <h2 className={`text-lg font-semibold border-b pb-1 ${isActive ? "text-yellow-700" : "text-gray-800"}`}>
+              <h2 className={`text-lg font-semibold border-b pb-1 ${isActive ? "text-gray-700" : "text-gray-800"}`}>
                 {cat.name}
               </h2>
               <div className="grid grid-cols-3 gap-4">

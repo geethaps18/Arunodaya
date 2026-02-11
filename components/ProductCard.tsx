@@ -2,34 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
-import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 
 import { useWishlist } from "@/app/context/WishlistContext";
-import { useCart } from "@/app/context/BagContext";
 import { ProductCardProduct } from "@/types/product-card";
 
 interface ProductCardProps {
   product: ProductCardProduct;
-  wishlist?: boolean;
-  onWishlistToggle?: () => void;
-  
 }
 
-export default function ProductCard({
-  product,
-  wishlist: wishlistProp,
-  onWishlistToggle,
-}: ProductCardProps) {
-  const { wishlist: wishlistContext, toggleWishlist } = useWishlist();
-  const { setBagItems } = useCart();
+export default function ProductCard({ product }: ProductCardProps) {
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
 
   const [hovered, setHovered] = useState(false);
   const [rating, setRating] = useState(product.rating ?? 0);
   const [reviewCount, setReviewCount] = useState(product.reviewCount ?? 0);
+
+  const liked = isInWishlist(product.id);
 
   /* -------------------- FETCH RATING -------------------- */
   useEffect(() => {
@@ -46,10 +38,10 @@ export default function ProductCard({
     };
     fetchRating();
   }, [product.id]);
-  const isMobile =
-  typeof window !== "undefined" &&
-  window.matchMedia("(hover: none)").matches;
 
+  const isMobile =
+    typeof window !== "undefined" &&
+    window.matchMedia("(hover: none)").matches;
 
   /* -------------------- IMAGES -------------------- */
   const images =
@@ -60,9 +52,6 @@ export default function ProductCard({
   const mainImage = hovered ? images[1] ?? images[0] : images[0];
 
   /* -------------------- WISHLIST -------------------- */
-  const liked =
-    wishlistProp ?? wishlistContext.some((p) => p.id === product.id);
-
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -73,11 +62,15 @@ export default function ProductCard({
       return;
     }
 
-    if (onWishlistToggle) onWishlistToggle();
-    else toggleWishlist(product);
+    toggleWishlist({
+      id: product.id,
+      name: product.name,
+      images: product.images,
+      price: product.price,
+    });
   };
 
-  /* -------------------- VARIANT SIZES (CORRECT) -------------------- */
+  /* -------------------- VARIANT SIZES -------------------- */
   const variantSizes: string[] = Array.from(
     new Set(
       product.variants
@@ -86,121 +79,93 @@ export default function ProductCard({
     )
   );
 
-  /* -------------------- ADD TO BAG -------------------- */
-
-  /* ==================== JSX ==================== */
   return (
-<Link
-  href={`/product/${product.id}`}
-  className="cursor-pointer w-full p-0.5 block touch-manipulation"
-  onMouseEnter={() => !isMobile && setHovered(true)}
-  onMouseLeave={() => !isMobile && setHovered(false)}
->
-
+    <Link
+      href={`/product/${product.id}`}
+      className="block w-full cursor-pointer touch-manipulation"
+      onMouseEnter={() => !isMobile && setHovered(true)}
+      onMouseLeave={() => !isMobile && setHovered(false)}
+    >
       {/* IMAGE */}
       <div className="relative w-full aspect-[4/5] bg-white overflow-hidden">
-      <img
-  src={mainImage}
-  alt={product.name}
-  className="w-full h-full object-cover transition-transform duration-500 pointer-events-none"
-/>
+        <img
+          src={mainImage}
+          alt={product.name}
+          className={`w-full h-full object-cover transition-transform duration-700 ease-out pointer-events-none ${
+            hovered ? "scale-[1.04]" : "scale-100"
+          }`}
+        />
 
-
-        {/* HEART */}
+        {/* WISHLIST */}
         <div className="absolute top-3 right-3 z-20">
           <button
             onClick={handleWishlistClick}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/80 backdrop-blur ring-1 ring-gray-300 shadow hover:scale-110 transition"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/70 backdrop-blur transition-opacity duration-300 opacity-80 hover:opacity-100"
           >
             <Heart
-              className={`h-4 w-4 ${
-                liked
-                  ? "text-rose-500 fill-rose-500"
-                  : "text-gray-400"
+              className={`h-4 w-4 transition-colors ${
+                liked ? "text-black fill-black" : "text-gray-500"
               }`}
             />
           </button>
         </div>
 
-   
-
-
-       {/* SIZES (from variants) */}
-{/* SIZES (display only, not clickable) */}
-<div
-  className={`absolute bottom-0 left-0 right-0 flex flex-wrap justify-center gap-1 p-2 bg-white/80 backdrop-blur-md transition-all duration-300 ${
-    !isMobile && hovered
-      ? "opacity-95 translate-y-0"
-      : "opacity-0 translate-y-full"
-  }`}
->
-  {variantSizes.length > 0 ? (
-    variantSizes.map((size) => (
-      <span
-        key={size}
-        className="text-gray-500 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 cursor-default select-none pointer-events-none"
-      >
-        {size}
-      </span>
-    ))
-  ) : (
-    <span className="text-gray-500 text-xs md:text-sm font-medium px-2 py-1 rounded border border-gray-300 cursor-default select-none pointer-events-none">
-      One Size
-    </span>
-  )}
-</div>
-
-
+        {/* SIZES (CAVA STYLE) */}
+        <div
+          className={`absolute bottom-3 left-1/2 -translate-x-1/2 text-xs tracking-wide text-gray-700 bg-white/80 backdrop-blur px-3 py-1 transition-opacity duration-300 ${
+            !isMobile && hovered ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {variantSizes.length > 0
+            ? `Sizes ${variantSizes.join(" / ")}`
+            : "One Size"}
+        </div>
       </div>
 
       {/* INFO */}
-      <div className="p-3">
-        <h3 className="line-clamp-1 text-[#111111] text-sm md:text-base font-light">
+      <div className="pt-3">
+        <h3 className="line-clamp-1 text-[#111111] text-sm md:text-base font-normal">
           {product.name}
         </h3>
 
-  <div className="flex items-center gap-2 mt-1">
-  <p className="text-xs uppercase tracking-wide text-gray-500">
-    {product.brandName ?? "ARUNODAYA"}
-  </p>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="text-[11px] uppercase tracking-widest text-gray-500">
+            {product.brandName ?? "ARUNODAYA"}
+          </p>
 
-  {rating > 0 && (
-    <div className="flex items-center gap-1 text-[12px] text-gray-500">
-      <span className="font-medium text-gray-700">
-        {rating.toFixed(1)}
-      </span>
-      <span className="leading-none text-gray-400">★</span>
-      {reviewCount > 0 && (
-        <span className="text-gray-400">
-          ({reviewCount})
-        </span>
-      )}
-    </div>
-  )}
-</div>
+          {rating > 0 && (
+            <div className="flex items-center gap-1 text-[11px] text-gray-500">
+              <span className="text-gray-700 font-medium">
+                {rating.toFixed(1)}
+              </span>
+              <span className="text-gray-400">•</span>
+              {reviewCount > 0 && (
+                <span className="text-gray-400">
+                  {reviewCount}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
-
-
-
-        {/* PRICE */}
-<div className="flex items-center gap-2 mt-2">
-  {product.mrp && product.mrp > product.price && (
-    <span className="text-gray-500 line-through text-xs md:text-sm font-light">
-      ₹{product.mrp.toLocaleString("en-IN")}
-    </span>
-  )}
-
-  <span className="text-gray-900 text-sm md:text-base font-medium">
-    ₹{product.price.toLocaleString("en-IN")}
+        <div className="flex items-center gap-2 mt-2">
+              {product.mrp && product.mrp > product.price && (
+            <span className="text-gray-400 line-through text-xs md:text-sm">
+              ₹{product.mrp.toLocaleString("en-IN")}
+            </span>
+          )}
+        
+          <span className="text-gray-900 text-sm md:text-base font-medium">
+            ₹{product.price.toLocaleString("en-IN")}
+          </span>
+            {product.discount && product.discount > 0 && (
+  <span className="text-[11px] tracking-wide text-gray-500">
+    {product.discount}% off
   </span>
+)}
+      
 
-  {product.discount && product.discount > 0 && (
-    <span className="text-[#CDAF5A] text-xs md:text-sm font-semibold">
-      {product.discount}% OFF
-    </span>
-  )}
-</div>
-
+        </div>
       </div>
     </Link>
   );

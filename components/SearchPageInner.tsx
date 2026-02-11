@@ -49,7 +49,7 @@ export default function SearchPageInner() {
           </p>
           <button
             onClick={() => (window.location.href = "/")}
-            className="mt-4 px-5 py-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition"
+            className="mt-4 px-5 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-900 transition"
           >
             Go Back Home 🏠
           </button>

@@ -62,7 +62,7 @@ export default function OrderSuccessPage() {
           <Link
             href="/"
             prefetch={false}
-            className="flex-1 text-center bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition"
+            className="flex-1 text-center bg-gray-800 text-white font-semibold py-3 rounded-lg hover:bg-gray-900 transition"
           >
             Continue Shopping
           </Link>
@@ -70,7 +70,7 @@ export default function OrderSuccessPage() {
           <Link
             href="/orders"
             prefetch={false}
-            className="flex-1 text-center bg-yellow-400 text-black font-semibold py-3 rounded-lg hover:bg-yellow-500 transition"
+            className="flex-1 text-center bg-gray-800 text-white font-semibold py-3 rounded-lg hover:bg-gray-900 transition"
           >
             View My Orders
           </Link>

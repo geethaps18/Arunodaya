@@ -67,12 +67,12 @@ export default function Sidebar({
           <Link href="/" className="flex flex-col gap-1">
             <div className="h-10">
               <img
-                src="/images/arunodaya.png"
+                src="/images/arclogo1.png"
                 alt="Arunodaya Logo"
-                className="max-h-full object-contain"
+                className="w-full h-full object-cover"
               />
             </div>
-            <span className="text-xs text-gray-500">Admin Panel</span>
+            <span className="text-xs text-gray-500 ">Admin Panel</span>
           </Link>
 
           {/* Close (mobile only) */}
@@ -99,7 +99,7 @@ export default function Sidebar({
                 className={clsx(
                   "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                   isActive
-                    ? "bg-yellow-500 text-white font-medium"
+                    ? "bg-gray-900 text-white font-medium"
                     : "text-gray-700 hover:bg-gray-100"
                 )}
               >

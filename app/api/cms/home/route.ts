@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+const EMPTY_PUCK_DATA = {
+  root: { props: {} },
+  content: [],
+  zones: {},
+};
+
 // SAVE CMS DATA
 export async function POST(req: Request) {
   const data = await req.json();
@@ -23,5 +29,5 @@ export async function GET() {
     where: { slug: "home" },
   });
 
-  return NextResponse.json(page?.content || { content: [] });
+  return NextResponse.json(page?.content ?? EMPTY_PUCK_DATA);
 }

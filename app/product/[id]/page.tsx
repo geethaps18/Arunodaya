@@ -141,10 +141,11 @@ export default function ProductDetailPage() {
   const params = useParams<{ id?: string }>();
   const id = params?.id;
 
+const { wishlist, toggleWishlist, isInWishlist } = useWishlist();
 
-  const { wishlist, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
   const router = useRouter();
+
 
 
  const [product, setProduct] = useState<ProductWithReviews | null>(() => {
@@ -153,6 +154,7 @@ export default function ProductDetailPage() {
   }
   return null;
 });
+const [showStickyVariantPicker, setShowStickyVariantPicker] = useState(false);
 
   const [similarProducts, setSimilarProducts] = useState<ProductType[]>([]);
   const [networkError, setNetworkError] = useState<string>("");
@@ -285,6 +287,11 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+useEffect(() => {
+  if (selectedVariant) {
+    setShowStickyVariantPicker(false);
+  }
+}, [selectedVariant]);
 
 
 
@@ -399,11 +406,16 @@ const getVariantPriceBySize = (size: string) => {
 // ✅ NOW the early return is SAFE
 if (!product) {
   return (
-    <div className="flex justify-center items-center h-[60vh]">
-      <LoadingRing />
+    <div className="min-h-screen bg-white pt-20 md:pt-24">
+      <Header productName="" />
+
+      <div className="flex justify-center items-center h-[calc(100vh-120px)]">
+        <LoadingRing />
+      </div>
     </div>
   );
 }
+
 
 
 // ✅ Product-level out of stock (ALL variants = 0)
@@ -421,7 +433,10 @@ const disableAddToBag =
 
 
 
-  const isWishlisted = wishlist.some((p) => p.id === product.id);
+
+
+const isWishlisted = isInWishlist(product.id);
+
 
 const price = effectivePrice;
 
@@ -464,23 +479,43 @@ const discount =
     1: "Poor",
   };
 
-  const handleWishlistClick = () => {
+const handleWishlistClick = () => {
   const token = getCookie("token");
 
   if (!token) {
-    router.push("/login?redirect=product");
+    router.push("/login?redirect=wishlist");
     return;
   }
 
- toggleWishlist({
-  id: product.id,
-  name: product.name,
-  images: product.images,
-    price: effectivePrice,
-});
+  const wishlistImages =
+    selectedVariant?.images && selectedVariant.images.length > 0
+      ? selectedVariant.images
+      : product.images;
 
- 
+  toggleWishlist({
+    id: product.id,
+    name: product.name,
+    images: wishlistImages,
+    price: effectivePrice,
+  });
+
+  toast.success(
+    isWishlisted ? "Removed from wishlist" : "Added to wishlist"
+  );
 };
+const isVariantSelectionInvalid = () => {
+  // Product has variants but nothing selected
+  if (variants.length > 0 && !selectedVariant) return true;
+
+  // Product has sizes but size not selected
+  if (product.sizes?.length > 0 && !selectedSize) return true;
+
+  // Selected variant is out of stock
+  if (selectedVariant && (selectedVariant.stock ?? 0) <= 0) return true;
+
+  return false;
+};
+
 const handleAddToBagWithLoginCheck = () => {
   const token = getCookie("token");
 
@@ -491,6 +526,49 @@ const handleAddToBagWithLoginCheck = () => {
 
   handleAddToBag();
 };
+
+const handleAddToBagOnly = () => {
+  const token = getCookie("token");
+  if (!token) {
+    router.push("/login?redirect=address");
+    return;
+  }
+
+  handleAddToBag(); // existing logic already pushes to /bag
+};
+
+const handleBuyNow = () => {
+  const token = getCookie("token");
+  if (!token) {
+    router.push("/login?redirect=address");
+    return;
+  }
+
+  if (!selectedVariant) {
+    toast.error("Please select variant");
+    return;
+  }
+
+  const buyNowItem = {
+    id: product.id,
+    name: product.name,
+    price: effectivePrice,
+    quantity: 1,
+    size: selectedSize,
+    color: selectedColor,
+    variantId: selectedVariant.id,
+    images:
+      selectedVariant.images?.length
+        ? selectedVariant.images
+        : product.images,
+  };
+
+  // ✅ TEMP STORAGE (IMPORTANT)
+  sessionStorage.setItem("BUY_NOW_ITEM", JSON.stringify(buyNowItem));
+
+  router.push("/checkout/address?mode=buynow");
+};
+
 
 
 const sizes = Array.from(
@@ -541,49 +619,45 @@ const getImagesForBag = () => {
 };
 
 const handleAddToBag = () => {
-  // ❌ Variant missing
   if (!selectedVariant) {
     toast.error("Please select color");
     return;
   }
 
-  // ❌ Size NOT selected (CRITICAL)
   if (product.sizes?.length > 0 && !selectedSize) {
     setSizeError(true);
     toast.error("Please select size");
     return;
   }
 
+  if ((selectedVariant.stock ?? 0) <= 0) {
+    toast.error("Selected variant is out of stock");
+    return;
+  }
+
   setAddingToBag(true);
 
- if (!selectedVariant) {
-  toast.error("Please select color and size");
-  return;
-}
+  const finalImages =
+    selectedVariant.images && selectedVariant.images.length > 0
+      ? selectedVariant.images
+      : product.images;
 
-const finalImages =
-  selectedVariant?.images && selectedVariant.images.length > 0
-    ? selectedVariant.images
-    : product.images;
-
-addToCart(
-  {
-    id: product.id,
-    name: product.name,
-    price: effectivePrice, // base fallback only
-    images: finalImages,
-    availableSizes: product.sizes,
-  },
-  effectivePrice,          // ✅ PRICE ARG
-  selectedSize!,
-  selectedColor,
-  selectedVariant.id,
-  finalImages,
-  selectedVariant.stock
-);
-;
-
-
+  addToCart(
+    {
+      id: product.id,
+      name: product.name,
+      mrp: product.mrp,
+      price: effectivePrice,
+      images: finalImages,
+      availableSizes: product.sizes,
+    },
+    effectivePrice,
+    selectedSize!,
+    selectedColor,
+    selectedVariant.id,
+    finalImages,
+    selectedVariant.stock
+  );
 
   router.push("/bag");
 };
@@ -652,14 +726,75 @@ console.log(product.fit, product.fabricCare, product.features);
         </div>
       </div>
 
+{showStickyVariantPicker && (
+  <div className="flex items-center gap-4 mr-4">
+
+    {/* COLOR */}
+    {colors.length > 0 && (
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500">Color</span>
+        {colors.map(color => (
+          <button
+            key={color}
+            onClick={() => {
+              setSelectedColor(color);
+              setSelectedSize(null);
+              setSelectedVariant(null);
+            }}
+            className={`h-6 w-6 rounded-full border
+              ${selectedColor === color ? "ring-2 ring-black" : ""}`}
+            style={{ backgroundColor: getColorHex(color) }}
+          />
+        ))}
+      </div>
+    )}
+
+    {/* SIZE */}
+    {sizes.length > 0 && (
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-gray-500">Size</span>
+        {sizes.map(size => {
+          const v = getVariantBySize(size);
+          const disabled = !v || (v.stock ?? 0) <= 0;
+
+          return (
+            <button
+              key={size}
+              disabled={disabled}
+              onClick={() => {
+                setSelectedSize(size);
+                setSelectedVariant(v);
+              }}
+              className={`px-2 py-1 text-xs border rounded
+                ${selectedSize === size ? "border-black" : "border-gray-300"}
+                ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
+            >
+              {size}
+            </button>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
       {/* RIGHT: BUTTON */}
-      <button
-        onClick={handleAddToBagWithLoginCheck}
-        disabled={addingToBag}
-        className="px-6 py-2 text-sm font-semibold rounded-md bg-gradient-to-r from-yellow-300 to-yellow-500"
-      >
-        {addingToBag ? "Added!" : "Add to Bag"}
-      </button>
+<button
+  onClick={() => {
+    if (isVariantSelectionInvalid()) {
+      setShowStickyVariantPicker(true);
+      return;
+    }
+    handleBuyNow();
+  }}
+  disabled={disableAddToBag}
+  className="px-6 py-2 text-sm font-semibold rounded-md
+             bg-gradient-to-r from-gray-800 to-black text-white"
+>
+  Buy Now
+</button>
+
+
 
     </div>
   </div>
@@ -700,11 +835,8 @@ console.log(product.fit, product.fabricCare, product.features);
         />
       ) : (
         
-        <img
-          src={item.src}
-          alt=""
-          className="w-full aspect-[3/4] object-cover"
-        />
+       <ZoomImage src={item.src} alt={product.name} />
+
       )}
     </SwiperSlide>
   ))}
@@ -761,10 +893,52 @@ console.log(product.fit, product.fabricCare, product.features);
 
 
           <div ref={infoRef}>
-            <div className="flex justify-between items-center">
-              <h1 className="text-lg font-light tracking-tight">{product.name}</h1>
-              <Share2 className="h-5 w-5 text-gray-700" />
-            </div>
+          <div className="flex justify-between items-center">
+  <h1 className="text-lg font-light tracking-tight">
+    {product.name}
+  </h1>
+
+  {/* ACTIONS */}
+  <div className="flex items-center gap-4">
+    {/* Wishlist */}
+<button
+  type="button"
+  onClick={handleWishlistClick}
+  className="p-1"
+  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+>
+  <Heart
+    className={`h-5 w-5 transition duration-200 ${
+      isWishlisted
+        ? "text-black fill-black"
+        : "text-gray-700"
+    }`}
+  />
+</button>
+
+
+
+    {/* Share */}
+    <button
+      onClick={() => {
+        if (navigator.share) {
+          navigator.share({
+            title: product.name,
+            url: window.location.href,
+          });
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          toast.success("Link copied to clipboard");
+        }
+      }}
+      className="p-1"
+      aria-label="Share product"
+    >
+      <Share2 className="h-5 w-5 text-gray-700" />
+    </button>
+  </div>
+</div>
+
 
             <div className="flex items-center gap-2 mt-1">
             {mrp && mrp > price ? (
@@ -776,14 +950,9 @@ console.log(product.fit, product.fabricCare, product.features);
     Best Price
   </span>
 )}
-
-
-
-
-
               <span className="text-gray-900">Rs.{price}</span>
               {discount > 0 && (
-                <span className="text-yellow-600 text-xs font-semibold">{discount}% OFF</span>
+                <span className="text-gray-500 text-xs font-semibold">{discount}% off</span>
               )}
             </div>
           </div>
@@ -959,24 +1128,27 @@ console.log(product.fit, product.fabricCare, product.features);
     🔔 Remind Me
   </button>
 ) : (
-  <div className="flex flex-col gap-3 mt-4">
-    <button
-      onClick={handleWishlistClick}
-      className="flex-1 bg-white ring-1 ring-black/10 py-3 flex items-center justify-center gap-2 rounded-md"
-    >
-      <Heart className={`h-5 w-5 ${isWishlisted ? "text-red-500 fill-red-500" : "text-gray-700"}`} />
-      {isWishlisted ? "Wishlisted" : "Wishlist"}
-    </button>
+ <div className="flex flex-col gap-3 mt-4">
+  {/* ADD TO BAG */}
+  <button
+    onClick={handleAddToBagOnly}
+    disabled={disableAddToBag || addingToBag}
+    className="w-full py-3 text-sm font-medium rounded-md border border-gray-900 text-gray-900 hover:bg-gray-50 transition"
+  >
+    <ShoppingBag className="inline w-5 h-5 mr-2 " />
+     Add to Bag
+  </button>
 
-    <button
-      onClick={handleAddToBagWithLoginCheck}
-      disabled={addingToBag}
-      className="flex-1 py-3 text-sm font-semibold rounded-md bg-gradient-to-r from-yellow-300 to-yellow-500"
-    >
-      <ShoppingBag className="inline w-5 h-5 mr-2" />
-      {addingToBag ? "Added!" : "Add to Bag"}
-    </button>
-  </div>
+  {/* BUY NOW */}
+  <button
+    onClick={handleBuyNow}
+    disabled={disableAddToBag || addingToBag}
+    className="w-full py-3 text-sm font-semibold rounded-md bg-gradient-to-r from-gray-800 to-black text-white"
+  >
+     Buy Now
+  </button>
+</div>
+
 )}
 
     
@@ -1032,26 +1204,25 @@ console.log(product.fit, product.fabricCare, product.features);
     </button>
   ) : (
     <>
-      <button
-        onClick={handleWishlistClick}
-        className="w-1/2 bg-white ring-1 ring-black/10 py-3 flex items-center justify-center gap-2 rounded-md"
-      >
-        <Heart
-          className={`h-5 w-5 ${
-            isWishlisted ? "text-red-500 fill-red-500" : "text-gray-700"
-          }`}
-        />
-        Wishlist
-      </button>
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white flex gap-2 p-3 z-50">
+  <button
+    onClick={handleAddToBagOnly}
+    disabled={disableAddToBag}
+    className="w-1/2 py-3 text-sm font-medium border border-gray-900 rounded-md"
+  >
+    <ShoppingBag className="inline w-5 h-5 mr-2" />
+     Add to Bag
+  </button>
 
-      <button
-        onClick={handleAddToBagWithLoginCheck}
-        disabled={addingToBag}
-        className="w-1/2 py-3 text-sm font-semibold rounded-md bg-gradient-to-r from-yellow-300 to-yellow-500"
-      >
-        <ShoppingBag className="inline w-5 h-5 mr-2" />
-        Add to Bag
-      </button>
+  <button
+    onClick={handleBuyNow}
+    disabled={disableAddToBag}
+    className="w-1/2 py-3 text-white text-sm font-semibold rounded-md bg-gradient-to-r from-gray-800 to-black"
+  >
+   Buy Now
+  </button>
+</div>
+
     </>
   )}
 </div>

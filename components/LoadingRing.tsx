@@ -9,8 +9,8 @@ export default function LoadingRing() {
         .loader {
           width: 36px;
           height: 36px;
-          border: 4px solid #f0f0f0;
-          border-top-color: #fbbf24; /* gold/yellow */
+          border: 4px solid rgba(0, 0, 0, 0.15); /* neutral ring */
+          border-top-color: #000000;           /* PURE black */
           border-radius: 50%;
           animation: spin 0.9s linear infinite;
         }

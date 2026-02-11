@@ -233,7 +233,7 @@ return (
 ) : isWishlistReady && wishlist.length === 0 ? (
   <div className="flex flex-col items-center justify-center mt-20 text-center">
     <img
-      src="/images/empty-wishlist.png"
+      src="/images/empty-wishlist1.png"
       className="w-80 h-80 mb-6"
       alt="Empty wishlist"
     />
@@ -242,7 +242,7 @@ return (
     </h2>
     <Link
       href="/"
-      className="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600"
+      className="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900"
     >
       Add Products You Love
     </Link>
@@ -253,12 +253,11 @@ return (
       const isPendingRemove = pendingRemovals.includes(product.id);
 
       return (
-        <ProductCard
-          key={product.id}
-          product={product}
-          wishlist={!isPendingRemove}
-          onWishlistToggle={() => handleHeartClick(product)}
-        />
+       <ProductCard
+  key={product.id}
+  product={product}
+/>
+
       );
     })}
   </div>

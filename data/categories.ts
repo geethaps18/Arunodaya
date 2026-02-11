@@ -56,28 +56,7 @@ export const categories: SubCategory[] = [
       { id: genId(), name: "Shorts", image: "/images/short-men.png", subCategories: []},
     ],
   },
-  {
-    id: genId(),
-    name: "Saree",
-    image: "/images/saree.png",
-    subCategories: [
-      { id: genId(), name: "Fancy Sarees", image: "/images/fancy-saree.png", subCategories: [] },
-      {
-        id: genId(),
-        name: "Silk Sarees",
-        image: "/images/silk-saree.png",
-        subCategories: [
-          { id: genId(), name: "Art Silk", image: "/images/art-silk-saree.png", subCategories: [] },
-          { id: genId(), name: "Semi Silk", image: "/images/semi-silk.png", subCategories: [] },
-          { id: genId(), name: "Kanchipuram Pure Silk", image: "/images/kanchipuram.png", subCategories: [] },
-          { id: genId(), name: "Pure Crepe Silk", image: "/images/crepe-silk.png", subCategories: [] },
-          { id: genId(), name: "Soft Silk", image: "/images/soft-silk.png", subCategories: [] },
-        ],
-      },
-      { id: genId(), name: "Designer Sarees", image: "/images/designer-saree.png", subCategories: [] },
-      { id: genId(), name: "Cotton Sarees", image: "/images/cotton-saree.png", subCategories: [] },
-    ],
-  },
+  
   {
     id: genId(),
     name: "Ethnic",
@@ -207,15 +186,5 @@ export const categories: SubCategory[] = [
       { id: genId(), name: "Bath & Towels", image: "/images/bath.png", subCategories: [] },
     ],
   },
-  {
-    id: genId(),
-    name: "Jewellery",
-    image: "/images/jewellery.png",
-    subCategories: [
-      { id: genId(), name: "Earrings", image: "/images/earring.png", subCategories: [] },
-      { id: genId(), name: "Necklaces", image: "/images/necklace.png", subCategories: [] },
-      { id: genId(), name: "Rings & Bangles", image: "/images/rings.png", subCategories: [] },
-      { id: genId(), name: "Jewellery Sets", image: "/images/jewellery-set.png", subCategories: [] },
-    ],
-  },
+
 ];

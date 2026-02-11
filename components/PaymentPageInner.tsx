@@ -42,6 +42,8 @@ interface Address {
 export default function PaymentPageInner() {
   const router = useRouter();
   const params = useSearchParams();
+  const mode = params.get("mode");
+const isBuyNow = mode === "buynow";
 
   const [userId, setUserId] = useState<string | null>(null);
   const [bagItems, setBagItems] = useState<BagItem[]>([]);
@@ -61,7 +63,26 @@ export default function PaymentPageInner() {
   const discount = Number(params.get("discount") ?? 0);
 
   const subtotal = bagItems.reduce((acc, i) => acc + (i.price || 0) * i.quantity, 0);
-  const total = subtotal + shipping - discount;
+  // ---------------- PRICE LOGIC (SINGLE SOURCE) ----------------
+// ---------------- PRICE LOGIC (SINGLE SOURCE OF TRUTH) ----------------
+
+// Actual selling total (items only)
+const totalSelling = bagItems.reduce(
+  (sum, item) => sum + item.price * item.quantity,
+  0
+);
+
+// Shipping rule
+const shippingCharge = totalSelling >= 1000 ? 0 : 100;
+
+// Final payable amount
+const finalOrderTotal = totalSelling + shippingCharge;
+
+// For UI display
+const formattedTotal = `₹${finalOrderTotal.toFixed(2)}`;
+
+
+
 
   // Decode JWT
   useEffect(() => {
@@ -83,34 +104,66 @@ export default function PaymentPageInner() {
   }, []);
 
   // Fetch Bag
-  useEffect(() => {
-    if (!userId) return;
-    const fetchBag = async () => {
-      try {
-        const res = await fetch(`/api/bag?userId=${userId}`);
-        const data = await res.json();
-        if (data.items) {
- const mappedItems: BagItem[] = data.items.map((item: any) => ({
-  id: item.id,
-  productId: item.product.id,
-  quantity: item.quantity,
-  price: item.price, // ✅ FIXED (SOURCE OF TRUTH)
-  productName: item.product.name ?? "Product",
-  size: item.size ?? null,
-  color: item.color ?? null,
-  variantId: item.variantId ?? null
-}));
+useEffect(() => {
+  if (!userId) return;
 
+  // ==========================
+  // 🚀 BUY NOW MODE
+  // ==========================
+  if (isBuyNow) {
+    const raw = sessionStorage.getItem("BUY_NOW_ITEM");
 
-          setBagItems(mappedItems);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch bag items");
+    if (raw) {
+      const item = JSON.parse(raw);
+
+      setBagItems([
+        {
+          id: "buynow",
+          productId: item.id,
+          quantity: 1,
+          price: item.price,
+          productName: item.name,
+          size: item.size ?? null,
+          color: item.color ?? null,
+          variantId: item.variantId ?? null,
+        },
+      ]);
+    }
+
+    return; // 🔥 DO NOT FETCH BAG
+  }
+
+  // ==========================
+  // 👜 NORMAL BAG MODE
+  // ==========================
+  const fetchBag = async () => {
+    try {
+      const res = await fetch(`/api/bag?userId=${userId}`);
+      const data = await res.json();
+
+      if (data.items) {
+        const mappedItems: BagItem[] = data.items.map((item: any) => ({
+          id: item.id,
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.price,
+          productName: item.product.name ?? "Product",
+          size: item.size ?? null,
+          color: item.color ?? null,
+          variantId: item.variantId ?? null,
+        }));
+
+        setBagItems(mappedItems);
       }
-    };
-    fetchBag();
-  }, [userId]);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch bag items");
+    }
+  };
+
+  fetchBag();
+}, [userId, isBuyNow]);
+
 
   // Fetch Address
   useEffect(() => {
@@ -133,7 +186,8 @@ export default function PaymentPageInner() {
   const res = await fetch("/api/razorpay-order", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount: total }),
+   body: JSON.stringify({ amount: finalOrderTotal })
+
   });
 
   const data = await res.json();
@@ -144,7 +198,8 @@ export default function PaymentPageInner() {
 
   const options = {
     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-    amount: total * 100,
+    amount: finalOrderTotal * 100,
+
     currency: "INR",
     name: "B S CHANNABASAPPA & SONS",
     description: "Order Payment",
@@ -202,7 +257,7 @@ if (invalidItem) {
         body: JSON.stringify({
           userId,
           items: orderItems,
-          totalAmount: total,
+          totalAmount: finalOrderTotal,
           paymentMode: "COD",
           address: selectedAddress,
         }),
@@ -234,6 +289,26 @@ if (loading)
   return (
     <div className="flex flex-col min-h-screen pt-0">
       <CheckoutStepper />
+      
+      <div className="max-w-2xl mx-auto mt-4 px-4">
+  <div
+    className="flex items-center gap-3 rounded-2xl
+               bg-gradient-to-r from-amber-50 to-yellow-100
+               border border-yellow-300 px-5 py-3 shadow-sm"
+  >
+    <span className="text-2xl">🎉</span>
+
+    <div>
+      <p className="text-sm font-semibold text-gray-900">
+        Best price applied
+      </p>
+      <p className="text-xs text-gray-600">
+        Offers and discounts were applied to your order
+      </p>
+    </div>
+  </div>
+</div>
+
       <div className="max-w-2xl mx-auto p-4 flex-grow w-full">
   
 
@@ -250,51 +325,38 @@ if (loading)
               {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
             </p>
           </div>
-        )}
-
-        {/* Price Details */}
-        <div className="border p-4 rounded mb-4 bg-white">
-          <h3 className="font-semibold mb-2">Price Details</h3>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Subtotal</span>
-            <span>₹{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Shipping</span>
-            <span>₹{shipping.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Discount</span>
-            <span>- ₹{discount.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between font-bold mt-2 border-t pt-2">
-            <span>Total</span>
-            <span>₹{total.toFixed(2)}</span>
-          </div>
-        </div>
+        )}     
 
         {/* Payment Methods */}
         <div className="mb-24">
-          <h3 className="font-medium mb-3 text-lg">Choose Payment Method:</h3>
+          <h3 className="font-medium mb-3 text-lg">Choose Payment Method</h3>
 
           {/* COD */}
           <label
-            className={`flex flex-col gap-2 p-5 border rounded-lg cursor-pointer transition-all ${
-              paymentMode === "COD" ? "border-black shadow-md bg-gray-100" : "bg-white hover:shadow-md"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                value="COD"
-                checked={paymentMode === "COD"}
-                onChange={() => setPaymentMode("COD")}
-                className="accent-green-600"
-              />
-              <img src="/images/COD.png" alt="COD" className="w-8 h-8 rounded-3xl" />
-              <span className="font-medium">Cash on Delivery</span>
-            </div>
-          </label>
+  className={`flex justify-between items-center p-5 border rounded-lg cursor-pointer transition-all ${
+    paymentMode === "COD"
+      ? "border-black shadow-md bg-gray-100"
+      : "bg-white hover:shadow-md"
+  }`}
+>
+  <div className="flex items-center gap-3">
+    <input
+      type="radio"
+      value="COD"
+      checked={paymentMode === "COD"}
+      onChange={() => setPaymentMode("COD")}
+      className="accent-green-600"
+    />
+    <img src="/images/COD.png" alt="COD" className="w-8 h-8 rounded-full" />
+    <span className="font-medium">Cash on Delivery</span>
+  </div>
+
+  {/* TOTAL */}
+  <span className="text-sm font-semibold text-gray-900">
+    {formattedTotal}
+  </span>
+</label>
+
 
           {/* UPI Section */}
           <label
@@ -308,24 +370,32 @@ if (loading)
             <div className="flex flex-col gap-5">
               {["GPay", "PhonePe", "Paytm"].map((method) => (
                 <div
-                  key={method}
-                  className="flex items-center gap-3 cursor-pointer"
-                  onClick={() => setPaymentMode(method)}
-                >
-                  <input
-                    type="radio"
-                    value={method}
-                    checked={paymentMode === method}
-                    onChange={() => setPaymentMode(method)}
-                    className="accent-blue-600"
-                  />
-                  <img
-                    src={`/images/${method.toLowerCase()}.png`}
-                    alt={method}
-                    className="w-8 h-8 rounded-3xl"
-                  />
-                  <span className="font-medium">{method}</span>
-                </div>
+  key={method}
+  className="flex justify-between items-center gap-3 cursor-pointer"
+  onClick={() => setPaymentMode(method)}
+>
+  <div className="flex items-center gap-3">
+    <input
+      type="radio"
+      value={method}
+      checked={paymentMode === method}
+      onChange={() => setPaymentMode(method)}
+      className="accent-blue-600"
+    />
+    <img
+      src={`/images/${method.toLowerCase()}.png`}
+      alt={method}
+      className="w-8 h-8 rounded-full"
+    />
+    <span className="font-medium">{method}</span>
+  </div>
+
+  {/* TOTAL */}
+  <span className="text-sm font-semibold text-gray-900">
+    {formattedTotal}
+  </span>
+</div>
+
               ))}
             </div>
 
@@ -333,36 +403,40 @@ if (loading)
           </label>
 
           {/* CARD Section */}
-          <label
-            className={`flex flex-col gap-2 p-5 border rounded-lg cursor-pointer transition-all ${
-              paymentMode === "Card" ? "border-black shadow-md bg-gray-100" : "bg-white hover:shadow-md"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                value="Card"
-                checked={paymentMode === "Card"}
-                onChange={() => setPaymentMode("Card")}
-                className="accent-red-600"
-              />
-              <img src="/images/CARD.png" alt="Card" className="w-8 h-8 rounded-3xl" />
-              <span className="font-medium">Credit/Debit Card</span>
-            </div>
+      <label
+  className={`flex justify-between items-center p-5 border rounded-lg cursor-pointer transition-all ${
+    paymentMode === "Card"
+      ? "border-black shadow-md bg-gray-100"
+      : "bg-white hover:shadow-md"
+  }`}
+>
+  <div className="flex items-center gap-3">
+    <input
+      type="radio"
+      value="Card"
+      checked={paymentMode === "Card"}
+      onChange={() => setPaymentMode("Card")}
+      className="accent-red-600"
+    />
+    <img src="/images/CARD.png" alt="Card" className="w-8 h-8 rounded-full" />
+    <span className="font-medium">Credit / Debit Card</span>
+  </div>
 
-            {paymentMode === "Card" 
-              
-            }
-          </label>
+  {/* TOTAL */}
+  <span className="text-sm font-semibold text-gray-900">
+    {formattedTotal}
+  </span>
+</label>
+
         </div>
 <div className="hidden md:flex flex-col gap-3 mt-4">
   <button
             onClick={handlePayment}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
+            className="w-full bg-gradient-to-r from-gray-700 via-gray-600 to-gray-900 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
           >
-            <span className="text-white text-sm">₹{total.toFixed(2)}</span>
-            <span className="text-gray-900 font-bold">
+            <span className="text-white text-sm">₹{finalOrderTotal.toFixed(2)}</span>
+            <span className="text-white font-bold">
               {loading ? "Processing..." : paymentMode === "COD" ? "Place Order" : "Pay Now"}
             </span>
           </button>
@@ -372,10 +446,10 @@ if (loading)
           <button
             onClick={handlePayment}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-gray-900 font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
+            className="w-full bg-gradient-to-r from-gray-700 via-gray-600 to-gray-900 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
           >
-            <span className="text-white text-sm">₹{total.toFixed(2)}</span>
-            <span className="text-gray-900 font-bold">
+            <span className="text-white text-sm">₹{finalOrderTotal.toFixed(2)}</span>
+            <span className="text-white font-bold">
               {loading ? "Processing..." : paymentMode === "COD" ? "Place Order" : "Pay Now"}
             </span>
           </button>

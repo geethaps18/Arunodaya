@@ -246,15 +246,17 @@ body, html {
   opacity: 1;
   will-change: transform;
 }
+
+/* ===== NPROGRESS (TRANSPARENT / INVISIBLE) ===== */
 #nprogress .bar {
-  background: #fbbf24 !important; /* BSC yellow */
-  height: 3px;
+  background: rgba(0, 0, 0, 0.05) !important;
+  height: 1px;
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px #fbbf24, 0 0 5px #fbbf24;
+  box-shadow: none;
 }
 
-#nprogress .spinner {
-  display: none;
-}
+
+
+

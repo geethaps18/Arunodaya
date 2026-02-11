@@ -83,39 +83,39 @@ try {
   }, []);
 
   const isInWishlist = (id: string) => wishlist.some((p) => p.id === id);
+const toggleWishlist = async (product: WishlistProduct) => {
+  const liked = isInWishlist(product.id);
 
-  const toggleWishlist = async (product: WishlistProduct, options?: { soft?: boolean }) => {
-    const liked = isInWishlist(product.id);
+  // 🔥 optimistic update (this is what syncs PDP + cards)
+  setWishlist(prev =>
+    liked
+      ? prev.filter(p => p.id !== product.id)
+      : [product, ...prev]
+  );
 
-    if (!options?.soft) {
-      // Optimistic UI update
-      setWishlist((prev) => (liked ? prev.filter((p) => p.id !== product.id) : [product, ...prev]));
-    }
+  try {
+    const token = getCookie("token");
+    if (!token) throw new Error("Not logged in");
 
-    try {
-      const token = getCookie("token");
-      if (!token) throw new Error("User not logged in");
+    await fetch("/api/wishlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productId: product.id }),
+    });
+  } catch (err) {
+    // rollback if API fails
+    setWishlist(prev =>
+      liked
+        ? [product, ...prev]
+        : prev.filter(p => p.id !== product.id)
+    );
+    toast.error("Wishlist update failed");
+  }
+};
 
-      await fetch("/api/wishlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId: product.id }),
-      });
-
-     
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
-
-      if (!options?.soft) {
-        // revert optimistic UI
-        setWishlist((prev) => (liked ? [product, ...prev] : prev.filter((p) => p.id !== product.id)));
-      }
-    }
-  };
 
   return (
     <WishlistContext.Provider

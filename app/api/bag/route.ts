@@ -49,12 +49,15 @@ function mapBagItem(item: any) {
         ? item.variant.images
         : item.product.images,
 
-    product: {
-      id: item.product.id,
-      name: item.product.name,
-      images: item.product.images,
-      availableSizes: item.product.sizes || [],
-    },
+   product: {
+  id: item.product.id,
+  name: item.product.name,
+  price: item.product.price,
+  mrp: item.product.mrp,        // 🔥 ADD THIS LINE
+  images: item.product.images,
+  availableSizes: item.product.sizes || [],
+},
+
 
     uniqueKey: `${item.product.id}-${item.size || "default"}-${item.color || "nocolor"}`,
   };

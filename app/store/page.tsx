@@ -21,76 +21,40 @@ interface Store {
 }
 
 const stores: Store[] = [
-  {
-    name: "Textile Super Market (Main Store)",
-    address:
-      "5 6/1, 1189/1, 1196, 1194/2B3, 1 1194/B 15, Kalikadevi Road, Davangere – 577001",
-    city: "Davangere",
-    phone: "9770808020",
-    email: "hello@bschfashion.com",
-    mapUrl:
-      "https://www.google.com/maps/search/B.S.+Channabasappa+%26+Sons,+Kalikadevi+Road,+Davangere",
-    categories: [
-      "Sarees",
-      "Men’s Wear",
-      "Ladies Wear",
-      "Kids Wear",
-      "Toys",
-      "Home Furnishings",
-      "Accessories",
-    ],
-  },
-  {
-    name: "BSC Exclusive",
-    address:
-      "Opposite Bapuji Dental College, Vinayaka Nagara, Davangere – 577004",
-    city: "Davangere",
-    phone: "08192 272180 / 7899777187",
-    email: "hello@bschfashion.com",
-    mapUrl:
-      "https://www.google.com/maps/search/BSC+Exclusive,+Vinayaka+Nagara,+Davangere",
-    categories: ["Exclusive Sarees", "Designer Wear", "Ladies Wear"],
-  },
-  {
-    name: "BSC @ P.J. Extension",
-    address: "AVK College Road, P.J. Extension, Davangere – 577001",
-    city: "Davangere",
-    phone:
-      "Ladies & Kids: 08192 272175 / 9900077222 | Men’s: 08292 272178 / 9900066222",
-    email: "hello@bschfashion.com",
-    mapUrl:
-      "https://www.google.com/maps/search/BSC+P.J.+Extension,+Davangere",
-    categories: ["Ladies Wear", "Kids Wear", "Men’s Wear"],
-  },
-  {
-    name: "BSC The Textile Mall @ Belagavi",
-    address: "1st Gate Road, Shukrawar Peth Rd, Tilakwadi, Belagavi – 590006",
-    city: "Belagavi",
-    phone: "08312007777",
-    email: "hello@bschfashion.com",
-    mapUrl:
-      "https://www.google.com/maps/search/BSC+The+Textile+Mall,+Belagavi",
-    categories: [
-      "Sarees",
-      "Men’s Wear",
-      "Ladies Wear",
-      "Kids Wear",
-      "Toys",
-      "Home Furnishings",
-      "Accessories",
-    ],
-  },
-  {
-    name: "BSC @ Ichalkaranji",
-    address:
-      "Kapad Market, 10/278, 1st Floor, Ichalkaranji, Kolhapur, Maharashtra – 416115",
-    city: "Ichalkaranji",
-    phone: "NA",
-    email: "hello@bschfashion.com",
-    mapUrl:
-      "https://www.google.com/maps/search/BSC+Ichalkaranji,+Kolhapur",
-    categories: ["Sarees", "Men’s Wear", "Ladies Wear", "Kids Wear"],
-  },
+ {
+  name: "Arunodaya Collections – Main Branch",
+  address:
+    "AVK College Road, Ishwar Complex, P.J. Extension, Davanagere – 577002",
+  city: "Davangere",
+  phone: "8088131360",
+  email: "arunodayacollections@gmail.com",
+  mapUrl:
+    "https://www.google.com/maps/search/Arunodaya+Collections+AVK+College+Road+Davanagere",
+  categories: [
+    "Sarees",
+    "Ladies Wear",
+    "Men’s Wear",
+    "Kids Wear",
+    "Fashion Accessories",
+  ],
+},
+{
+  name: "Arunodaya Collections – Second Branch",
+  address:
+    "PB Road, Opposite Aahar 2000, Near Gandhi Circle, Davanagere – 577002",
+  city: "Davangere",
+  phone: "081528 74447",
+  email: "arunodayacollections@gmail.com",
+  mapUrl:
+    "https://www.google.com/maps/search/Arunodaya+Collections+PB+Road+Gandhi+Circle+Davanagere",
+  categories: [
+    "Ladies Wear",
+    "Men’s Wear",
+    "Kids Wear",
+    "Ready-Made Garments",
+  ],
+},
+
 ];
 
 export default function StoresPage() {
@@ -187,7 +151,7 @@ export default function StoresPage() {
                   <Link
                     href={store.mapUrl}
                     target="_blank"
-                    className="inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 text-sm font-semibold bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 text-gray-900 rounded-md shadow-lg hover:shadow-xl transition"
+                    className="inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 text-sm font-semibold bg-gradient-to-r from-gray-600 via-gray-700 to-gray-900 text-white rounded-md shadow-lg hover:shadow-xl transition"
                   >
                     <FiMapPin className="w-5 h-5" />
                     View on Map

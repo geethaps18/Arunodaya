@@ -227,9 +227,9 @@ useEffect(() => {
   onClick={() => router.push("/")}
 >
   <img
-    src="/images/arunodaya.png"
+    src="/images/arclogo4.png"
     alt="Arunodaya Logo"
-    className="h-full w-full object-contain"
+    className="h-full w-full object-cover"
   />
 </div>
 

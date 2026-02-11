@@ -68,11 +68,11 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
       >
         {/* Logo */}
         <Link href="/" className="flex flex-col gap-2 mb-8 px-2">
-          <div className="h-12">
+          <div className="h-10">
             <img
-              src="/images/arunodaya.png"
+              src="/images/arclogo1.png"
               alt="Arunodaya Logo"
-              className="max-h-full object-contain"
+              className="max-h-full object-cover"
             />
           </div>
           <span className="text-xs text-gray-500">
@@ -103,7 +103,7 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
                 className={clsx(
                   "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                   active
-                    ? "bg-yellow-500 text-white font-medium"
+                    ? "bg-gray-900 text-white font-medium"
                     : "text-gray-700 hover:bg-gray-100"
                 )}
               >

@@ -1,29 +1,43 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
+import fs from "fs/promises";
 
 export async function POST(req: Request) {
-  const formData = await req.formData();
-  const file = formData.get("file") as File;
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
 
-  if (!file) {
-    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    if (!file) {
+      return NextResponse.json(
+        { error: "No file uploaded" },
+        { status: 400 }
+      );
+    }
+
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Ensure /public/uploads exists
+    const uploadDir = path.join(process.cwd(), "public/uploads");
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    // Safe filename
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    // Write file
+    await fs.writeFile(filePath, buffer);
+
+    // ✅ IMPORTANT: return public path
+    return NextResponse.json({
+      path: `/uploads/${fileName}`,
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      { error: "Upload failed" },
+      { status: 500 }
+    );
   }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const uploadDir = path.join(process.cwd(), "public/uploads");
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-
-  const fileName = `${Date.now()}-${file.name}`;
-  const filePath = path.join(uploadDir, fileName);
-
-  fs.writeFileSync(filePath, buffer);
-
-  return NextResponse.json({
-    url: `/uploads/${fileName}`,
-  });
 }

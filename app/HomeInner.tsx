@@ -1,24 +1,32 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Hero from "@/components/Hero";
-import ProductCard from "@/components/ProductCard";
-import Footer from "@/components/Footer";
+
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ProductCard from "@/components/ProductCard";
 import LoadingRing from "@/components/LoadingRing";
-import { useInfiniteProducts } from "@/hook/useInfiniteProducts";
-
-// ✅ EXISTING recent products slider component
 import RecentProductsSlider from "@/components/home/RecentProductsSlider";
-import { useEffect, useState } from "react";
+
+import { useInfiniteProducts } from "@/hook/useInfiniteProducts";
 import { Render } from "@measured/puck";
-
 import { puckConfig } from "@/cms/puck.config";
+import AnimatedProductCard from "@/components/AnimatedProductCard";
+import AnimatedCategoryCard from "@/components/AnimatedCategoryCard";
 
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination,  Thumbs } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+
+
+/* -------------------- Categories -------------------- */
 const categories = [
   { name: "Men", image: "/images/men.png" },
-  { name: "Saree", image: "/images/saree.png" },
   { name: "Ethnic", image: "/images/ethnic.png" },
   { name: "Western", image: "/images/western.png" },
   { name: "Kids", image: "/images/kids.png" },
@@ -26,134 +34,165 @@ const categories = [
   { name: "Bridal Collections", image: "/images/bridal.png" },
   { name: "Couple Wedding Collections", image: "/images/couple.png" },
   { name: "Home", image: "/images/home.png" },
-  { name: "Jewellery", image: "/images/jewellery.png" },
 ];
 
 export default function HomeInner() {
-  // 🔥 Infinite products (correct place)
-const {
-  products,
-  total,
-  isLoading,
-  isLoadingMore,
-  loadMoreRef, // 👈 ADD THIS
-} = useInfiniteProducts(
-  "home",
-  "/api/products?home=true"
-);
-;
+  /* -------------------- Products -------------------- */
+  const {
+    products,
+    isLoading,
+    isLoadingMore,
+    loadMoreRef,
+  } = useInfiniteProducts("home", "/api/products?home=true");
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
-const initialLoading = isLoading && products.length === 0;
-const loadingMore = isLoadingMore;
+  const initialLoading = isLoading && products.length === 0;
+  const recentProducts = products.slice(0, 10);
+  
+const [animateCategories, setAnimateCategories] = useState(false);
+
+useEffect(() => {
+  setAnimateCategories(true);
+}, []);
+
+  /* -------------------- CMS -------------------- */
+/* -------------------- CMS -------------------- */
 const [cmsData, setCmsData] = useState<any>(null);
 
 useEffect(() => {
   fetch("/api/cms/home")
-    .then(res => res.json())
-    .then(data => setCmsData(data));
+    .then((res) => res.json())
+    .then((data) => setCmsData(data));
 }, []);
 
+/* ✅ NOW cmsData exists — safe to use */
+const orderedContent = cmsData?.content
+  ? [
+      ...cmsData.content.filter((b: any) => b.type === "HeroSlider"),
+      ...cmsData.content.filter((b: any) => b.type !== "HeroSlider"),
+    ]
+  : [];
+const heroBanners =
+  cmsData?.content.filter((b: any) => b.type === "HeroBanner") || [];
 
-
-  // ✅ Take only first 10 for slider
-  const recentProducts = products.slice(0, 10);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans overflow-x-hidden">
-    <div className="pt-[72px] lg:pt-[96px]">
+    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
+      {/* ================= HEADER ================= */}
+      <Header />
 
-        {/* Header */}
-        <Header />
-
-        {/* Categories Scroll (Mobile) */}
-        <div className="lg:hidden overflow-x-auto scrollbar-hide py-1 bg-white shadow-md w-full">
-          <div className="flex gap-3 px-3 sm:gap-4 sm:px-4">
-            {categories.map((cat) => (
-              <Link
-                key={cat.name}
-                href={`/categories/${cat.name
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`}
-                className="flex-shrink-0 flex flex-col items-center hover:scale-105 transition"
-              >
-                <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 overflow-hidden rounded-xl">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <span className="mt-1 text-[10px] sm:text-[12px] md:text-sm text-gray-700 font-medium text-center truncate max-w-[70px]">
-                  {cat.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+      {/* ================= PAGE CONTENT ================= */}
+      <main className="pt-[72px] lg:pt-[9px] flex-grow">
+        {/* ================= HOME CATEGORY ROW ================= */}
+      <section className="bg-white border-b lg:hidden">
+  <div className="overflow-x-auto scrollbar-hide">
+    <div className="flex gap-6 px-4 py-6 snap-x snap-mandatory">
+      {categories.map((cat, index) => (
+        <AnimatedCategoryCard
+          key={cat.name}
+          name={cat.name}
+          image={cat.image}
+          href={`/categories/${cat.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}`}
+          index={index}
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
 
+     {/* ================= HERO / CMS ================= */}
+    
 
-<div className="lg:-mt-10">
- {cmsData && (
-  <Render
-    config={puckConfig}
-    data={{
-      ...cmsData,
-      content: cmsData.content.filter(
-        (block: any, index: number) =>
-          block.type !== "HeroBanner" || index === 0
-      ),
-    }}
-  />
-)}
+{cmsData && (
+  <section className="w-full">
+   <Swiper
+  modules={[Autoplay, Pagination, Thumbs]}
+  autoplay={{
+    delay: 3000,
+    disableOnInteraction: false, // 🔑 keeps autoplay after arrow click
+    pauseOnMouseEnter: false,    // 🔑 keeps autoplay on desktop hover
+  }}
+  pagination={{ clickable: true }}
+  loop
+  speed={800}
+>
 
-</div>
+      {cmsData.content
+        .filter((block: any) => block.type === "HeroBanner")
+        .map((block: any) => (
+          <SwiperSlide key={block.id}>
+           <Render
+  config={puckConfig}
+  data={{
+    content: [
+      {
+        ...block,
+        props: block.props ?? {},
+      },
+    ],
+  }}
+/>
 
-
-
-
-
-       {/* ✅ Recent Products Slider */}
-{!isLoading && recentProducts.length > 4 && (
-
-    <RecentProductsSlider products={recentProducts} />
+          </SwiperSlide>
+        ))}
+    </Swiper>
+  </section>
   
 )}
 
 
-        {/* Products Grid */}
-<main className="flex-grow sm:p-6 pb-2">
-  {initialLoading ? (
-    <div className="flex justify-center py-20">
-      <LoadingRing />
-    </div>
-  ) : (
-    <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">
-        {products.map((product: any) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
 
-      {loadingMore && (
-        <div className="flex justify-center py-10">
-          <LoadingRing />
-        </div>
-      )}
+        {/* ================= RECENT PRODUCTS ================= */}
+        {!isLoading && recentProducts.length > 4 && (
+          <section className="py-14 bg-[#f5f5f5]">
+            <div className="max-w-7xl mx-auto px-4">
+              <h2 className="text-xl md:text-2xl font-semibold mb-8">
+                New Arrivals
+              </h2>
+              <RecentProductsSlider products={recentProducts} />
+            </div>
+          </section>
+        )}
 
-      {/* 👇 REQUIRED */}
-      <div ref={loadMoreRef} className="h-12 w-full" />
-    </>
-  )}
-</main>
+        {/* ================= PRODUCT GRID ================= */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            {initialLoading ? (
+              <div className="flex justify-center py-24">
+                <LoadingRing />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+                {products.map((product: any, index: number) => (
+  <AnimatedProductCard
+    key={product.id}
+    product={product}
+    index={index}
+  />
+))}
 
+                </div>
 
-</div>
-    <div className="sticky bottom-0 w-full z-50 bg-white border-t shadow-lg">
-  <Footer />
-</div>
+                {isLoadingMore && (
+                  <div className="flex justify-center py-12">
+                    <LoadingRing />
+                  </div>
+                )}
 
+                {/* Infinite scroll trigger */}
+                <div ref={loadMoreRef} className="h-10 w-full" />
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {/* ================= FOOTER ================= */}
+      <Footer />
     </div>
   );
 }

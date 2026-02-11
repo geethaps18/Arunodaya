@@ -57,17 +57,15 @@ interface PincodeSuggestion {
 
 // ------------------- Component -------------------
 export default function CheckoutAddressInner() {
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const [addressLoading, setAddressLoading] = useState(true);
+  const mode = searchParams.get("mode"); // "buynow" | null
+const isBuyNow = mode === "buynow";
 
 
-  // --- totals passed from BagPage ---
-  const subtotal = Number(searchParams?.get("subtotal") ?? "0");
-  const shipping = Number(searchParams?.get("shipping") ?? "0");
-  const discount = Number(searchParams?.get("discount") ?? "0");
-  const total = Number(searchParams?.get("total") ?? "0");
-  const totalCount = Number(searchParams?.get("totalCount") ?? "0");
+
 
   const [userId, setUserId] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -79,6 +77,7 @@ export default function CheckoutAddressInner() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDefault, setIsDefault] = useState(false);
   const [pincodeError, setPincodeError] = useState<string>("");
+
 
   const [newAddress, setNewAddress] = useState({
     type: "Home",
@@ -101,60 +100,101 @@ export default function CheckoutAddressInner() {
     { label: "Work", icon: <FiBriefcase /> },
     { label: "Other", icon: <FiMapPin /> },
   ];
+useEffect(() => {
+  const token = getCookie("token");
+  if (!token || typeof token !== "string") return;
 
-  // ------------------- Fetch Bag + Addresses Together -------------------
-  useEffect(() => {
-    const token = getCookie("token");
-    if (!token || typeof token !== "string") return;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const uid = payload.userId;
+    setUserId(uid);
 
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const uid = payload.userId;
-      setUserId(uid);
+    // ===============================
+    // 🚀 BUY NOW MODE
+    // ===============================
+    if (isBuyNow) {
+      const raw = sessionStorage.getItem("BUY_NOW_ITEM");
 
-      // fetch bag + addresses at the same time
-      Promise.all([
-        fetch("/api/bag").then((r) => r.json()),
-        fetch(`/api/addresses?userId=${uid}`).then((r) => r.json()),
-      ])
-        .then(([bagData, addrData]) => {
-          // normalize bag
-          let items: any[] = [];
-          if (Array.isArray(bagData)) items = bagData;
-          else if (Array.isArray(bagData.items)) items = bagData.items;
-          else if (Array.isArray(bagData.data)) items = bagData.data;
+      if (raw) {
+        const item = JSON.parse(raw);
 
-         const normalized: BagItem[] = items.map((it: any) => ({
-  id: it.id ?? it._id,
-  quantity: Number(it.quantity ?? 1),
-  size: it.size ?? null,
-  color: it.color ?? null,         // ✅ KEEP COLOR
-  variantId: it.variantId ?? null, // ✅ KEEP VARIANT
-  product: it.product ?? {},
-}));
+        setBagItems([
+          {
+            id: "buynow",
+            quantity: 1,
+            size: item.size,
+            color: item.color,
+            variantId: item.variantId,
+            product: {
+              id: item.id,
+              name: item.name,
+              images: item.images,
+              price: item.price,
+            },
+          },
+        ]);
+      }
 
-          setBagItems(normalized);
-
-          // normalize addresses
+      // Fetch addresses only
+      fetch(`/api/addresses?userId=${uid}`)
+        .then((r) => r.json())
+        .then((addrData) => {
           let list: Address[] = [];
-          if (addrData && addrData.success) list = addrData.addresses || [];
+          if (addrData?.success) list = addrData.addresses || [];
           else if (Array.isArray(addrData)) list = addrData;
 
           setAddresses(list);
+
           if (list.length > 0) {
             const defaultAddr = list.find((a) => a.isDefault) || list[0];
             setSelectedAddress(defaultAddr);
           }
-        })
-        .catch((err) => {
-          console.error("Fetch error", err);
-          setBagItems([]);
-          setAddresses([]);
         });
-    } catch {
-      setUserId(null);
+
+      return; // 🔥 stop here
     }
-  }, []);
+
+    // ===============================
+    // 👜 NORMAL BAG MODE
+    // ===============================
+    Promise.all([
+      fetch("/api/bag").then((r) => r.json()),
+      fetch(`/api/addresses?userId=${uid}`).then((r) => r.json()),
+    ]).then(([bagData, addrData]) => {
+      let items: any[] = [];
+      if (Array.isArray(bagData)) items = bagData;
+      else if (Array.isArray(bagData.items)) items = bagData.items;
+      else if (Array.isArray(bagData.data)) items = bagData.data;
+
+      const normalized: BagItem[] = items.map((it: any) => ({
+        id: it.id ?? it._id,
+        quantity: Number(it.quantity ?? 1),
+        size: it.size ?? null,
+        color: it.color ?? null,
+        variantId: it.variantId ?? null,
+        product: it.product ?? {},
+      }));
+
+      setBagItems(normalized);
+
+      let list: Address[] = [];
+      if (addrData?.success) list = addrData.addresses || [];
+      else if (Array.isArray(addrData)) list = addrData;
+
+      setAddresses(list);
+
+      if (list.length > 0) {
+        const defaultAddr = list.find((a) => a.isDefault) || list[0];
+        setSelectedAddress(defaultAddr);
+      }
+    });
+
+  } catch {
+    setUserId(null);
+  }
+}, [isBuyNow]);
+
+
 
   // ------------------- Helpers -------------------
   const calcTotalFromBag = () =>
@@ -163,6 +203,29 @@ export default function CheckoutAddressInner() {
       const qty = Number(item.quantity ?? 1) || 1;
       return acc + price * qty;
     }, 0);
+// Total MRP
+const totalMRP = bagItems.reduce((sum, item) => {
+  const mrp = item.product?.mrp ?? item.product?.price ?? 0;
+  return sum + mrp * item.quantity;
+}, 0);
+
+// Total Selling Price
+const totalSelling = bagItems.reduce((sum, item) => {
+  const price = item.product?.price ?? 0;
+  return sum + price * item.quantity;
+}, 0);
+
+// Discount
+const totalDiscount = totalMRP - totalSelling;
+
+// Shipping
+const shippingCharge = totalSelling >= 1000 ? 0 : 100;
+
+// Final Total
+const finalOrderTotal = totalSelling + shippingCharge;
+
+// Item count
+const totalCount = bagItems.length;
 
   const getProductImage = (item: BagItem) => {
     const p = item.product || {};
@@ -309,9 +372,10 @@ const handleContinue = () => {
   }
 
   router.push(
-    `/checkout/payment?subtotal=${subtotal}&shipping=${shipping}&discount=${discount}&total=${total}&totalCount=${totalCount}&addressId=${selectedAddress.id}`
+    `/checkout/payment?addressId=${selectedAddress.id}&mode=${isBuyNow ? "buynow" : "bag"}`
   );
 };
+
 
 
    if (!userId)
@@ -320,7 +384,7 @@ const handleContinue = () => {
         <p className="text-gray-700 mb-4">Please login to continue</p>
         <Link
           href="/login"
-          className="bg-yellow-400 text-black font-bold px-6 py-3 rounded hover:bg-yellow-500"
+          className="bg-gray-700 text-white font-bold px-6 py-3 rounded hover:bg-gray-800"
         >
           Login
         </Link>
@@ -344,7 +408,7 @@ return (
           {selectedAddress.type === "Other" && <FiMapPin className="text-gray-600" />}
           <span className="font-medium">{selectedAddress.type}</span>
           {selectedAddress.isDefault && (
-            <span className="ml-2 text-xs bg-yellow-400 text-black px-2 py-0.5 rounded">
+            <span className="ml-2 text-xs bg-gray-800 text-white px-2 py-0.5 rounded">
               DEFAULT
             </span>
           )}
@@ -370,7 +434,7 @@ return (
       {/* Change Button */}
       <button
         onClick={() => setShowAddressModal(true)}
-        className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2.5 rounded transition"
+        className="bg-gray-700 hover:bg-gray-900 text-white font-semibold px-5 py-2.5 rounded transition"
 
       >
         CHANGE
@@ -379,7 +443,7 @@ return (
   ) : (
     <button
       onClick={() => setShowAddressModal(true)}
-      className="mt-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 rounded text-black font-medium"
+      className="mt-2 px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded text-white font-medium"
     >
       Add Address
     </button>
@@ -429,21 +493,52 @@ return (
 
   {/* RIGHT: Price Details + Button */}
   <div className="lg:w-100 flex-shrink-0 space-y-4">
-    <div className="border rounded p-4 ">
-      <h3 className="font-bold mb-3">Price Details</h3>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal.toFixed(0)}</span></div>
-        <div className="flex justify-between"><span>Delivery</span><span className="text-green-600">₹{shipping.toFixed(0)}</span></div>
-        <div className="flex justify-between"><span>Discount</span><span className="text-red-600">-₹{discount.toFixed(0)}</span></div>
-        <div className="flex justify-between font-semibold text-lg border-t pt-2"><span>Total</span><span>₹{total.toFixed(0)}</span></div>
+   <div className="space-y-2 text-sm">
+  <div className="flex justify-between">
+    <span>Total Product Price (MRP)</span>
+    <span>₹{totalMRP}</span>
+  </div>
+
+  {totalDiscount > 0 && (
+    <>
+      <div className="flex justify-between text-green-600">
+        <span>Total Discounts</span>
+        <span>- ₹{totalDiscount}</span>
       </div>
+      <p className="text-xs text-green-700">
+        You saved ₹{totalDiscount} on this order 🎉
+      </p>
+    </>
+  )}
+
+  <div className="flex justify-between">
+    <span>
+      Shipping <span className="text-xs text-gray-500">(Free above ₹1000)</span>
+    </span>
+    <span>
+      {shippingCharge === 0 ? (
+        <span className="text-green-600 font-medium">FREE</span>
+      ) : (
+        `₹${shippingCharge}`
+      )}
+    </span>
+  </div>
+
+  <hr />
+
+  <div className="flex justify-between font-semibold text-lg">
+    <span>Order Total</span>
+    <span>₹{finalOrderTotal}</span>
+  </div>
+</div>
+
     </div>
 
    
    <div className="hidden lg:block">
   <button
     onClick={handleContinue}
-    className="w-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500
+    className="w-full bg-gradient-to-r from-gray-700 via-gray-800 to-gray-800
                text-gray-900 font-semibold py-3 hover:shadow-lg transition"
   >
     Continue Payment
@@ -457,13 +552,14 @@ return (
 {/* Mobile Bottom Button (stays fixed) */}
 <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md z-50 flex lg:hidden">
   <div className="flex-1 text-center py-4 font-semibold text-lg text-gray-900 border-r">
-    ₹{total}
+   ₹{finalOrderTotal}
+
   </div>
  <div className="flex-1">
   <button
     onClick={handleContinue}
-    className="w-full h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500
-               text-gray-900 font-semibold py-4 shadow-lg hover:shadow-xl transition"
+    className="w-full h-full bg-gradient-to-r from-gray-700 via-gray-800 to-gray-500
+               text-white font-semibold py-4 shadow-lg hover:shadow-xl transition"
   >
     Continue Payment
   </button>
@@ -510,7 +606,7 @@ return (
           {addr.type === "Other" && <FiMapPin className="text-gray-600" />}
           <span className="font-medium">{addr.type}</span>
           {addr.isDefault && (
-            <span className="ml-2 text-xs bg-yellow-400 text-black px-2 py-0.5 rounded">
+            <span className="ml-2 text-xs bg-gray-800 text-white px-2 py-0.5 rounded">
               DEFAULT
             </span>
           )}
@@ -551,11 +647,7 @@ return (
 
     </label>
   );
-})}
-
-
-
-                
+})}             
               </div>
             )}
 
@@ -604,7 +696,7 @@ return (
 
                 <div className="flex gap-2 mt-2">
                   {typeOptions.map(opt => (
-                    <div key={opt.label} onClick={()=>setNewAddress(prev=>({...prev,type:opt.label as "Home"|"Work"|"Other"}))} className={`flex-1 flex items-center justify-center gap-1 p-2 border rounded cursor-pointer ${newAddress.type===opt.label?"border-yellow-400 bg-yellow-50":"border-gray-300"}`}>
+                    <div key={opt.label} onClick={()=>setNewAddress(prev=>({...prev,type:opt.label as "Home"|"Work"|"Other"}))} className={`flex-1 flex items-center justify-center gap-1 p-2 border rounded cursor-pointer ${newAddress.type===opt.label?"border-gray-400 bg-yellow-50":"border-gray-300"}`}>
                       {opt.icon} <span>{opt.label}</span>
                     </div>
                   ))}
@@ -617,10 +709,10 @@ return (
 
 
                 <div className="flex gap-2 mt-2">
-                  <button type="button" onClick={handleSaveAddress} disabled={!!pincodeError} className={`flex-1 py-2 rounded font-medium ${pincodeError?"bg-gray-400 text-white cursor-not-allowed":"bg-yellow-400 hover:bg-yellow-500 text-black"}`}>
+                  <button type="button" onClick={handleSaveAddress} disabled={!!pincodeError} className={`flex-1 py-2 rounded font-medium ${pincodeError?"bg-gray-400 text-white cursor-not-allowed":"bg-gray-800 hover:bg-gray-900 text-white"}`}>
                     {editingId?"Update Address":"Save Address"}
                   </button>
-                  <button type="button" onClick={()=>{resetForm(); setFormVisible(false);}} className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600">Cancel</button>
+                  <button type="button" onClick={()=>{resetForm(); setFormVisible(false);}} className="flex-1 bg-gray-800 text-white py-2 rounded hover:bg-gray-900">Cancel</button>
                 </div>
               </div>
             )}
@@ -628,7 +720,7 @@ return (
   <button
     disabled={!selectedAddress}
     onClick={() => setShowAddressModal(false)}
-    className="w-full bg-yellow-400 py-2 font-semibold mt-3 disabled:opacity-50"
+    className="w-full bg-gray-800 text-white py-2 font-semibold mt-3 disabled:opacity-50"
   >
     Deliver Here
   </button>
@@ -640,7 +732,7 @@ return (
       )}
     </div>
     </div>
-    </div>
+
   
   );
 }
