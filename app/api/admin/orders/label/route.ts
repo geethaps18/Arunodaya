@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     /* ---------------- Resolve Seller (Builder) ---------------- */
     const firstItem = order.items[0];
     let seller = {
-      storeName: "BSCFASHION",
+      storeName: "Arunodaya Collections",
       phone: "9770808020",
       address: "Davanagere — 577001",
     };
@@ -187,7 +187,7 @@ export async function POST(req: Request) {
     doc.text(seller.address, { align: "center" });
     doc.text(`Phone: ${seller.phone}`, { align: "center" });
     doc.moveDown(0.3);
-    doc.text("Powered by BSCFASHION", { align: "center" });
+    doc.text("Powered by TBITS INDIA Davanagere", { align: "center" });
 
     doc.end();
 

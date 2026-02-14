@@ -5,9 +5,8 @@ import { Parser } from "json2csv";
 export async function GET() {
   try {
     const orders = await prisma.order.findMany({
-      where: {
-        status: "CONFIRMED", // ✅ IMPORTANT
-      },
+      where: {},
+
       orderBy: {
         confirmedAt: "desc",
       },
@@ -44,8 +43,15 @@ if (order.address) {
       };
     });
 
-    const parser = new Parser();
-    const csv = parser.parse(rows);
+   if (!rows || rows.length === 0) {
+  return new NextResponse("No confirmed orders found", {
+    status: 400,
+  });
+}
+
+const parser = new Parser({ fields: Object.keys(rows[0]) });
+const csv = parser.parse(rows);
+
 
     return new NextResponse(csv, {
       headers: {

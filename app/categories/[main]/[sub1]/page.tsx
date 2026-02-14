@@ -6,28 +6,55 @@ import Image from "next/image";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductCard from "@/components/ProductCard";
 import LoadingRing from "@/components/LoadingRing";
+import AnimatedProductCard from "@/components/AnimatedProductCard";
 
-import { categories, SubCategory } from "@/data/categories";
+import { categories } from "@/data/categories";
 import { useInfiniteProducts } from "@/hook/useInfiniteProducts";
 
 export default function Sub1Page() {
   const { main, sub1 } = useParams();
+
   const mainSlug = Array.isArray(main) ? main[0] : main;
   const sub1Slug = Array.isArray(sub1) ? sub1[0] : sub1;
 
-  const key = `sub1-${mainSlug}-${sub1Slug}`;
-  const apiURL = `/api/products?category=${mainSlug}&subCategory=${sub1Slug}`;
+  const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")        // convert & → and
+    .replace(/[^\w\s-]/g, "")    // remove special characters
+    .replace(/\s+/g, "-")        // spaces → dash
+    .replace(/--+/g, "-");       // remove double dash
 
+
+  // Safe find
+  const mainCat = categories.find(
+    (c) => mainSlug && slugify(c.name) === mainSlug
+  );
+
+  const sub1Cat = mainCat?.subCategories.find(
+    (s) => sub1Slug && slugify(s.name) === sub1Slug
+  );
+
+  // 🔥 SAFE FALLBACK VALUES
+  const key = `sub1-${mainSlug ?? "x"}-${sub1Slug ?? "x"}`;
+
+  const apiURL =
+    mainCat && sub1Cat
+      ? `/api/products?category=${encodeURIComponent(mainCat.name)}&subCategory=${encodeURIComponent(sub1Cat.name)}`
+      : `/api/products?category=invalid`;
+
+  // ✅ ALWAYS CALL HOOK
   const {
     products,
     isLoading,
     isLoadingMore,
-    loadMoreRef, // 👈 REQUIRED
+    loadMoreRef,
   } = useInfiniteProducts(key, apiURL);
 
-  if (!mainSlug || !sub1Slug) {
+  // 🚨 AFTER hook → now safe to return
+  if (!mainSlug || !sub1Slug || !mainCat || !sub1Cat) {
     return (
       <div className="p-8 text-center text-red-600">
         Category not found
@@ -35,42 +62,35 @@ export default function Sub1Page() {
     );
   }
 
-  const mainCat: SubCategory | undefined = categories.find(
-    (cat) => cat.name.toLowerCase().replace(/\s+/g, "-") === mainSlug
-  );
-
-  const sub1Cat: SubCategory | undefined = mainCat?.subCategories.find(
-    (sub) => sub.name.toLowerCase().replace(/\s+/g, "-") === sub1Slug
-  );
-
   return (
     <div className="min-h-screen flex flex-col bg-white pt-[100px] pb-24 px-0.5">
-      {/* ✅ HEADER */}
       <Header />
 
-      {/* ✅ DESKTOP BREADCRUMB + TITLE */}
+      {/* Desktop breadcrumb + title */}
       <div className="hidden lg:block max-w-7xl mx-auto px-6 py-4">
         <div className="text-sm text-gray-500 mb-1">
           <Link href="/" className="hover:text-gray-700">
             Home
           </Link>
-          {mainCat && <> / <span>{mainCat.name}</span></>}
-          {sub1Cat && <> / <span>{sub1Cat.name}</span></>}
+          {" / "}{mainCat.name}
+          {" / "}
+          <span>{sub1Cat.name}</span>
         </div>
 
         <h1 className="text-lg font-semibold text-gray-900">
-          {sub1Cat?.name}{" "}
+          {sub1Cat.name}
           <span className="font-normal text-gray-500">
-            – {products.length} items
+            {" "}– {products.length} items
           </span>
         </h1>
       </div>
 
-      {/* ✅ MOBILE SUB-CATEGORIES */}
-      {sub1Cat?.subCategories.length ? (
-        <div className="lg:hidden mb-2 grid grid-cols-2 gap-0.5 px-0">
+      {/* Mobile subcategories */}
+      {sub1Cat.subCategories.length > 0 && (
+        <div className="lg:hidden mb-2 grid grid-cols-4 gap-2 px-0">
           {sub1Cat.subCategories.map((sub2) => {
-            const sub2Slug = sub2.name.toLowerCase().replace(/\s+/g, "-");
+            const sub2Slug = slugify(sub2.name);
+
             return (
               <Link
                 key={sub2.name}
@@ -92,9 +112,9 @@ export default function Sub1Page() {
             );
           })}
         </div>
-      ) : null}
+      )}
 
-      {/* ✅ PRODUCTS */}
+      {/* Products */}
       <main className="flex-grow px-1 pb-4">
         {isLoading && products.length === 0 ? (
           <div className="flex justify-center py-20">
@@ -107,8 +127,12 @@ export default function Sub1Page() {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">
-              {products.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
+              {products.map((product: any, index: number) => (
+                <AnimatedProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                />
               ))}
             </div>
 
@@ -118,13 +142,11 @@ export default function Sub1Page() {
               </div>
             )}
 
-            {/* 🔥 REQUIRED sentinel */}
             <div ref={loadMoreRef} className="h-12 w-full" />
           </>
         )}
       </main>
 
-      {/* ✅ FOOTER */}
       <Footer />
     </div>
   );

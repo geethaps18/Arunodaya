@@ -15,6 +15,7 @@ import { Render } from "@measured/puck";
 import { puckConfig } from "@/cms/puck.config";
 import AnimatedProductCard from "@/components/AnimatedProductCard";
 import AnimatedCategoryCard from "@/components/AnimatedCategoryCard";
+import { useRouter } from "next/navigation";
 
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -25,16 +26,45 @@ import "swiper/css/navigation";
 
 
 /* -------------------- Categories -------------------- */
-const categories = [
-  { name: "Men", image: "/images/men.png" },
-  { name: "Ethnic", image: "/images/ethnic.png" },
-  { name: "Western", image: "/images/western.png" },
-  { name: "Kids", image: "/images/kids.png" },
-  { name: "Groom Collections", image: "/images/groom.png" },
-  { name: "Bridal Collections", image: "/images/bridal.png" },
-  { name: "Couple Wedding Collections", image: "/images/couple.png" },
-  { name: "Home", image: "/images/home.png" },
-];
+const highlightCategories: any = {
+  Women: [
+   {
+  name: "Arunodaya Gold",
+  image: "/images/gold.png",
+  main: "women",
+  sub: "ethnic-wear",
+  child: "arunodaya-gold",
+  link: "categories/women/ethnic-wear/arunodaya-gold",
+
+},
+ { name: "Western Wear", image: "/images/western-wear.png" },
+    { name: "Embroidery Tops", image: "/images/embroidery.png" ,
+      link:"categories/women/western-wear/tops/embroidery-tops",
+    },
+    { name: "Kurta Sets", image: "/images/kurta-set.png" ,
+      link: "categories/women/ethnic-wear/kurta-sets",
+    },
+    { name: "CropTop Set", image: "/images/croptop-set.png",
+      link:"categories/women/western-wear/crop-top-sets",
+     },
+    { name: "Night Wear Set", image: "/images/night.png",
+      link: "categories/women/night-wear/night-wear-sets",
+     },
+    { name: "Coardset", image: "/images/coard.png",
+      link: "categories/women/ethnic-wear/kurta-sets/coard-sets",
+     },
+    { name: "Umbrella Set", image: "/images/umbrella.png",
+      link: "/categories/women/ethnic-wear/kurta-sets/grand-umbrella-sets",
+     },
+    { name: "Jeans Jacket", image: "/images/jacket.png",
+      link: "categories/women/western-wear/jeans-jacket",
+     },
+  
+
+
+  ],
+};
+
 
 export default function HomeInner() {
   /* -------------------- Products -------------------- */
@@ -45,11 +75,13 @@ export default function HomeInner() {
     loadMoreRef,
   } = useInfiniteProducts("home", "/api/products?home=true");
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("Women");
 
   const initialLoading = isLoading && products.length === 0;
   const recentProducts = products.slice(0, 10);
   
 const [animateCategories, setAnimateCategories] = useState(false);
+const router = useRouter();
 
 useEffect(() => {
   setAnimateCategories(true);
@@ -84,23 +116,70 @@ const heroBanners =
       {/* ================= PAGE CONTENT ================= */}
       <main className="pt-[72px] lg:pt-[9px] flex-grow">
         {/* ================= HOME CATEGORY ROW ================= */}
-      <section className="bg-white border-b lg:hidden">
-  <div className="overflow-x-auto scrollbar-hide">
-    <div className="flex gap-6 px-4 py-6 snap-x snap-mandatory">
-      {categories.map((cat, index) => (
-        <AnimatedCategoryCard
-          key={cat.name}
-          name={cat.name}
-          image={cat.image}
-          href={`/categories/${cat.name
-            .toLowerCase()
-            .replace(/\s+/g, "-")}`}
-          index={index}
-        />
+   
+<section className="bg-white pt-1 pb-6">
+  <div className="max-w-7xl mx-auto px-4">
+
+    {/* Top Word Tabs */}
+    <div className="flex justify-center gap-10 pb-4 lg:hidden">
+      {["Women", "Men", "Kids"].map((tab) => (
+   <Link
+  key={tab}
+  href={`/categories/${tab.toLowerCase()}`}
+  className="text-lg font-medium text-gray-500 hover:text-black transition"
+>
+  {tab}
+</Link>
+
       ))}
     </div>
+   {/* Highlight Cards - Single Row */}
+<div className="mt- overflow-x-auto scrollbar-hide lg:hidden">
+  <div className="flex gap-4 w-max px-1">
+
+{highlightCategories[activeTab].map((item: any) => {
+  const href =
+    item.link ||
+    `/categories/${activeTab.toLowerCase()}/${item.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`;
+
+  return (
+    <Link
+      key={item.name}
+      href={href}
+      className="relative w-[120px] h-[160px] flex-shrink-0 rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300"
+    >
+
+  <div className="relative w-full h-full">
+    <Image
+      src={item.image}
+      alt={item.name}
+      fill
+      sizes="120px"
+      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+    />
   </div>
+
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+    <span className="text-white text-xs font-semibold text-center px-2">
+      {item.name}
+    </span>
+  </div>
+</Link>
+
+      );
+    })}
+
+  </div>
+</div>
+
+
+
+</div>
 </section>
+
 
 
      {/* ================= HERO / CMS ================= */}
@@ -147,13 +226,9 @@ const heroBanners =
 
         {/* ================= RECENT PRODUCTS ================= */}
         {!isLoading && recentProducts.length > 4 && (
-          <section className="py-14 bg-[#f5f5f5]">
-            <div className="max-w-7xl mx-auto px-4">
-              <h2 className="text-xl md:text-2xl font-semibold mb-8">
-                New Arrivals
-              </h2>
+          <section className="py- ">
               <RecentProductsSlider products={recentProducts} />
-            </div>
+          
           </section>
         )}
 

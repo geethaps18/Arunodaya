@@ -117,7 +117,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           }`}
         >
           {variantSizes.length > 0
-            ? `Sizes ${variantSizes.join(" / ")}`
+            ? `Sizes : ${variantSizes.join("  ")}`
             : "One Size"}
         </div>
       </div>

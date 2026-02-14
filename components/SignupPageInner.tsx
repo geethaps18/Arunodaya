@@ -105,7 +105,7 @@ export default function SignupPageInner() {
         <div className="flex justify-center mb-4">
          <Link href="/">
   <img
-    src="/images/arunodaya.png"
+    src="/images/arclogo4.png"
     alt="arunodaya Logo"
     className="w-40 h-40 object-contain cursor-pointer"
   />
@@ -160,7 +160,7 @@ export default function SignupPageInner() {
               type="button"
               onClick={handleSendOtp}
               disabled={loading}
-              className="w-full bg-yellow-500 text-white py-2 rounded-md font-semibold"
+              className="w-full bg-gray-800 text-white py-2 rounded-md font-semibold"
             >
               {loading ? "Sending OTP..." : "Send OTP"}
             </button>
@@ -206,7 +206,7 @@ export default function SignupPageInner() {
             onClick={() =>
               router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`)
             }
-            className="text-yellow-500 font-semibold"
+            className="text-gray-900 font-semibold"
           >
             Login
           </button>

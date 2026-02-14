@@ -95,6 +95,7 @@ export async function GET(req: Request) {
     const category = normalize(searchParams.get("category"));
     const subCategory = normalize(searchParams.get("subCategory"));
     const subSubCategory = normalize(searchParams.get("subSubCategory"));
+  const subSubSubCategory = normalize(searchParams.get("subSubSubCategory"));
 
     const where: Record<string, any> = {};
 
@@ -107,6 +108,9 @@ export async function GET(req: Request) {
     if (category) where.category = category;
     if (subCategory) where.subCategory = subCategory;
     if (subSubCategory) where.subSubCategory = subSubCategory;
+if (subSubSubCategory) where.subSubSubCategory = subSubSubCategory;
+
+    
 
     const [total, productsRaw] = await Promise.all([
       prisma.product.count({ where }),
@@ -269,8 +273,10 @@ export async function POST(req: Request) {
       : [];
 
     const category = normalize(categoryPath[0]);
-    const subCategory = normalize(categoryPath[1]);
-    const subSubCategory = normalize(categoryPath[2]);
+const subCategory = normalize(categoryPath[1]);
+const subSubCategory = normalize(categoryPath[2]);
+const subSubSubCategory = normalize(categoryPath[3]);
+
 
 const price = Number(formData.get("price") || 0);
 const mrp = Number(formData.get("mrp") || price);
@@ -360,6 +366,7 @@ for (const file of files) {
         category,
         subCategory,
         subSubCategory,
+        subSubSubCategory, 
         price,
         mrp,
         discount,

@@ -44,6 +44,8 @@ export default function PaymentPageInner() {
   const params = useSearchParams();
   const mode = params.get("mode");
 const isBuyNow = mode === "buynow";
+const [isBagLoading, setIsBagLoading] = useState(true);
+const [isAddressLoading, setIsAddressLoading] = useState(true);
 
   const [userId, setUserId] = useState<string | null>(null);
   const [bagItems, setBagItems] = useState<BagItem[]>([]);
@@ -201,14 +203,14 @@ useEffect(() => {
     amount: finalOrderTotal * 100,
 
     currency: "INR",
-    name: "B S CHANNABASAPPA & SONS",
+    name: "Arunodaya Collections",
     description: "Order Payment",
     order_id: data.orderId,
     handler: function (response) {
       router.push(`/payment-success?razorpay_payment_id=${response.razorpay_payment_id}`);
     },
     theme: {
-      color: "#fbbf24",
+      color: "black",
     },
   };
 
@@ -291,20 +293,23 @@ if (loading)
       <CheckoutStepper />
       
       <div className="max-w-2xl mx-auto mt-4 px-4">
-  <div
-    className="flex items-center gap-3 rounded-2xl
-               bg-gradient-to-r from-amber-50 to-yellow-100
-               border border-yellow-300 px-5 py-3 shadow-sm"
-  >
+ <div
+  className="flex items-center gap-3 rounded-2xl
+             bg-gray-50
+             border border-gray-200
+             px-5 py-4 shadow-sm"
+>
+
     <span className="text-2xl">🎉</span>
 
     <div>
-      <p className="text-sm font-semibold text-gray-900">
-        Best price applied
-      </p>
-      <p className="text-xs text-gray-600">
-        Offers and discounts were applied to your order
-      </p>
+    <p className="text-sm font-semibold text-gray-900">
+  Best price applied
+</p>
+<p className="text-xs text-gray-500">
+  Offers and discounts were applied to your order
+</p>
+
     </div>
   </div>
 </div>
@@ -314,8 +319,8 @@ if (loading)
 
         {/* --- Address Card --- */}
         {selectedAddress && (
-          <div className="border p-4 rounded mb-4 bg-yellow-50">
-            <h3 className="font-semibold">{selectedAddress.type} Address</h3>
+         <div className="border border-gray-200 p-5 rounded-xl mb-4 bg-gray-50">
+ <h3 className="font-semibold text-gray-900">{selectedAddress.type} Address</h3>
             <p>
               {selectedAddress.name} ({selectedAddress.phone})
             </p>
@@ -335,17 +340,17 @@ if (loading)
           <label
   className={`flex justify-between items-center p-5 border rounded-lg cursor-pointer transition-all ${
     paymentMode === "COD"
-      ? "border-black shadow-md bg-gray-100"
+      ? "border-black shadow-md bg-gray-50"
       : "bg-white hover:shadow-md"
   }`}
 >
-  <div className="flex items-center gap-3">
+  <div className="flex  items-center gap-3 ">
     <input
       type="radio"
       value="COD"
       checked={paymentMode === "COD"}
       onChange={() => setPaymentMode("COD")}
-      className="accent-green-600"
+      className="accent-black"
     />
     <img src="/images/COD.png" alt="COD" className="w-8 h-8 rounded-full" />
     <span className="font-medium">Cash on Delivery</span>
@@ -380,7 +385,7 @@ if (loading)
       value={method}
       checked={paymentMode === method}
       onChange={() => setPaymentMode(method)}
-      className="accent-blue-600"
+      className="accent-black"
     />
     <img
       src={`/images/${method.toLowerCase()}.png`}
@@ -416,7 +421,7 @@ if (loading)
       value="Card"
       checked={paymentMode === "Card"}
       onChange={() => setPaymentMode("Card")}
-      className="accent-red-600"
+      className="accent-black"
     />
     <img src="/images/CARD.png" alt="Card" className="w-8 h-8 rounded-full" />
     <span className="font-medium">Credit / Debit Card</span>
@@ -446,7 +451,7 @@ if (loading)
           <button
             onClick={handlePayment}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-gray-700 via-gray-600 to-gray-900 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
+            className="w-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition flex flex-col items-center"
           >
             <span className="text-white text-sm">₹{finalOrderTotal.toFixed(2)}</span>
             <span className="text-white font-bold">

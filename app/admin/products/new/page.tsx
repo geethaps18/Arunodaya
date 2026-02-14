@@ -92,6 +92,9 @@ const [brandId, setBrandId] = useState("");
   name: "",
   hex: "#000000",
 });
+const [subSubSubCategory, setSubSubSubCategory] =
+  useState<SubCategory | null>(null);
+
 
 useEffect(() => {
   const fetchBrands = async () => {
@@ -285,11 +288,6 @@ const existingKeys = new Set([
 const uniqueFiles = arr.filter(
   f => !existingKeys.has(`${f.name}-${f.size}`)
 );
-
-
-
- 
-
     copy[idx] = {
       ...copy[idx],
       images: [...copy[idx].images, ...uniqueFiles],
@@ -425,7 +423,13 @@ if (resolvedBrandId) {
 
 
       form.append("description", description);
-      const catPath = [category?.name, subCategory?.name, subSubCategory?.name].filter(Boolean);
+      const catPath = [
+  category?.name,
+  subCategory?.name,
+  subSubCategory?.name,
+  subSubSubCategory?.name   // ✅ THIS WAS MISSING
+].filter(Boolean);
+
       form.append("categoryPath", JSON.stringify(catPath));
    form.append("price", String(price));
 form.append("mrp", String(mrp));
@@ -519,6 +523,7 @@ if (mode === "add") {
   setCategory(categories[0] || null);
   setSubCategory(null);
   setSubSubCategory(null);
+  setSubSubSubCategory(null);
   setProductFiles([]);
   setProductPreviews([]);
   setVariants([]);
@@ -640,17 +645,24 @@ Soft brushed interior"
 </label>
 
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-3">
                   <div>
                     <label className="text-sm font-medium">Category</label>
-                    <select value={category?.name} onChange={e=>{ const c = categories.find(c=>c.name===e.target.value) || null; setCategory(c); setSubCategory(null); setSubSubCategory(null); }} className="mt-1 block w-full rounded border px-3 py-2">
+                    <select value={category?.name} onChange={e=>{ const c = categories.find(c=>c.name===e.target.value) || null; setCategory(c);
+setSubCategory(null);
+setSubSubCategory(null);
+setSubSubSubCategory(null); // ✅ ADD
+; }} className="mt-1 block w-full rounded border px-3 py-2">
                       {categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium">Subcategory</label>
-                    <select value={subCategory?.name||''} onChange={e=>{ const s = category?.subCategories?.find(s=>s.name===e.target.value) || null; setSubCategory(s); setSubSubCategory(null); }} className="mt-1 block w-full rounded border px-3 py-2">
+                    <select value={subCategory?.name||''} onChange={e=>{ const s = category?.subCategories?.find(s=>s.name===e.target.value) || null; setSubCategory(s);
+setSubSubCategory(null);
+setSubSubSubCategory(null); // ✅ ADD
+ }} className="mt-1 block w-full rounded border px-3 py-2">
                       <option value="">Select</option>
                       {category?.subCategories?.map(s=> <option key={s.name} value={s.name}>{s.name}</option>)}
                     </select>
@@ -658,12 +670,38 @@ Soft brushed interior"
 
                   <div>
                     <label className="text-sm font-medium">Sub-Sub</label>
-                    <select value={subSubCategory?.name||''} onChange={e=>{ const ss = subCategory?.subCategories?.find(s=>s.name===e.target.value)||null; setSubSubCategory(ss); }} className="mt-1 block w-full rounded border px-3 py-2">
+                    <select value={subSubCategory?.name||''} onChange={e=>{ const ss = subCategory?.subCategories?.find(s=>s.name===e.target.value)||null;setSubSubCategory(ss);
+setSubSubSubCategory(null); // ✅ ADD
+ }} className="mt-1 block w-full rounded border px-3 py-2">
                       <option value="">Select</option>
                       {subCategory?.subCategories?.map(s=> <option key={s.name} value={s.name}>{s.name}</option>)}
                     </select>
                   </div>
                 </div>
+<div>
+  <label className="text-sm font-medium">Sub-Sub-Sub</label>
+
+  <select
+    value={subSubSubCategory?.name || ""}
+    onChange={(e) => {
+      const sss =
+        subSubCategory?.subCategories?.find(
+          s => s.name === e.target.value
+        ) || null;
+
+      setSubSubSubCategory(sss);
+    }}
+    className="mt-1 block w-full rounded border px-3 py-2"
+  >
+    <option value="">Select</option>
+
+    {subSubCategory?.subCategories?.map((s) => (
+      <option key={s.name} value={s.name}>
+        {s.name}
+      </option>
+    ))}
+  </select>
+</div>
 
               </div>
 

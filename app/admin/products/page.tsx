@@ -12,7 +12,18 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  
+  const [category, setCategory] = useState("");
+
+const groupedProducts = products.reduce((acc: any, product: any) => {
+  const key = product.category?.toLowerCase() || "uncategorized";
+
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+
+  acc[key].push(product);
+  return acc;
+}, {});
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -101,71 +112,75 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
 
-            <tbody>
-              {products.map((p: any) => (
-                <tr key={p.id} className="border-b hover:bg-gray-50">
-                  <td className="p-4 flex items-center gap-3">
-                    <img
-                      src={p.images?.[0] || "/placeholder.png"}
-                      className="w-12 h-12 rounded border object-cover"
-                    />
-                    <span className="font-medium">{p.name}</span>
-                  </td>
+          <tbody>
+  {Object.entries(groupedProducts).map(([category, items]: any) => (
+    <>
+      {/* Category Header Row */}
+      <tr key={category}>
+        <td colSpan={7} className="bg-gray-200 font-semibold text-gray-800 p-3">
+          {category.toUpperCase()} ({items.length})
+        </td>
+      </tr>
 
-                  <td className="p-4">{p.category || "—"}</td>
-                  <td className="p-4 font-semibold">₹{p.price}</td>
-                  <td className="p-4">{p.stock}</td>
+      {/* Category Products */}
+      {items.map((p: any) => (
+        <tr key={p.id} className="border-b hover:bg-gray-50">
+          <td className="p-4 flex items-center gap-3">
+            <img
+              src={p.images?.[0] || "/placeholder.png"}
+              className="w-12 h-12 rounded border object-cover"
+            />
+            <span className="font-medium">{p.name}</span>
+          </td>
 
-                  <td className="p-4">
-  {p.reminderCount > 0 ? (
-    <span className="flex items-center gap-1 text-sm bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full w-fit">
-      <Bell size={14} />
-      {p.reminderCount}
-    </span>
-  ) : (
-    <span className="text-xs text-gray-400">—</span>
-  )}
-</td>
+          <td className="p-4">{p.category || "—"}</td>
+          <td className="p-4 font-semibold">₹{p.price}</td>
+          <td className="p-4">{p.stock}</td>
 
+          <td className="p-4">
+            {p.reminderCount > 0 ? (
+              <span className="flex items-center gap-1 text-sm bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full w-fit">
+                <Bell size={14} />
+                {p.reminderCount}
+              </span>
+            ) : (
+              <span className="text-xs text-gray-400">—</span>
+            )}
+          </td>
 
-                  <td className="p-4">
-                    {p.stock > 0 ? (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                        In Stock
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
-                        Out of Stock
-                      </span>
-                    )}
-                  </td>
+          <td className="p-4">
+            {p.stock > 0 ? (
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                In Stock
+              </span>
+            ) : (
+              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+                Out of Stock
+              </span>
+            )}
+          </td>
 
-                  <td className="p-4 text-right flex justify-end gap-2">
-                    <Link
-                      href={`/admin/products/${p.id}/edit`}
-                      className="p-2 bg-blue-100 text-blue-700 rounded"
-                    >
-                      <Pencil size={18} />
-                    </Link>
+          <td className="p-4 text-right flex justify-end gap-2">
+            <Link
+              href={`/admin/products/${p.id}/edit`}
+              className="p-2 bg-blue-100 text-blue-700 rounded"
+            >
+              <Pencil size={18} />
+            </Link>
 
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="p-2 bg-red-100 text-red-700 rounded"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            <button
+              onClick={() => handleDelete(p.id)}
+              className="p-2 bg-red-100 text-red-700 rounded"
+            >
+              <Trash2 size={18} />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </>
+  ))}
+</tbody>
 
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="p-6 text-center text-gray-500">
-                    No products found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
           </table>
         </div>
       )}

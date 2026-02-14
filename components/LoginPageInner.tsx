@@ -146,7 +146,7 @@ const redirectTo = rawRedirect.startsWith("/")
         <div className="flex justify-center mb-4">
          <Link href="/">
   <img
-    src="/images/arunodaya.png"
+    src="/images/arclogo4.png"
     alt="arunodaya Logo"
     className="w-40 h-40 object-contain cursor-pointer"
   />
@@ -171,7 +171,7 @@ const redirectTo = rawRedirect.startsWith("/")
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-yellow-500 text-white py-2 rounded-md"
+                className="w-full bg-gray-800 text-white py-2 rounded-md"
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
@@ -219,13 +219,13 @@ const redirectTo = rawRedirect.startsWith("/")
           )}
         </form>
 
-        <p className="text-center mt-4">
+        <p className="text-center text-gray-500 mt-4">
           New here?{" "}
           <button
             onClick={() =>
               router.push(`/signup?redirect=${encodeURIComponent(redirectTo)}`)
             }
-            className="text-yellow-500 hover:underline"
+            className="text-gray-900 hover:underline"
           >
             Sign Up
           </button>

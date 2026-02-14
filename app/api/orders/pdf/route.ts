@@ -49,10 +49,10 @@ export async function POST(req: NextRequest) {
 
     /* ---------------- Resolve Seller (Builder) ---------------- */
     let seller = {
-      storeName: "BSCFASHION",
-      address: "B.S Channabasappa & Sons, Davanagere — 577001",
+      storeName: "Arunodaya Collections",
+      address: "Arunodaya collections Davangere @ AVK COLLEGE ROAD, Davanagere — 577001",
       phone: "9770808020",
-      email: "hello@bscfashion.com",
+      email: "hello@arunodaya.com",
     };
 
     const firstItem = order.items[0];
@@ -209,7 +209,7 @@ ${address.city || ""}, ${address.state || ""} - ${address.pincode || ""}
 
     doc.moveDown(0.5);
     doc.fillColor(accent).text(
-      "Powered by BSCFASHION • TBITS INDIA Davanagere",
+      "Powered by TBITS INDIA Davanagere",
       { align: "center" }
     );
 

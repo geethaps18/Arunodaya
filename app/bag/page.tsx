@@ -205,7 +205,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
                     onClick={() => handleMoveToWishlist(item.uniqueKey)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="text-xs sm:text-sm text-gray-600 hover:text-yellow-600 font-medium"
+                    className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 font-medium"
                   >
                     ❤ Move to Wishlist
                   </motion.button>

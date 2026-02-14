@@ -68,12 +68,12 @@ async function sendOrderEmail(to: string, order: any, items: any[]) {
   const itemList = items
     .map(
       (i) =>
-        `➜ ${i.name} - ${i.size ?? "Free Size"} (${i.quantity}) - ₹${i.price}`
+        `➜ ${i.name} - ${i.size ?? "One Size"} (${i.quantity}) - ₹${i.price}`
     )
     .join("<br>");
 
   await transporter.sendMail({
-    from: `"BSCFASHION" <${EMAIL_USER}>`,
+    from: `"Arunodaya Collections" <${EMAIL_USER}>`,
     to,
     subject: `Order Confirmed - ${order.id}`,
     html: `
@@ -82,7 +82,7 @@ async function sendOrderEmail(to: string, order: any, items: any[]) {
       <p><b>Order ID:</b> ${order.id}</p>
       <p>${itemList}</p>
       <p><b>Total:</b> ₹${order.totalAmount}</p>
-      <p>— Team BSCFASHION</p>
+      <p>— Team Arunodaya</p>
     `,
   });
 }
@@ -92,7 +92,7 @@ async function sendWhatsAppMessage(phone: string, order: any, items: any[]) {
   const itemList = items
     .map(
       (i) =>
-        `➜ ${i.name} - ${i.size ?? "Free Size"} (${i.quantity}) - ₹${i.price}`
+        `➜ ${i.name} - ${i.size ?? "One Size"} (${i.quantity}) - ₹${i.price}`
     )
     .join("\n");
 
@@ -107,7 +107,7 @@ async function sendWhatsAppMessage(phone: string, order: any, items: any[]) {
       to: phone,
       type: "text",
       text: {
-        body: `Thank you for shopping with BSCFASHION 👋
+        body: `Thank you for shopping with Arunodaya 👋
 
 Order ID: ${order.id}
 
@@ -154,7 +154,7 @@ export async function POST(req: Request) {
         productId: product.id,
         siteId: product.siteId,
         name: product.name,
-        brandName: product.brandName ?? "BSCFASHION",
+        brandName: product.brandName ?? "ARUNODAYA",
         quantity: Number(item.quantity),
         price: Number(item.price),
         size: item.size ?? null,

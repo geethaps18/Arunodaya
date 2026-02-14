@@ -124,6 +124,7 @@ model Product {
   category       String?
   subCategory    String?
   subSubCategory String?
+  subSubSubCategory String?
   // legacy fallback
   brandName String?
 

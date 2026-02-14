@@ -334,45 +334,35 @@ export async function DELETE(
 ) {
   const { id } = await context.params;
 
-  // your delete logic here
-
-
   try {
-    await prisma.$transaction(async (tx) => {
-      // 1️⃣ Delete Stock Reminders
-      await tx.stockReminder.deleteMany({
-        where: { productId: id },
-      });
+    // Delete children first
+    await prisma.stockReminder.deleteMany({
+      where: { productId: id },
+    });
 
-      // 2️⃣ Delete Wishlist items
-      await tx.wishlist.deleteMany({
-        where: { productId: id },
-      });
+    await prisma.wishlist.deleteMany({
+      where: { productId: id },
+    });
 
-      // 3️⃣ Delete Bag items
-      await tx.bag.deleteMany({
-        where: { productId: id },
-      });
+    await prisma.bag.deleteMany({
+      where: { productId: id },
+    });
 
-      // 4️⃣ Delete Reviews
-      await tx.review.deleteMany({
-        where: { productId: id },
-      });
+    await prisma.review.deleteMany({
+      where: { productId: id },
+    });
 
-      // 5️⃣ Delete Ratings
-      await tx.rating.deleteMany({
-        where: { productId: id },
-      });
+    await prisma.rating.deleteMany({
+      where: { productId: id },
+    });
 
-      // 6️⃣ 🔥 DELETE PRODUCT VARIANTS FIRST
-      await tx.productVariant.deleteMany({
-        where: { productId: id },
-      });
+    await prisma.productVariant.deleteMany({
+      where: { productId: id },
+    });
 
-      // 7️⃣ ✅ NOW delete Product (NO ERROR)
-      await tx.product.delete({
-        where: { id },
-      });
+    // Finally delete product
+    await prisma.product.delete({
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
