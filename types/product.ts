@@ -13,40 +13,49 @@ export interface ColorOption {
   //stock: number;
   //design?: string;
   
-  export type ProductVariant = {
+export type ProductVariant = {
   id: string;
   size?: string | null;
   color?: string | null;
-  price?: number;
+
+  mrp?: number;              // ✅ add
+  price?: number;            // selling price
+  discount?: number;         // percentage
+  discountAmount?: number;   // amount saved
+
   stock?: number;
   images?: string[];
 };
 
 
+
 export interface Product {
   id: string;
   name: string;
-  brandName?:string;
+  brandName?: string;
   siteId: string;  
+
   description?: string;
   category?: string;
   subCategory?: string;
   subSubCategory?: string;
-  price: number;
+
+  price: number;     // default/base price
   mrp?: number;
   discount?: number;
-  
+
   images: string[];
 
   sizes?: string[];
-  //variants?: ProductVariant[];
-  createdAt: string;   // API
+
+  variants?: ProductVariant[];   // ✅ IMPORTANT
+
+  createdAt: string;
   rating?: number;
   reviewCount: number; 
   reviews?: Review[];
-  
- 
 }
+
 export interface Review {
   id?: string;           // Review ID
   name?: string;         // User name

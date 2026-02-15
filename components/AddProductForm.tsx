@@ -19,11 +19,17 @@ type Variant = {
   id: string;
   size?: string;
   color?: string;
+
+  mrp: string;            // ✅ add
   price: string;
+  discount: string;       // ✅ add
+  discountAmount: string; // ✅ add
+
   stock: string;
   images: File[];
   previews: string[];
 };
+
 type ProductFormMode = "add" | "edit";
 
 type ProductBuilderProps = {
@@ -260,12 +266,16 @@ function newVariant(): Variant {
     id: String(Date.now()) + Math.random().toString(36).slice(2),
     size: "",
     color: "",
-    price: price || "",   // ✅ DEFAULT FROM BASE PRICE
+    mrp: mrp || "",
+    price: price || "",
+    discount: "",
+    discountAmount: "",
     stock: "",
     images: [],
     previews: [],
   };
 }
+
 
 
   function addVariant() { setVariants(v => [...v, newVariant()]); }
@@ -447,13 +457,17 @@ form.append("discountAmount", String(discountAmount));
     form.append(
       "variants",
       JSON.stringify(
-        variants.map(v => ({
-          size: v.size,
-          color: v.color,
-          price: Number(v.price),
-          stock: Number(v.stock),
-          existingImages: v.previews.filter(p => p.startsWith("http")),
-        }))
+     variants.map(v => ({
+  size: v.size,
+  color: v.color,
+  mrp: Number(v.mrp),
+  price: Number(v.price),
+  discount: Number(v.discount),
+  discountAmount: Number(v.discountAmount),
+  stock: Number(v.stock),
+  existingImages: v.previews.filter(p => p.startsWith("http")),
+}))
+
       )
     );
 
@@ -528,6 +542,22 @@ async function getOrCreateBrand(): Promise<string | null> {
 
 
 const Tabs = ["Basic","Media","Pricing","Variants","Review"];
+function calculateVariantDiscount(m: string, p: string) {
+  const mm = Number(m);
+  const pp = Number(p);
+
+  if (!mm || !pp || pp >= mm) {
+    return { percent: "", amount: "" };
+  }
+
+  const percent = Math.round(((mm - pp) / mm) * 100);
+  const amount = mm - pp;
+
+  return {
+    percent: String(percent),
+    amount: String(amount),
+  };
+}
 
 
   return (
@@ -896,15 +926,59 @@ Soft brushed interior"
           </select>
 
           <input
-            placeholder="Variant Price"
-            value={v.price}
-            onChange={(e) => {
-              const copy = [...variants];
-              copy[idx].price = e.target.value;
-              setVariants(copy);
-            }}
-            className="border rounded px-3 py-2 w-full"
-          />
+  placeholder="Variant MRP"
+  value={v.mrp}
+  onChange={(e) => {
+    const copy = [...variants];
+    copy[idx].mrp = e.target.value;
+
+    const result = calculateVariantDiscount(
+      e.target.value,
+      copy[idx].price
+    );
+
+    copy[idx].discount = result.percent;
+    copy[idx].discountAmount = result.amount;
+
+    setVariants(copy);
+  }}
+  className="border rounded px-3 py-2 w-full"
+/>
+
+<input
+  placeholder="Variant Price"
+  value={v.price}
+  onChange={(e) => {
+    const copy = [...variants];
+    copy[idx].price = e.target.value;
+
+    const result = calculateVariantDiscount(
+      copy[idx].mrp,
+      e.target.value
+    );
+
+    copy[idx].discount = result.percent;
+    copy[idx].discountAmount = result.amount;
+
+    setVariants(copy);
+  }}
+  className="border rounded px-3 py-2 w-full"
+/>
+
+<input
+  placeholder="Discount Amount"
+  value={v.discountAmount}
+  readOnly
+  className="border rounded px-3 py-2 w-full bg-gray-50"
+/>
+
+<input
+  placeholder="Discount %"
+  value={v.discount}
+  readOnly
+  className="border rounded px-3 py-2 w-full bg-gray-50"
+/>
+
 
           <input
             placeholder="Variant Stock"
