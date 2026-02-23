@@ -133,19 +133,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.brandName ?? "ARUNODAYA"}
           </p>
 
-          {rating > 0 && (
-            <div className="flex items-center gap-1 text-[11px] text-gray-500">
-              <span className="text-gray-700 font-medium">
-                {rating.toFixed(1)}
-              </span>
-              <span className="text-gray-400">•</span>
-              {reviewCount > 0 && (
-                <span className="text-gray-400">
-                  {reviewCount}
-                </span>
-              )}
-            </div>
-          )}
+           {product.rating > 0 && (
+    <div className="flex items-center gap-1 text-[12px] text-gray-500">
+      
+      <span className="font-medium text-gray-700">
+        {product.rating.toFixed(1)}
+      </span>
+      <span className="leading-none">★</span>
+      {product.reviewCount && (
+        <span className="text-gray-400">
+          ({product.reviewCount})
+        </span>
+      )}
+    </div>
+  )}
         </div>
 
         <div className="flex items-center gap-2 mt-2">
