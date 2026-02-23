@@ -77,7 +77,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
   // --- Empty Bag ---
   if (!bagItems.length)
     return (
-   <div className="flex flex-col min-h-screen bg-gray-50 pt-0">
+   <div className="flex flex-col min-h-screen  pt-0">
       {/* Stepper */}
       <CheckoutStepper />
       <div className="flex flex-col items-center justify-center h-[70vh] text-center p-4">

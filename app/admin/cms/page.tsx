@@ -16,11 +16,21 @@ export default function AdminCMSPage() {
   const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    fetch("/api/cms/home", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((saved) => setData(saved));
-  }, []);
+useEffect(() => {
+  async function loadData() {
+    try {
+      const res = await fetch("/api/cms/home", { cache: "no-store" });
+      const saved = await res.json();
+      setData(saved);
+    } catch (error) {
+      console.error("Failed to load CMS data:", error);
+    } finally {
+      setLoading(false); // ✅ IMPORTANT
+    }
+  }
+
+  loadData();
+}, []);
  if (loading) {
     return (
       <div className="flex justify-center items-center py-20">

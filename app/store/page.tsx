@@ -22,7 +22,7 @@ interface Store {
 
 const stores: Store[] = [
  {
-  name: "Arunodaya Collections – Main Branch",
+  name: "Arunodaya Collections – First Branch",
   address:
     "AVK College Road, Ishwar Complex, P.J. Extension, Davanagere – 577002",
   city: "Davangere",
@@ -31,11 +31,9 @@ const stores: Store[] = [
   mapUrl:
     "https://www.google.com/maps/search/Arunodaya+Collections+AVK+College+Road+Davanagere",
   categories: [
-    "Sarees",
     "Ladies Wear",
     "Men’s Wear",
     "Kids Wear",
-    "Fashion Accessories",
   ],
 },
 {
