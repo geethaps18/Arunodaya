@@ -54,7 +54,7 @@ const slugify = (text: string) =>
   }
 
   return (
-    <div className="min-h-screen bg-white pt-[80px] px-0.5">
+    <div className="min-h-screen bg-white pt-[100px] px-0.5">
       <Header />
 
       {/* Subcategories */}

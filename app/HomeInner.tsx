@@ -24,7 +24,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-
 /* -------------------- Categories -------------------- */
 const highlightCategories: any = {
   Women: [
@@ -123,14 +122,13 @@ const heroBanners =
     {/* Top Word Tabs */}
     <div className="flex justify-center gap-10 pb-4 lg:hidden ">
       {["Women", "Men", "Kids",].map((tab) => (
-   <Link
+<Link
   key={tab}
   href={`/categories/${tab.toLowerCase()}`}
-  className="text-xl font-serif tracking-wide text-gray-700 hover:text-black transition-all duration-300"
+  className="text-[22px] font-normal tracking-[0.02em] text-gray-800 hover:text-black transition-all duration-300 font-[var(--font-playfair)]"
 >
   {tab}
 </Link>
-
       ))}
     </div>
    {/* Highlight Cards - Single Row */}

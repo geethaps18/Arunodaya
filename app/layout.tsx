@@ -12,7 +12,13 @@ import AppLayoutWrapper from "@/components/AppLayoutWrapper";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import TopLoader from "@/components/TopLoader";
+import { Playfair_Display } from "next/font/google";
 
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-playfair",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
