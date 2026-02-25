@@ -123,11 +123,11 @@ export default function CategoriesPage() {
   const { path } = findCategoryPath(slugSegments, categories);
 
   return (
-    <div className="flex min-h-screen bg-white pt-16 pb-20">
+    <div className="flex min-h-screen bg-white pt-20 pb-20">
       {/* Left Panel */}
       <div
         ref={leftPanelRef}
-        className="w-1/4 border-r bg-gray-50 overflow-y-auto h-[calc(100vh-4rem-5rem)]"
+        className="w-1/4 border-r  overflow-y-auto h-[calc(100vh-4rem-5rem)]"
       >
         <ul className="grid grid-cols-1 gap-6 p-4">
           {categories.map((cat) => (
@@ -153,8 +153,8 @@ export default function CategoriesPage() {
                 <Image
                   src={cat.image}
                   alt={cat.name}
-                  width={56}
-                  height={56}
+                  width={66}
+                  height={66}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -196,7 +196,7 @@ export default function CategoriesPage() {
               key={cat.name}
               ref={(el) => { sectionRefs.current[cat.name] = el; }}
               className={`space-y-4 scroll-mt-20 rounded-lg p-3 transition ${
-                isActive ? "bg-gray-50 border border-gray-900" : ""
+                isActive ? " border border-gray-900" : ""
               }`}
             >
               <h2 className={`text-lg font-semibold border-b pb-1 ${isActive ? "text-gray-700" : "text-gray-800"}`}>

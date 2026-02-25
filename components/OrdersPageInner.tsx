@@ -106,7 +106,7 @@ if (loading)
  
 
   return (
-    <div className="min-h-screen flex flex-col ">
+    <div className="min-h-screen flex flex-col pt-2">
       <Header />
       <Toaster />
 
@@ -125,7 +125,7 @@ if (loading)
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search your orders..."
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
               />
             </div>
 
@@ -133,7 +133,7 @@ if (loading)
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="w-full sm:w-auto border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
             >
               <option value="ALL">All Status</option>
               <option value="PENDING">Pending</option>

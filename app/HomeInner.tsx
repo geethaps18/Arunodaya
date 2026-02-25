@@ -117,16 +117,16 @@ const heroBanners =
       <main className="pt-[72px] lg:pt-[9px] flex-grow">
         {/* ================= HOME CATEGORY ROW ================= */}
    
-<section className="bg-white pt-1 pb-6">
+<section className="bg-white pt-8 pb-6">
   <div className="max-w-7xl mx-auto px-4">
 
     {/* Top Word Tabs */}
-    <div className="flex justify-center gap-10 pb-4 lg:hidden">
-      {["Women", "Men", "Kids"].map((tab) => (
+    <div className="flex justify-center gap-10 pb-4 lg:hidden ">
+      {["Women", "Men", "Kids",].map((tab) => (
    <Link
   key={tab}
   href={`/categories/${tab.toLowerCase()}`}
-  className="text-lg font-medium text-gray-500 hover:text-black transition"
+  className="text-xl font-serif tracking-wide text-gray-700 hover:text-black transition-all duration-300"
 >
   {tab}
 </Link>

@@ -142,10 +142,11 @@ export default function ProductDetailPage() {
   const id = params?.id;
 
 const { wishlist, toggleWishlist, isInWishlist } = useWishlist();
+const [showAllReviews, setShowAllReviews] = useState(false);
 
   const { addToCart } = useCart();
   const router = useRouter();
-
+const [showSizeChart, setShowSizeChart] = useState(false);
 
 
  const [product, setProduct] = useState<ProductWithReviews | null>(() => {
@@ -676,7 +677,40 @@ const handleAddToBag = () => {
     document.body.style.overflow = "";
   };
 console.log(product.fit, product.fabricCare, product.features);
+// Detect kids category
+const isKidsCategory =
+  product.category?.toLowerCase().includes("kid");
 
+// Full standard chart
+const STANDARD_CHART = [
+  { size: "XS", chest: 34, waist: 28, length: 26 },
+  { size: "S", chest: 36, waist: 30, length: 27 },
+  { size: "M", chest: 38, waist: 32, length: 28 },
+  { size: "L", chest: 40, waist: 34, length: 29 },
+  { size: "XL", chest: 42, waist: 36, length: 30 },
+  { size: "XXL", chest: 44, waist: 38, length: 31 },
+  { size: "FREE", chest: "Free", waist: "Free", length: "Free" },
+  { size: "One Size", chest: "Free", waist: "Free", length: "Free" },
+];
+
+// Kids chart
+const KIDS_CHART = [
+  { size: "0-3M", chest: 16, waist: 15, length: 14 },
+  { size: "3-6M", chest: 17, waist: 16, length: 15 },
+  { size: "6-9M", chest: 18, waist: 17, length: 16 },
+  { size: "9-12M", chest: 19, waist: 18, length: 17 },
+  { size: "1-2Y", chest: 20, waist: 19, length: 18 },
+  { size: "2-3Y", chest: 21, waist: 20, length: 19 },
+  { size: "3-4Y", chest: 22, waist: 21, length: 20 },
+];
+
+// Select correct chart
+const baseChart = isKidsCategory ? KIDS_CHART : STANDARD_CHART;
+
+// 🔥 Show only sizes available in product
+const sizeChartData = baseChart.filter(row =>
+  sizes.includes(row.size)
+);
   // ---------------- UI ----------------
   return (
   <div className="min-h-screen bg-white pt-20 md:pt-24">
@@ -1020,8 +1054,17 @@ console.log(product.fit, product.fabricCare, product.features);
   ref={sizesRef}
   className={`${sizeError ? "ring-1 ring-red-400 rounded-md p-2" : ""}`}
 >
-  <p className="text-gray-700 mb-2 text-sm font-medium">Size</p>
+<div className="flex items-center justify-between mb-2">
+  <p className="text-gray-700 text-sm font-medium">Size</p>
 
+  <button
+    type="button"
+    onClick={() => setShowSizeChart(true)}
+    className="text-xs underline text-gray-600 hover:text-black"
+  >
+    Size Chart
+  </button>
+</div>
   {product.sizes && product.sizes.length > 0 ? (
     <div className="flex flex-wrap gap-2">
   {sizes.map((size) => {
@@ -1161,6 +1204,7 @@ console.log(product.fit, product.fabricCare, product.features);
     title="Product Description"
     content={product.description}
   />
+  
 
   <ProductAccordion
     title="Fit"
@@ -1294,6 +1338,48 @@ console.log(product.fit, product.fabricCare, product.features);
           </div>
         </div>
       )}
+      {showSizeChart && (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+    <div className="bg-white w-[90%] max-w-md rounded-lg p-6 relative">
+      
+      <button
+        onClick={() => setShowSizeChart(false)}
+        className="absolute top-3 right-3 text-gray-500"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-lg font-semibold mb-4">Size Chart</h3>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-2 border">Size</th>
+              <th className="p-2 border">Chest (in)</th>
+              <th className="p-2 border">Waist (in)</th>
+              <th className="p-2 border">Length (in)</th>
+            </tr>
+          </thead>
+        <tbody>
+  {sizeChartData.map((row) => (
+    <tr key={row.size}>
+      <td className="p-2 border">{row.size}</td>
+      <td className="p-2 border">{row.chest}</td>
+      <td className="p-2 border">{row.waist}</td>
+      <td className="p-2 border">{row.length}</td>
+    </tr>
+  ))}
+</tbody>
+        </table>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-3">
+        Measurements may vary by 0.5–1 inch.
+      </p>
+    </div>
+  </div>
+)}
     </div>
   );
 }

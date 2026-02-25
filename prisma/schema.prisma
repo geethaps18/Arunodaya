@@ -112,7 +112,13 @@ model Category {
 
   @@index([parentId])
 }
-
+model SizeChart {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  category  String
+  title     String
+  chartData Json
+  createdAt DateTime @default(now())
+}
 model Product {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String?

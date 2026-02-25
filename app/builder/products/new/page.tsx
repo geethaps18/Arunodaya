@@ -1,21 +1,19 @@
-// app/builder/products/new/page.tsx
-import { prisma } from "@/lib/db";
+"use client";
+
+import { useSite } from "@/components/SiteContext";
 import AddProductFormTabbed from "@/components/AddProductForm";
 
-export default async function NewProductPage() {
-  // 🔥 FETCH CURRENT SITE (SERVER SIDE)
-  const site = await prisma.site.findFirst({
-    select: { id: true },
-  });
+export default function NewProductPage() {
+  const { siteId } = useSite();
 
-  if (!site) {
-    return <div>No store found</div>;
+  if (!siteId) {
+    return <div>Please select a website</div>;
   }
 
   return (
     <AddProductFormTabbed
       mode="add"
-      siteId={site.id} // ✅ PASS SITE ID
+      siteId={siteId}
     />
   );
 }

@@ -68,7 +68,7 @@ const slugify = (text: string) =>
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white pt-[80px] pb-24 px-0.5">
+    <div className="min-h-screen flex flex-col bg-white pt-[100px] pb-24 px-0.5">
       <Header />
 
       {/* Desktop breadcrumb */}

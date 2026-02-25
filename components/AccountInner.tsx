@@ -201,7 +201,7 @@ const tabs = [
   <>
     <Header />
 
-    <main className="max-w-5xl mx-auto mt-20 px-4 sm:px-6 lg:px-8 space-y-6">
+    <main className=" bg-white max-w-5xl mx-auto mt-20 px-4 sm:px-6 lg:px-8 space-y-6 pt-2">
       
 
 <div className="flex justify-around border-b pb-2 mb-6">

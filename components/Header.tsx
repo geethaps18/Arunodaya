@@ -194,10 +194,16 @@ useEffect(() => {
 
   return (
     
-<header
-  className="fixed top-0 left-0 w-full bg-white border-b border-black/10 z-50"
-  onMouseLeave={() => setActiveCategory(null)}
->
+<>
+  {/* 🔥 ANNOUNCEMENT BAR */}
+  <div className="fixed top-0 left-0 w-full bg-gray-100 text-gray-600 text-xs md:text-sm text-center py-2 z-[60]">
+    Free Delivery Across Karnataka | COD Available
+  </div>
+
+  <header
+    className="fixed top-[32px] left-0 w-full bg-white border-b border-black/10 z-50"
+    onMouseLeave={() => setActiveCategory(null)}
+  >
 
     
 
@@ -508,6 +514,6 @@ width: itemRect.width,
 )}
 
  </header>
-    
+   </> 
   );
 }
