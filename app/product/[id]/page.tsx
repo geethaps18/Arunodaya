@@ -1294,16 +1294,7 @@ const sizeChartData = baseChart.filter(row =>
           </div>
         </div>
       )}
-<div className="flex justify-center mt-6">
-<Link
-  href={`/categories/${product.category}`}
-  className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-700 transition-colors"
->
-  View more similar products
-  <span className="text-base">→</span>
-</Link>
 
-</div>
 
 
 

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { categories, SubCategory } from "@/data/categories";
 import { COLOR_OPTIONS } from "@/data/colors";
 import { useRouter } from "next/navigation";
-
+import { useSearchParams } from "next/navigation";
 /*
   Tailwind-UI style, tabbed Add Product form
   - Tabs: Basic, Media, Pricing, Inventory, Variants, Review
@@ -51,7 +51,8 @@ export default function ProductFormTabbed({
   productId?: string;
 }) {
 const [brandInput, setBrandInput] = useState("");
-
+const searchParams = useSearchParams();
+const duplicateId = searchParams.get("duplicate");
   const [activeTab, setActiveTab] = useState<number>(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -135,7 +136,7 @@ useEffect(() => {
 
 useEffect(() => {
   // ONLY set default when creating NEW product
-  if (mode === "add" && !productId) {
+ if (mode === "add" && !productId && !duplicateId) {
     setCategory(categories[0] || null);
     setSubCategory(null);
     setSubSubCategory(null);
@@ -143,23 +144,21 @@ useEffect(() => {
 setVideoPreview(null);
 
   }
-}, [mode, productId]);
+}, [mode, productId, duplicateId]);
 
 
 
 
 useEffect(() => {
-  if (mode !== "edit" || !productId) return;
+if (!duplicateId || mode === "edit") return;
 
   (async () => {
-    const res = await fetch(`/api/admin/products/${productId}`);
+ const res = await fetch(`/api/admin/products/${duplicateId}`);
     const data = await res.json();
-    
+
     setName(data.name ?? "");
-setBrandInput(data.brand?.name || data.brandName || "");
-setBrandId(data.brandId || "");
-
-
+    setBrandInput(data.brand?.name || data.brandName || "");
+    setBrandId(data.brandId || "");
 
     setDescription(data.description ?? "");
     setPrice(String(data.price ?? ""));
@@ -169,57 +168,117 @@ setBrandId(data.brandId || "");
     setFit((data.fit ?? []).join("\n"));
     setFabricCare((data.fabricCare ?? []).join("\n"));
     setFeatures((data.features ?? []).join("\n"));
+
     setExistingImages(data.images || []);
-setProductPreviews(data.images || []); // UI preview only
-setProductFiles([]); // reset new uploads
-if (data.video) {
-  setVideoPreview(data.video);
-}
-
- 
-// category (case-insensitive match)
-const cat =
-  categories.find(
-    x => x.name.toLowerCase() === data.category
-  ) || null;
-
-setCategory(cat);
-
-// subcategory
-const subCat =
-  cat?.subCategories?.find(
-    s => s.name.toLowerCase() === data.subCategory
-  ) || null;
-
-setSubCategory(subCat);
-
-// sub-subcategory
-const subSubCat =
-  subCat?.subCategories?.find(
-    s => s.name.toLowerCase() === data.subSubCategory
-  ) || null;
-
-setSubSubCategory(subSubCat);
-
-
-
     setProductPreviews(data.images || []);
+    setProductFiles([]);
+
+    if (data.video) {
+      setVideoPreview(data.video);
+    }
+
+    const cat =
+      categories.find(x => x.name.toLowerCase() === data.category) || null;
+
+    setCategory(cat);
+
+    const subCat =
+      cat?.subCategories?.find(
+        s => s.name.toLowerCase() === data.subCategory
+      ) || null;
+
+    setSubCategory(subCat);
+
+    const subSubCat =
+      subCat?.subCategories?.find(
+        s => s.name.toLowerCase() === data.subSubCategory
+      ) || null;
+
+    setSubSubCategory(subSubCat);
 
     setVariants(
       (data.variants || []).map((v:any) => ({
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
+        mrp: String(v.mrp),
         price: String(v.price),
+        discount: String(v.discount),
+        discountAmount: String(v.discountAmount),
         stock: String(v.stock),
         images: [],
         previews: v.images || [],
       }))
     );
   })();
+
 }, [mode, productId]);
 
+useEffect(() => {
+  if (!duplicateId) return;
 
+  (async () => {
+    const res = await fetch(`/api/admin/products/${duplicateId}`);
+    const data = await res.json();
+
+    setName(data.name ? `Copy of ${data.name}` : "");
+    setBrandInput(data.brand?.name || data.brandName || "");
+    setBrandId(data.brandId || "");
+
+    setDescription(data.description ?? "");
+    setPrice(String(data.price ?? ""));
+    setMrp(String(data.mrp ?? ""));
+    setDiscount(String(data.discount ?? ""));
+
+    setFit((data.fit ?? []).join("\n"));
+    setFabricCare((data.fabricCare ?? []).join("\n"));
+    setFeatures((data.features ?? []).join("\n"));
+
+    // 🔥 DO NOT COPY IMAGES
+    setExistingImages([]);
+    setProductPreviews([]);
+    setProductFiles([]);
+
+    if (data.video) {
+      setVideoPreview(data.video);
+    }
+
+    const cat =
+      categories.find(x => x.name.toLowerCase() === data.category) || null;
+
+    setCategory(cat);
+
+    const subCat =
+      cat?.subCategories?.find(
+        s => s.name.toLowerCase() === data.subCategory
+      ) || null;
+
+    setSubCategory(subCat);
+
+    const subSubCat =
+      subCat?.subCategories?.find(
+        s => s.name.toLowerCase() === data.subSubCategory
+      ) || null;
+
+    setSubSubCategory(subSubCat);
+
+    setVariants(
+      (data.variants || []).map((v:any) => ({
+        id: crypto.randomUUID(),
+        size: v.size,
+        color: v.color,
+        mrp: String(v.mrp),
+        price: String(v.price),
+        discount: String(v.discount),
+        discountAmount: String(v.discountAmount),
+        stock: String(v.stock),
+        images: [],
+        previews: [], // 🔥 clear variant images
+      }))
+    );
+  })();
+
+}, [duplicateId]);
 useEffect(() => {
   const mm = Number(mrp);
   const pp = Number(price);

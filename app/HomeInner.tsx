@@ -232,14 +232,14 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
 
         {/* ================= PRODUCT GRID ================= */}
         <section className="py-1">
-          <div className="max-w-7xl mx-auto px-1">
+          <div className="max-w-7xl mx-auto px-2">
             {initialLoading ? (
               <div className="flex justify-center py-24">
                 <LoadingRing />
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-4">
                 {products.map((product: any, index: number) => (
   <AnimatedProductCard
     key={product.id}

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { categories, SubCategory } from "@/data/categories";
 import { COLOR_OPTIONS } from "@/data/colors";
 import { useRouter } from "next/navigation";
-
+import { useSearchParams } from "next/navigation";
 /*
   Tailwind-UI style, tabbed Add Product form
   - Tabs: Basic, Media, Pricing, Inventory, Variants, Review
@@ -60,7 +60,8 @@ const [brandInput, setBrandInput] = useState("");
   const [fit, setFit] = useState("");
 const [fabricCare, setFabricCare] = useState("");
 const [features, setFeatures] = useState("");
-
+const searchParams = useSearchParams();
+const duplicateId = searchParams.get("duplicate");
   const [category, setCategory] = useState<SubCategory | null>(null);
   const [subCategory, setSubCategory] = useState<SubCategory | null>(null);
   const [subSubCategory, setSubSubCategory] = useState<SubCategory | null>(null);
@@ -93,8 +94,42 @@ const [brandId, setBrandId] = useState("");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Sizes + Colors constants
-  const STANDARD_SIZES = ["XS","S","M","L","XL","XXL","FREE","One Size"];
-  const KIDS_SIZES = ["0-3M","3-6M","6-9M","9-12M","1-2Y","2-3Y","3-4Y"];
+ const STANDARD_SIZES = [
+  "XXS",
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "XXL",
+  "XXXL",
+  "4XL",
+  "5XL",
+  "6XL",
+  "Free Size",
+  "One Size"
+];
+const KIDS_SIZES = [
+  "0-3M",
+  "3-6M",
+  "6-9M",
+  "9-12M",
+  "12-18M",
+  "18-24M",
+  "1-2Y",
+  "2-3Y",
+  "3-4Y",
+  "4-5Y",
+  "5-6Y",
+  "6-7Y",
+  "7-8Y",
+  "8-9Y",
+  "9-10Y",
+  "10-11Y",
+  "11-12Y",
+  "12-13Y",
+  "13-14Y"
+];
   const currentSizes = category?.name === "Kids" ? KIDS_SIZES : STANDARD_SIZES;
   const [customColor, setCustomColor] = useState({
   name: "",
@@ -124,20 +159,77 @@ useEffect(() => {
 }, [price]);
 
 useEffect(() => {
-  // ONLY set default when creating NEW product
-  if (mode === "add" && !productId) {
+  // 🚫 DO NOT run default setup when duplicating
+  if (mode === "add" && !productId && !duplicateId) {
     setCategory(categories[0] || null);
-   setSubCategory(null);
-setSubSubCategory(null);
-setSubSubSubCategory(null);   // 🔥 add this
+    setSubCategory(null);
+    setSubSubCategory(null);
+    setSubSubSubCategory(null);
 
     setVideoFile(null);
-setVideoPreview(null);
-
+    setVideoPreview(null);
   }
-}, [mode, productId]);
+}, [mode, productId, duplicateId]);
 
+useEffect(() => {
+  if (!duplicateId) return;
 
+  (async () => {
+    const res = await fetch(`/api/builder/products/${duplicateId}`);
+    const data = await res.json();
+
+    // BASIC
+    setName(data.name ?? "");
+    setBrandInput(data.brand?.name || data.brandName || "");
+    setDescription(data.description ?? "");
+    setPrice(String(data.price ?? ""));
+    setMrp(String(data.mrp ?? ""));
+    setDiscount(String(data.discount ?? ""));
+    setDiscountAmount(String(data.discountAmount ?? ""));
+
+    setFit((data.fit ?? []).join("\n"));
+    setFabricCare((data.fabricCare ?? []).join("\n"));
+    setFeatures((data.features ?? []).join("\n"));
+
+    // 🔥 IMPORTANT: DO NOT COPY IMAGES
+    setProductFiles([]);
+    setProductPreviews([]);
+    setExistingImages([]);
+
+    // Category restore
+    const cat =
+      categories.find(x => x.name.toLowerCase() === data.category) || null;
+    setCategory(cat);
+
+    const subCat =
+      cat?.subCategories?.find(s => s.name.toLowerCase() === data.subCategory) || null;
+    setSubCategory(subCat);
+
+    const subSubCat =
+      subCat?.subCategories?.find(s => s.name.toLowerCase() === data.subSubCategory) || null;
+    setSubSubCategory(subSubCat);
+
+    const subSubSubCat =
+      subSubCat?.subCategories?.find(s => s.name.toLowerCase() === data.subSubSubCategory) || null;
+    setSubSubSubCategory(subSubSubCat);
+
+    // Variants
+    setVariants(
+      (data.variants || []).map((v:any) => ({
+        id: crypto.randomUUID(),
+        size: v.size,
+        color: v.color,
+        mrp: String(v.mrp),
+        price: String(v.price),
+        discount: String(v.discount),
+        discountAmount: String(v.discountAmount),
+        stock: String(v.stock),
+        images: [],
+        previews: [], // 🔥 clear images
+      }))
+    );
+  })();
+}, [duplicateId]);
 
 
 useEffect(() => {
@@ -148,7 +240,7 @@ useEffect(() => {
 
     const data = await res.json();
     
-    setName(data.name ?? "");
+  setName(data.name ? `Copy of ${data.name}` : "");
     setBrandId(data.brandId ?? "");
     setBrandInput(data.brand?.name || data.brandName || "");
 
