@@ -11,7 +11,7 @@ export default function DesktopFooter() {
       <div>
   <div className="w-60 h-20 mb-2">
     <img
-      src="/images/arclogo4.png"
+      src="/images/arunodayalogo1.png"
       alt="Arunodaya Logo"
       className="h-full w-auto object-contain"
     />

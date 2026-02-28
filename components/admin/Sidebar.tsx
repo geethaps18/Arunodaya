@@ -67,7 +67,7 @@ export default function Sidebar({
           <Link href="/" className="flex flex-col gap-1">
             <div className="h-10">
               <img
-                src="/images/arclogo1.png"
+                src="/images/arunodayalogo1.png"
                 alt="Arunodaya Logo"
                 className="w-full h-full object-cover"
               />

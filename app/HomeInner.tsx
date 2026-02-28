@@ -125,7 +125,7 @@ const heroBanners =
 <Link
   key={tab}
   href={`/categories/${tab.toLowerCase()}`}
-  className="text-[22px] font-normal tracking-[0.02em] text-gray-800 hover:text-black transition-all duration-300 font-[var(--font-playfair)]"
+className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black transition-all duration-300 font-[var(--font-newsreader)]"
 >
   {tab}
 </Link>
@@ -231,15 +231,15 @@ const heroBanners =
         )}
 
         {/* ================= PRODUCT GRID ================= */}
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4">
+        <section className="py-1">
+          <div className="max-w-7xl mx-auto px-1">
             {initialLoading ? (
               <div className="flex justify-center py-24">
                 <LoadingRing />
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-1">
                 {products.map((product: any, index: number) => (
   <AnimatedProductCard
     key={product.id}

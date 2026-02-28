@@ -219,7 +219,7 @@ const totalSelling = bagItems.reduce((sum, item) => {
 const totalDiscount = totalMRP - totalSelling;
 
 // Shipping
-const shippingCharge = totalSelling >= 1000 ? 0 : 100;
+const shippingCharge = totalSelling >= 100 ? 0 : 100;
 
 // Final Total
 const finalOrderTotal = totalSelling + shippingCharge;
@@ -513,7 +513,7 @@ return (
 
   <div className="flex justify-between">
     <span>
-      Shipping <span className="text-xs text-gray-500">(Free above ₹1000)</span>
+      Shipping <span className="text-xs text-gray-500">(Free)</span>
     </span>
     <span>
       {shippingCharge === 0 ? (

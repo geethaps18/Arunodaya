@@ -104,7 +104,7 @@ const slugify = (text: string) =>
           </p>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-1">
               {products.map((product: any, index: number) => (
                 <AnimatedProductCard
                   key={product.id}

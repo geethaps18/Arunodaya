@@ -306,7 +306,7 @@ const updateQuantity = async (uniqueKey: string, quantity: number) => {
 );
 
 
-  const shipping = useMemo(() => (subtotal > 1000 ? 0 : 100), [subtotal]);
+  const shipping = useMemo(() => (subtotal > 100 ? 0 : 100), [subtotal]);
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
 
   // -------------------

@@ -59,7 +59,7 @@ const slugify = (text: string) =>
 
       {/* Subcategories */}
       {mainCat.subCategories.length > 0 && (
-        <div className="grid grid-cols-4 gap-2 lg:hidden sm:grid-cols-3 md:grid-cols-4 sm:gap-4 px-1 mb-2">
+        <div className="grid grid-cols-4 gap-1 lg:hidden sm:grid-cols-3 md:grid-cols-4 sm:gap-4 px-1 mb-2">
           {mainCat.subCategories.map((sub) => {
             const subSlug = slugify(sub.name);
 

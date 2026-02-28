@@ -233,9 +233,9 @@ useEffect(() => {
   onClick={() => router.push("/")}
 >
   <img
-    src="/images/arclogo4.png"
+    src="/images/arunodayalogo1.png"
     alt="Arunodaya Logo"
-    className="h-full w-full object-cover"
+    className="h-full  object-cover"
   />
 </div>
 
@@ -291,7 +291,7 @@ width: itemRect.width,
       height: "2px",
       left: underlineStyle.left,
       width: underlineStyle.width,
-      bottom: "-1px", // between header & menu
+      bottom: "-0px", // between header & menu
     }}
   />
 )}
@@ -299,19 +299,17 @@ width: itemRect.width,
     </div>
   </div>
 {activeCategory && (
-  <div
-    className="fixed inset-0 bg-black/20 z-40 pointer-events-none"
-    style={{ top: "64px" }}
-  />
+  <div className="fixed left-0 right-0 bottom-0 top-[88px] bg-black/20 z-40 pointer-events-none" />
 )}
  
 
 
 {/* MEGA MENU */}
 {activeCategory && ( 
-  <div className="absolute left-0 right-0 top-full bg-white border-t shadow-2xl z-50 h-[582px]"
-    style={{ top: "64px" }} 
-  onClick={(e) => e.stopPropagation()}>
+  <div 
+    className="absolute left-0 right-0 top-14 bg-white shadow-lg z-50 h-[582px]"
+    onClick={(e) => e.stopPropagation()}
+  >
     
     {/* FULL WIDTH WRAPPER */}
     <div className="w-full h-full px-16 py-8">

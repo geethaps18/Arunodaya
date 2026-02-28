@@ -266,7 +266,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
   <span>
     Shipping{" "}
     <span className="text-xs text-gray-500">
-      (Free above ₹1000)
+      (Free)
     </span>
   </span>
 

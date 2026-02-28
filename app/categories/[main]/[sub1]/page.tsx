@@ -87,7 +87,7 @@ export default function Sub1Page() {
 
       {/* Mobile subcategories */}
       {sub1Cat.subCategories.length > 0 && (
-        <div className="lg:hidden mb-2 grid grid-cols-4 gap-2 px-0">
+        <div className="lg:hidden mb-2 grid grid-cols-4 gap-1 px-0">
           {sub1Cat.subCategories.map((sub2) => {
             const sub2Slug = slugify(sub2.name);
 

@@ -70,7 +70,7 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
         <Link href="/" className="flex flex-col gap-2 mb-8 px-2">
           <div className="h-10">
             <img
-              src="/images/arclogo1.png"
+              src="/images/arunodayalogo1.png"
               alt="Arunodaya Logo"
               className="max-h-full object-cover"
             />
