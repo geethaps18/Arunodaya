@@ -200,11 +200,11 @@ useEffect(() => {
   <div className="flex animate-marquee whitespace-nowrap py-2 text-gray-900 text-xs md:text-sm">
 
     <span className="px-8">
-      Free Delivery Across Karnataka • COD Available • Easy Exchange • Trusted Since 2006
+      Free Delivery Across Karnataka • COD Available • 7 Days Easy Exchange • Trusted Since 2006
     </span>
 
     <span className="px-8">
-      Free Delivery Across Karnataka • COD Available • Easy Exchange • Trusted Since 2006
+      Free Delivery Across Karnataka • COD Available • 7 Days Easy Exchange • Trusted Since 2006
     </span>
 
   </div>
