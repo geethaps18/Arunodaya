@@ -195,10 +195,20 @@ useEffect(() => {
   return (
     
 <>
-  {/* 🔥 ANNOUNCEMENT BAR */}
-  <div className="fixed top-0 left-0 w-full bg-gray-100 text-gray-600 text-xs md:text-sm text-center py-2 z-[60]">
-    Free Delivery Across Karnataka | COD Available
+{/* 🔥 ANNOUNCEMENT BAR */}
+<div className="fixed top-0 left-0 w-full bg-gray-100 overflow-hidden z-[60]">
+  <div className="flex animate-marquee whitespace-nowrap py-2 text-gray-900 text-xs md:text-sm">
+
+    <span className="px-8">
+      Free Delivery Across Karnataka • COD Available • Easy Exchange • Trusted Since 2006
+    </span>
+
+    <span className="px-8">
+      Free Delivery Across Karnataka • COD Available • Easy Exchange • Trusted Since 2006
+    </span>
+
   </div>
+</div>
 
   <header
     className="fixed top-[32px] left-0 w-full bg-white border-b border-black/10 z-50"
