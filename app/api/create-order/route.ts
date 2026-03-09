@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import Razorpay from "razorpay";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { offers } from "@/data/offers";
 
 /* ---------------- CONFIG ---------------- */
 const WHATSAPP_API_URL = "https://graph.facebook.com/v19.0";
@@ -118,6 +119,45 @@ Total: ₹${order.totalAmount}`,
     }),
   });
 }
+function calculateBundleTotal(items: any[]) {
+  let total = 0;
+
+  const grouped: Record<string, any[]> = {};
+
+  items.forEach((item) => {
+    const category = item.name.toLowerCase(); // or use category field
+
+    if (!grouped[category]) grouped[category] = [];
+    grouped[category].push(item);
+  });
+
+  for (const category in grouped) {
+    const group = grouped[category];
+    const offer = offers[category];
+
+    const qty = group.reduce((s, i) => s + i.quantity, 0);
+    const price = group[0]?.price ?? 0;
+
+    if (offer && price === offer.price) {
+      let remaining = qty;
+
+      for (const bundle of offer.bundles) {
+        const count = Math.floor(remaining / bundle.qty);
+
+        if (count > 0) {
+          total += count * bundle.price;
+          remaining = remaining % bundle.qty;
+        }
+      }
+
+      total += remaining * price;
+    } else {
+      total += group.reduce((s, i) => s + i.price * i.quantity, 0);
+    }
+  }
+
+  return total;
+}
 
 /* ---------------- MAIN API ---------------- */
 export async function POST(req: Request) {
@@ -142,33 +182,45 @@ export async function POST(req: Request) {
     }
 
     /* ---------------- PRODUCTS ---------------- */
-    const productIds = items.map((i: any) => i.productId);
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-    });
+  /* ---------------- PRODUCTS ---------------- */
 
-    const orderItems = items.map((item: any) => {
-      const product = products.find((p) => p.id === item.productId)!;
+const productIds = items.map((i: any) => i.productId);
 
-      return {
-        productId: product.id,
-        siteId: product.siteId,
-        name: product.name,
-        brandName: product.brandName ?? "ARUNODAYA",
-        quantity: Number(item.quantity),
-        price: Number(item.price),
-        size: item.size ?? null,
-        color: item.color ?? null,
-        variantId: item.variantId ?? null,
-        image: product.images?.[0] ?? null,
-      };
-    });
+const products = await prisma.product.findMany({
+  where: { id: { in: productIds } },
+});
 
-    const totalAmount = orderItems.reduce(
-      (sum, i) => sum + i.price * i.quantity,
-      0
-    );
+const orderItems = await Promise.all(
+  items.map(async (item: any) => {
+    const product = products.find((p) => p.id === item.productId)!;
 
+    let price = product.price;
+
+    if (item.variantId) {
+      const variant = await prisma.productVariant.findUnique({
+        where: { id: item.variantId },
+      });
+
+      if (variant) {
+        price = variant.price;
+      }
+    }
+
+    return {
+      productId: product.id,
+      siteId: product.siteId,
+      name: product.name,
+      brandName: product.brandName ?? "ARUNODAYA",
+      quantity: Number(item.quantity),
+      price,
+      size: item.size ?? null,
+      color: item.color ?? null,
+      variantId: item.variantId ?? null,
+      image: product.images?.[0] ?? null,
+    };
+  })
+);
+  const totalAmount = calculateBundleTotal(orderItems);
     /* ---------------- RAZORPAY ---------------- */
     let razorpayOrder: any = null;
 

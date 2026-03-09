@@ -112,6 +112,7 @@ model Category {
 
   @@index([parentId])
 }
+
 model SizeChart {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   category  String
@@ -369,6 +370,10 @@ model OrderItem {
 
   deliveryOtp String?
   delivered   Boolean @default(false)
+  exchangeRequested Boolean @default(false)
+exchangeStatus    String?
+newSize           String?
+newColor          String?
 
   deliveryBoyId String? @db.ObjectId
 

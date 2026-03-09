@@ -10,7 +10,7 @@ import React, {
   useMemo,
 } from "react";
 import { toast } from "react-hot-toast";
-
+import { offers } from "@/data/offers";
 // -------------------
 // Types
 // -------------------
@@ -20,7 +20,9 @@ export interface Product {
   price: number;
   images?: string[];
   availableSizes?: string[];
-  mrp?: number; 
+  mrp?: number;
+subCategory?: string;
+subSubSubCategory?: string;   // 🔥 ADD THIS
 }
 export interface BagItem {
   id: string;
@@ -294,17 +296,78 @@ const updateQuantity = async (uniqueKey: string, quantity: number) => {
       toast.error("Failed to move to wishlist");
     }
   };
+async function getVariantPrice(
+  productId: string,
+  variantId: string,
+  quantity: number
+) {
+  const res = await fetch("/api/calculate-offer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      productId,
+      variantId,
+      quantity,
+    }),
+  });
 
+  const data = await res.json();
+
+  return data.total;
+}
+  
   // -------------------
   // Derived values
   // -------------------
   const totalCount = useMemo(() => bagItems.reduce((acc: number, i: BagItem) => acc + i.quantity, 0), [bagItems]);
+const subtotal = useMemo(() => {
+  let total = 0;
 
-  const subtotal = useMemo(
-  () => bagItems.reduce((acc, i) => acc + i.price * i.quantity, 0),
-  [bagItems]
-);
+  const grouped: Record<string, BagItem[]> = {};
 
+  // Group products by category
+  bagItems.forEach((item) => {
+    const category =
+      item.product.subSubSubCategory?.toLowerCase() || "default";
+
+    if (!grouped[category]) {
+      grouped[category] = [];
+    }
+
+    grouped[category].push(item);
+  });
+
+  // Apply bundle offers
+  for (const category in grouped) {
+    const items = grouped[category];
+    const offer = offers[category];
+
+    const qty = items.reduce((sum, i) => sum + i.quantity, 0);
+    const price = items[0].price;
+
+   if (offer && price === offer.price) {
+  let remaining = qty;
+
+  for (const bundle of offer.bundles) {
+    const count = Math.floor(remaining / bundle.qty);
+
+    if (count > 0) {
+      total += count * bundle.price;
+      remaining = remaining % bundle.qty;
+    }
+  }
+
+  total += remaining * price;
+
+    } else {
+      total += items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    }
+  }
+
+  return total;
+}, [bagItems]);
 
   const shipping = useMemo(() => (subtotal > 100 ? 0 : 100), [subtotal]);
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);

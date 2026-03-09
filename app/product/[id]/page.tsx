@@ -25,6 +25,8 @@ import ProductAccordion from "@/components/ProductAccordion";
 import { COLOR_OPTIONS } from "@/data/colors";
 import { Zoom } from "swiper/modules";
 import "swiper/css/zoom";
+import { offers } from "@/data/offers";
+import { getAllOffers } from "@/lib/getAllOffers"
 
 
 const productCache = new Map<string, ProductWithReviews>();
@@ -103,6 +105,10 @@ type ProductWithReviews = {
 
   brandName?: string;
   category?: string;
+  subCategory?: string;
+subSubCategory?: string;
+subSubSubCategory?: string; // 🔥 ADD THIS
+
 
   images: string[];
   video?: string | null;
@@ -194,6 +200,7 @@ const [activeIndex, setActiveIndex] = useState(0);
 
 const getColorHex = (name: string) =>
   COLOR_OPTIONS.find(c => c.name === name)?.hex ?? "#ccc";
+
 
 
 
@@ -403,6 +410,31 @@ const getVariantPriceBySize = (size: string) => {
   return v?.price ?? null;
 };
 
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/--+/g, "-")
+
+const categorySlug =
+  slugify(product?.subSubSubCategory) ||
+  slugify(product?.subSubCategory) ||
+  slugify(product?.subCategory)
+
+const offer = categorySlug
+  ? offers[categorySlug as keyof typeof offers]
+  : undefined
+
+const offerList = getAllOffers(offer)
+console.log("Product:", product)
+console.log("subSubSubCategory:", product?.subSubSubCategory)
+console.log("subSubCategory:", product?.subSubCategory)
+console.log("subCategory:", product?.subCategory)
+console.log("categorySlug:", categorySlug)
+console.log("offer:", offer)
 
 // ✅ NOW the early return is SAFE
 if (!product) {
@@ -643,15 +675,17 @@ const handleAddToBag = () => {
       ? selectedVariant.images
       : product.images;
 
-  addToCart(
-    {
-      id: product.id,
-      name: product.name,
-      mrp: product.mrp,
-      price: effectivePrice,
-      images: finalImages,
-      availableSizes: product.sizes,
-    },
+ addToCart(
+  {
+    id: product.id,
+    name: product.name,
+    mrp: product.mrp,
+    price: effectivePrice,
+    images: finalImages,
+    availableSizes: product.sizes,
+    subCategory: product.category,          // optional
+    subSubSubCategory: product.subSubSubCategory, // 🔥 VERY IMPORTANT
+  },
     effectivePrice,
     selectedSize!,
     selectedColor,
@@ -722,7 +756,7 @@ const sizeChartData = baseChart.filter(row =>
 {showStickyDesktopBar && (
  <div
   className={`hidden md:flex fixed left-0 right-0 z-40
-  top-[72px]
+  top-[100px]
   backdrop-blur-md bg-white/90
   border-b border-black/10
   transition-all duration-300 ease-out
@@ -973,7 +1007,6 @@ const sizeChartData = baseChart.filter(row =>
   </div>
 </div>
 
-
             <div className="flex items-center gap-2 mt-1">
             {mrp && mrp > price ? (
   <span className="line-through text-gray-400 text-sm">
@@ -984,6 +1017,7 @@ const sizeChartData = baseChart.filter(row =>
     Best Price
   </span>
 )}
+    
               <span className="text-gray-900">Rs.{price}</span>
               {discount > 0 && (
                 <span className="text-gray-500 text-xs font-semibold">{discount}% off</span>
@@ -991,10 +1025,23 @@ const sizeChartData = baseChart.filter(row =>
             </div>
           </div>
 
-
+<div className="mt-2">
+  {offerList?.length > 0 && (
+    <div className="flex flex-col gap-1">
+      {offerList.map((text, i) => (
+        <p
+          key={i}
+          className="text-[12px] text-green-700 font-medium"
+        >
+          {text}
+        </p>
+      ))}
+    </div>
+  )}
+</div>
             <div className="flex items-center gap-2 mt-1">
   <p className="text-xs uppercase tracking-wide text-gray-500">
-    {product.brandName ?? "BSCFASHION"}
+    {product.brandName ?? "ARUNODAYA"}
   </p>
 
   {product.rating > 0 && (

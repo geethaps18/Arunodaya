@@ -26,27 +26,39 @@ export async function GET(
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
-        items: {
+      items: {
+  select: {
+    id: true,
+    productId: true,
+    name: true,
+    brandName: true,
+    price: true,
+    quantity: true,
+    size: true,
+    image: true,
+    exchangeRequested: true,   // also useful for UI
+    exchangeStatus: true,
+    newSize: true,
+    newColor: true,
+    product: {
+      select: {
+        id: true,
+        name: true,
+        images: true,
+        price: true,
+        description: true,
+        variants: {
           select: {
             id: true,
-            productId: true,
-            name: true,
-            brandName:true,
-            price: true,
-            quantity: true,
             size: true,
-            image: true,
-            product: {
-              select: {
-                id: true,
-                name: true,
-                images: true,
-                price: true,
-                description: true,
-              },
-            },
+            color: true,
+            stock: true,
           },
         },
+      },
+    },
+  },
+},
         user: true,
       },
     });

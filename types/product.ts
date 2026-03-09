@@ -39,6 +39,7 @@ export interface Product {
   category?: string;
   subCategory?: string;
   subSubCategory?: string;
+  subSubSubCategory?: string;
 
   price: number;     // default/base price
   mrp?: number;

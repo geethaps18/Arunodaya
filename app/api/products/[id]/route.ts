@@ -85,10 +85,12 @@ const normalized = {
   id: product.id,
   name: product.name ?? "",
   description: product.description ?? "",
+brandName: product.brandName ?? "BSCFASHION",
 
-  brandName: product.brandName ?? "BSCFASHION",
-  category: product.category ?? null,
-
+category: product.category ?? null,
+subCategory: product.subCategory ?? null,
+subSubCategory: product.subSubCategory ?? null,
+subSubSubCategory: product.subSubSubCategory ?? null,
   images: (product.images ?? []).filter(
   (img) => typeof img === "string" && img.trim().length > 0
 ),

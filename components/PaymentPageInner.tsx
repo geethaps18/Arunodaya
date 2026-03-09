@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import LoadingRing from "./LoadingRing";
 import CheckoutStepper from "@/components/CheckoutStepper";
 import { getCookie } from "cookies-next";
+import { offers } from "@/data/offers";
 
 interface BagItem {
   id: string;
@@ -13,9 +14,12 @@ interface BagItem {
   quantity: number;
   price: number;
   productName: string;
+
+  category?: string; // ⭐ ADD THIS
+
   size?: string | null;
-  color?: string | null;      // ✅ ADD
-  variantId?: string | null;  // ✅ ADD
+  color?: string | null;
+  variantId?: string | null;
 }
 
 
@@ -68,19 +72,53 @@ const [isAddressLoading, setIsAddressLoading] = useState(true);
   // ---------------- PRICE LOGIC (SINGLE SOURCE) ----------------
 // ---------------- PRICE LOGIC (SINGLE SOURCE OF TRUTH) ----------------
 
-// Actual selling total (items only)
-const totalSelling = bagItems.reduce(
-  (sum, item) => sum + item.price * item.quantity,
-  0
-);
+// -------- BUNDLE PRICE ENGINE --------
 
-// Shipping rule
-const shippingCharge = totalSelling >= 1000 ? 0 : 100;
+const totalSelling = (() => {
+  let total = 0;
 
-// Final payable amount
+  const grouped: Record<string, BagItem[]> = {};
+
+  bagItems.forEach((item) => {
+   const category = item.category || "default";
+
+    if (!grouped[category]) grouped[category] = [];
+
+    grouped[category].push(item);
+  });
+
+  for (const category in grouped) {
+    const items = grouped[category];
+    const offer = offers[category];
+
+    const qty = items.reduce((s, i) => s + i.quantity, 0);
+    const price = items[0]?.price ?? 0;
+
+    if (offer && price === offer.price) {
+      let remaining = qty;
+
+      for (const bundle of offer.bundles) {
+        const count = Math.floor(remaining / bundle.qty);
+
+        if (count > 0) {
+          total += count * bundle.price;
+          remaining = remaining % bundle.qty;
+        }
+      }
+
+      total += remaining * price;
+    } else {
+      total += items.reduce((s, i) => s + i.price * i.quantity, 0);
+    }
+  }
+
+  return total;
+})();
+
+const shippingCharge = totalSelling >= 100 ? 0 : 100;
+
 const finalOrderTotal = totalSelling + shippingCharge;
 
-// For UI display
 const formattedTotal = `₹${finalOrderTotal.toFixed(2)}`;
 
 
@@ -144,17 +182,19 @@ useEffect(() => {
       const data = await res.json();
 
       if (data.items) {
-        const mappedItems: BagItem[] = data.items.map((item: any) => ({
-          id: item.id,
-          productId: item.product.id,
-          quantity: item.quantity,
-          price: item.price,
-          productName: item.product.name ?? "Product",
-          size: item.size ?? null,
-          color: item.color ?? null,
-          variantId: item.variantId ?? null,
-        }));
+       const mappedItems: BagItem[] = data.items.map((item: any) => ({
+  id: item.id,
+  productId: item.product.id,
+  quantity: item.quantity,
+  price: item.price,
+  productName: item.product.name ?? "Product",
 
+  category: item.product.subSubSubCategory?.toLowerCase(), // ⭐ ADD
+
+  size: item.size ?? null,
+  color: item.color ?? null,
+  variantId: item.variantId ?? null,
+}));
         setBagItems(mappedItems);
       }
     } catch (err) {

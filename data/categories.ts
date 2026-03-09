@@ -179,7 +179,7 @@ export const categories: SubCategory[] = [
         name: "Boys",
         image: "/images/boys.png",
         subCategories: [
-          { id: genId(), name: "Casual Shirts", image: "/images/shirt-boys.png", subCategories: [] },
+          { id: genId(), name: "Boys Casual Shirts", image: "/images/shirt-boys.png", subCategories: [] },
           { id: genId(), name: "Boys Jeans", image: "/images/jeans-boy.png", subCategories: [] },
           { id: genId(), name: "Blazer Sets", image: "/images/blazer-boys.png", subCategories: [] },
           { id: genId(), name: "Kurta Sets Boys", image: "/images/kurta-set-boys.png", subCategories: [] },

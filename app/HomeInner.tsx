@@ -24,6 +24,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
+
 /* -------------------- Categories -------------------- */
 const highlightCategories: any = {
   Women: [
@@ -244,6 +245,7 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
   <AnimatedProductCard
     key={product.id}
     product={product}
+   
     index={index}
   />
 ))}

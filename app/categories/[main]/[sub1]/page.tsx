@@ -128,11 +128,12 @@ export default function Sub1Page() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-6">
               {products.map((product: any, index: number) => (
-                <AnimatedProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                />
+              <AnimatedProductCard
+  key={product.id}
+  product={product}
+  categorySlug={sub1Slug}
+  index={index}
+/>
               ))}
             </div>
 

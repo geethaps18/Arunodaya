@@ -106,11 +106,12 @@ const slugify = (text: string) =>
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-1">
               {products.map((product: any, index: number) => (
-                <AnimatedProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                />
+<AnimatedProductCard
+  key={product.id}
+  product={product}
+  categorySlug={sub3Slug}
+  index={index}
+/>
               ))}
             </div>
 

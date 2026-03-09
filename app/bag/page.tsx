@@ -32,14 +32,8 @@ export default function BagPage() {
   return sum + mrp * item.quantity;
 }, 0);
 
-const totalSelling = bagItems.reduce((sum, item) => {
-  return sum + item.price * item.quantity;
-}, 0);
-
-const totalDiscount = totalMRP - totalSelling;
-
-// keep shipping logic
-const finalOrderTotal = totalSelling + shipping;
+const totalDiscount = totalMRP - subtotal;
+const finalOrderTotal = total;
 
 
   // --- Handlers ---
@@ -293,7 +287,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
       href={{
         pathname: "/checkout/address",
         query: {
-          subtotal: totalSelling,
+          subtotal: subtotal,
           shipping,
           discount: totalDiscount,
           total: finalOrderTotal,
@@ -301,7 +295,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
         },
       }}
     >
-      <button className="w-full bg-gradient-to-r from-gray-600 via-yellow-800 to-yellow-900 text-gray-900 font-semibold py-3 hover:shadow-lg transition">
+      <button className="w-full bg-gradient-to-r from-gray-600 via-gray-800 to-gray-900 text-white font-semibold py-3 hover:shadow-lg transition">
         Continue
       </button>
     </Link>
@@ -321,7 +315,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
           href={{
             pathname: "/checkout/address",
             query: {
-  subtotal: totalSelling,
+subtotal: subtotal,
   shipping,
   discount: totalDiscount,
   total: finalOrderTotal,

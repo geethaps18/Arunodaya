@@ -95,12 +95,7 @@ export default function OrdersPage() {
       return matchSearch && matchStatus;
     });
   }, [orders, search, statusFilter]);
-if (loading)
-  return (
-    <div className="flex justify-center items-center py-20">
-      <LoadingRing />
-    </div>
-  );
+
 
 
  
@@ -148,13 +143,19 @@ if (loading)
 
        {/* ------------------ Orders List ------------------ */}
 <div className="flex flex-col divide-y divide-gray-400">
-  {filteredOrders.length === 0 ? (
+
+  {loading ? (
+    <div className="flex justify-center items-center py-16">
+      <LoadingRing />
+    </div>
+  ) : filteredOrders.length === 0 ? (
     <div className="text-center text-gray-500 mt-6">
       No matching orders found
     </div>
   ) : (
     filteredOrders.map((order) => {
       const firstItem = order.items[0];
+
       return (
         <div
           key={order.id}
@@ -168,7 +169,7 @@ if (loading)
               alt={firstItem?.product.name || "Product"}
               width={56}
               height={56}
-              className="rounded  border"
+              className="rounded border"
             />
           </div>
 
@@ -183,6 +184,7 @@ if (loading)
               >
                 {STATUS_TEXT[order.status]?.text || order.status}
               </span>
+
               <span className="text-xs text-gray-900">
                 {new Date(order.createdAt).toLocaleDateString()}
               </span>
@@ -192,6 +194,7 @@ if (loading)
               <div className="font-medium text-gray-800">
                 {firstItem?.product.name}
               </div>
+
               {firstItem?.product.description && (
                 <div className="text-gray-500 text-xs truncate">
                   {firstItem.product.description}

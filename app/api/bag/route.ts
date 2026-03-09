@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import jwt from "jsonwebtoken";
-
+import { offers } from "@/data/offers";
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 interface BagItemPayload {
@@ -49,12 +49,30 @@ function mapBagItem(item: any) {
         ? item.variant.images
         : item.product.images,
 
-   product: {
+product: {
   id: item.product.id,
   name: item.product.name,
-  price: item.product.price,
-  mrp: item.product.mrp,        // 🔥 ADD THIS LINE
-  images: item.product.images,
+
+  // 👇 Always use variant price as source of truth
+  price: item.variant?.price ?? item.product.price,
+  mrp: item.variant?.mrp ?? item.product.mrp,
+    subCategory: item.product.subCategory,
+    subSubSubCategory: item.product.subSubSubCategory,
+  images: item.variant?.images?.length
+    ? item.variant.images
+    : item.product.images,
+
+  variants: item.variant
+    ? [
+        {
+          id: item.variant.id,
+          price: item.variant.price,
+          mrp: item.variant.mrp,
+          images: item.variant.images,
+        },
+      ]
+    : [],
+
   availableSizes: item.product.sizes || [],
 },
 
@@ -319,11 +337,57 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Calculate total
-   const subtotal = bagItems.reduce(
-  (acc, item) => acc + item.price * item.quantity,
-  0
-);
-const shippingAmount = subtotal > 1000 ? 0 : 100;
+// 🔥 BULK OFFER SUBTOTAL CALCULATION
+let subtotal = 0;
+
+const grouped: Record<string, typeof bagItems> = {};
+
+bagItems.forEach((item) => {
+  const category = item.product?.subSubSubCategory || "default";
+
+  if (!grouped[category]) {
+    grouped[category] = [];
+  }
+
+  grouped[category].push(item);
+});
+
+for (const category in grouped) {
+  const items = grouped[category];
+  const offer = offers[category];
+
+  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+
+  if (offer && offer.type === "BULK") {
+    const sortedRules = [...offer.rules].sort(
+      (a, b) => b.minQty - a.minQty
+    );
+
+    let remainingQty = totalQty;
+
+    for (const rule of sortedRules) {
+      if (remainingQty >= rule.minQty) {
+        const times = Math.floor(remainingQty / rule.minQty);
+        subtotal += times * rule.totalPrice;
+        remainingQty = remainingQty % rule.minQty;
+      }
+    }
+
+    if (remainingQty > 0) {
+      const singlePrice = items[0].price;
+      subtotal += remainingQty * singlePrice;
+    }
+
+    continue;
+  }
+
+  // Normal pricing
+  subtotal += items.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0
+  );
+}
+const shippingAmount = subtotal > 100 ? 0 : 100;
 const totalAmount = subtotal + shippingAmount;
 
     // Map order items

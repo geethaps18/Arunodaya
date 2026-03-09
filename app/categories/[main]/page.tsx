@@ -114,6 +114,7 @@ const slugify = (text: string) =>
                 <AnimatedProductCard
                   key={product.id}
                   product={product}
+                 categorySlug={mainSlug}
                   index={index}
                 />
               ))}

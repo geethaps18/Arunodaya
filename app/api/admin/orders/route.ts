@@ -19,7 +19,10 @@ export async function GET() {
             packed: true,
             packedAt: true,
            confirmedAt:true,
-           
+             exchangeRequested: true,
+    exchangeStatus: true,
+    newSize: true,
+    newColor: true,
             product: {
       select: {
         images: true,

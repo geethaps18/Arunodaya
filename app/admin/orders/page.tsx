@@ -18,13 +18,20 @@ import toast from "react-hot-toast";
 type OrderItem = {
   id: string;
   name: string;
-  brandName?:string;
+  brandName?: string;
   quantity?: number;
   price?: number;
   size?: string;
   color?: string;
   image?: string;
-  product?: { images?: string[] };   // ⭐ ADD THIS
+
+  // 🔥 ADD THESE
+  exchangeRequested?: boolean;
+  exchangeStatus?: string | null;
+  newSize?: string | null;
+  newColor?: string | null;
+
+  product?: { images?: string[] };
 };
 
 
@@ -52,7 +59,7 @@ export default function AdminOrdersPage() {
   const [limit, setLimit] = useState<number>(15);
   const [refreshToggle, setRefreshToggle] = useState(false);
   
-const getShipping = (amount: number) => (amount < 1000 ? 100 : 0);
+const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
   const DB_TO_LABEL: Record<string, string> = {
     PENDING: "Order Placed",
     CONFIRMED: "Confirmed",
@@ -522,49 +529,132 @@ return (
               <div>
                 <h3 className="text-sm font-semibold mb-2">Products</h3>
                 <div className="space-y-2">
-                 {order.items?.map((it) => (
+{order.items?.map((it) => (
   <div
     key={it.id}
-    className="flex justify-between border p-2 rounded-lg bg-gray-50 text-sm"
+    className="border p-3 rounded-lg bg-gray-50 text-sm space-y-2"
   >
-    <div className="flex items-center gap-3">
-      {/* Product Image with fallback */}
-      <img
-        src={
-          it.image ||
-          it.product?.images?.[0] ||
-          "/no-image.png"
-        }
-        alt={it.name}
-        className="w-14 h-14 object-cover rounded border bg-gray-100"
-      />
-        
-      <div>
-        <div className="text-xs text-gray-500 uppercase tracking-wide">
-  {it.brandName ?? "BSCFASHION"}
-</div>
-        <div className="font-medium truncate" style={{ maxWidth: 200 }}>
-          {it.name}
-        </div>
-        
-        <div className="text-xs text-gray-500">
-          Qty: {it.quantity ?? 1}
-        </div>
+    <div className="flex justify-between">
+      <div className="flex items-center gap-3">
+        <img
+          src={it.image || it.product?.images?.[0] || "/no-image.png"}
+          alt={it.name}
+          className="w-14 h-14 object-cover rounded border bg-gray-100"
+        />
 
-        {it.size && (
-          <div className="text-xs text-gray-500">
-            Size: {it.size}
+        <div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">
+            {it.brandName ?? "BSCFASHION"}
           </div>
-        )}
-        {it.color && (
-  <div className="text-xs text-gray-500">
-    Color: {it.color}
-  </div>
-)}
+
+          <div className="font-medium truncate" style={{ maxWidth: 200 }}>
+            {it.name}
+          </div>
+
+          <div className="text-xs text-gray-500">
+            Qty: {it.quantity ?? 1}
+          </div>
+
+          {it.size && (
+            <div className="text-xs text-gray-500">
+              Size: {it.size}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="font-semibold text-gray-700">
+        ₹{it.price ?? "-"}
       </div>
     </div>
 
-    <div className="font-semibold text-gray-700">₹{it.price ?? "-"}</div>
+   {/* 🔁 EXCHANGE SECTION */}
+{it.exchangeStatus && (
+  <div className="mt-2 border-t pt-2 text-xs">
+
+    {it.exchangeStatus === "PENDING" && (
+      <div className="flex justify-between items-center">
+        <span className="text-yellow-600 font-semibold">
+          🔁 Exchange Requested (New Size: {it.newSize})
+        </span>
+
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              await fetch(
+                `/api/admin/orders/${order.id}/exchange/approve`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ itemId: it.id }),
+                }
+              );
+              setRefreshToggle((v) => !v);
+            }}
+            className="px-2 py-1 bg-green-600 text-white rounded text-xs"
+          >
+            Approve
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch(
+                `/api/admin/orders/${order.id}/exchange/reject`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ itemId: it.id }),
+                }
+              );
+              setRefreshToggle((v) => !v);
+            }}
+            className="px-2 py-1 bg-red-600 text-white rounded text-xs"
+          >
+            Reject
+          </button>
+        </div>
+      </div>
+    )}
+
+    {it.exchangeStatus === "APPROVED" && (
+      <div className="flex justify-between items-center">
+        <span className="text-green-600 font-semibold">
+          ✅ Exchange Approved (New Size: {it.newSize})
+        </span>
+
+        <button
+          onClick={async () => {
+            await fetch(
+              `/api/admin/orders/${order.id}/exchange/complete`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ itemId: it.id }),
+              }
+            );
+            setRefreshToggle((v) => !v);
+          }}
+          className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+        >
+          Mark as Completed
+        </button>
+      </div>
+    )}
+
+    {it.exchangeStatus === "COMPLETED" && (
+      <div className="text-blue-600 font-semibold">
+        🔄 Exchange Completed
+      </div>
+    )}
+
+    {it.exchangeStatus === "REJECTED" && (
+      <div className="text-red-600 font-semibold">
+        ❌ Exchange Rejected
+      </div>
+    )}
+
+  </div>
+)}
   </div>
 ))}
 

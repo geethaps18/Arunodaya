@@ -15,7 +15,7 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import CheckoutStepper from "@/components/CheckoutStepper";
-
+import { offers } from "@/data/offers";
 // ------------------- Interfaces -------------------
 interface Address {
   id: string;
@@ -125,12 +125,14 @@ useEffect(() => {
             size: item.size,
             color: item.color,
             variantId: item.variantId,
-            product: {
-              id: item.id,
-              name: item.name,
-              images: item.images,
-              price: item.price,
-            },
+          product: {
+  id: item.id,
+  name: item.name,
+  images: item.images,
+  price: item.price,
+  mrp: item.mrp,          // ✅ ADD THIS
+  variants: item.variants // ✅ ADD THIS (optional but good)
+},
           },
         ]);
       }
@@ -194,7 +196,29 @@ useEffect(() => {
   }
 }, [isBuyNow]);
 
+const getItemPricing = (item: BagItem) => {
+  const product = item.product;
 
+  // If product has variants
+  if (item.variantId && Array.isArray(product?.variants)) {
+    const variant = product.variants.find(
+      (v: any) => v.id === item.variantId
+    );
+
+    if (variant) {
+      return {
+        mrp: Number(variant.mrp ?? variant.price ?? 0),
+        price: Number(variant.price ?? 0),
+      };
+    }
+  }
+
+  // Fallback to product price
+  return {
+    mrp: Number(product?.mrp ?? product?.price ?? 0),
+    price: Number(product?.price ?? 0),
+  };
+};
 
   // ------------------- Helpers -------------------
   const calcTotalFromBag = () =>
@@ -203,18 +227,55 @@ useEffect(() => {
       const qty = Number(item.quantity ?? 1) || 1;
       return acc + price * qty;
     }, 0);
-// Total MRP
 const totalMRP = bagItems.reduce((sum, item) => {
-  const mrp = item.product?.mrp ?? item.product?.price ?? 0;
+  const { mrp } = getItemPricing(item);
   return sum + mrp * item.quantity;
 }, 0);
 
-// Total Selling Price
-const totalSelling = bagItems.reduce((sum, item) => {
-  const price = item.product?.price ?? 0;
-  return sum + price * item.quantity;
-}, 0);
+const totalSelling = (() => {
+  let total = 0;
 
+  const grouped: Record<string, BagItem[]> = {};
+
+  bagItems.forEach((item) => {
+    const category =
+      item.product?.subSubSubCategory?.toLowerCase() || "default";
+
+    if (!grouped[category]) grouped[category] = [];
+
+    grouped[category].push(item);
+  });
+
+  for (const category in grouped) {
+    const items = grouped[category];
+    const offer = offers[category];
+
+    const qty = items.reduce((s, i) => s + i.quantity, 0);
+    const price = items[0]?.product?.price ?? 0;
+
+    if (offer && price === offer.price) {
+      let remaining = qty;
+
+      for (const bundle of offer.bundles) {
+        const count = Math.floor(remaining / bundle.qty);
+
+        if (count > 0) {
+          total += count * bundle.price;
+          remaining = remaining % bundle.qty;
+        }
+      }
+
+      total += remaining * price;
+    } else {
+      total += items.reduce(
+        (s, i) => s + (i.product?.price ?? 0) * i.quantity,
+        0
+      );
+    }
+  }
+
+  return total;
+})();
 // Discount
 const totalDiscount = totalMRP - totalSelling;
 
@@ -539,7 +600,7 @@ return (
   <button
     onClick={handleContinue}
     className="w-full bg-gradient-to-r from-gray-700 via-gray-800 to-gray-800
-               text-gray-900 font-semibold py-3 hover:shadow-lg transition"
+               text-white font-semibold py-3 px-3 hover:shadow-lg transition"
   >
     Continue Payment
   </button>

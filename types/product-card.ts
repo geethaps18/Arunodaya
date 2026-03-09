@@ -19,5 +19,10 @@ export type ProductCardProduct = {
   }[];
   rating?: number;
   reviewCount?: number;
+    
+     category?: string
+  subCategory?: string
+  subSubCategory?: string
+  subSubSubCategory?: string
 };
 

@@ -4,11 +4,11 @@ import ProductCard from "@/components/ProductCard";
 import { useInViewOnce } from "@/hook/useInViewOnce";
 
 interface Props {
-  product: any;
-  index: number;
+  product: any
+  index: number
+  categorySlug?: string
 }
-
-export default function AnimatedProductCard({ product, index }: Props) {
+export default function AnimatedProductCard({ product, index, categorySlug }: Props)  {
   const { ref, visible } = useInViewOnce<HTMLDivElement>();
 
   return (
@@ -25,7 +25,10 @@ export default function AnimatedProductCard({ product, index }: Props) {
         transitionDelay: `${index * 60}ms`,
       }}
     >
-      <ProductCard product={product} />
+    <ProductCard
+  product={product}
+  categorySlug={categorySlug}
+/>
     </div>
   );
 }

@@ -8,12 +8,16 @@ import { getCookie } from "cookies-next";
 
 import { useWishlist } from "@/app/context/WishlistContext";
 import { ProductCardProduct } from "@/types/product-card";
-
+import { offers } from "@/data/offers";
+import { getOfferDisplay } from "@/lib/getOfferDisplay"
+import { useParams } from "next/navigation"
 interface ProductCardProps {
-  product: ProductCardProduct;
+  product: ProductCardProduct
+  categorySlug?: string
+  index?: number
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product}: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
 
@@ -23,6 +27,25 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const liked = isInWishlist(product.id);
 
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/--+/g, "-")
+
+const categorySlug =
+  slugify(product?.subSubSubCategory) ||
+  slugify(product?.subSubCategory) ||
+  slugify(product?.subCategory)
+
+const offer = categorySlug
+  ? offers[categorySlug as keyof typeof offers]
+  : undefined
+
+const offerText = getOfferDisplay(offer)
   /* -------------------- FETCH RATING -------------------- */
   useEffect(() => {
     const fetchRating = async () => {
@@ -109,7 +132,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           </button>
         </div>
-
+<div className="absolute top-3 left-3 z-20">
+  {offerText && (
+    <span className="bg-black text-white text-[10px] px-2 py-[3px] rounded-sm tracking-wide">
+      {offerText}
+    </span>
+  )}
+</div>
         {/* SIZES (CAVA STYLE) */}
         <div
           className={`absolute bottom-3 left-1/2 -translate-x-1/2 text-xs tracking-wide text-gray-700 bg-white/80 backdrop-blur px-3 py-1 transition-opacity duration-300 ${
@@ -124,12 +153,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* INFO */}
       <div className="pt-3">
-        <h3 className="line-clamp-1 text-[#111111] text-sm md:text-base font-normal">
+        <h3 className="line-clamp-1 text-[#1111111] text-sm md:text-base font-normal">
           {product.name}
         </h3>
 
         <div className="flex items-center gap-2 mt-1">
-          <p className="text-[11px] uppercase tracking-widest text-gray-500">
+         <p className="text-xs text-neutral-500 mt-0.5">
             {product.brandName ?? "ARUNODAYA"}
           </p>
 
@@ -163,10 +192,12 @@ export default function ProductCard({ product }: ProductCardProps) {
   <span className="text-[11px] tracking-wide text-gray-500">
     {product.discount}% off
   </span>
+  
 )}
-      
+
 
         </div>
+
       </div>
     </Link>
   );

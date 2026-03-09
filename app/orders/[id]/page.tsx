@@ -51,12 +51,18 @@ interface Review {
 }
 interface ProductWithReviews {
   id: string;            // order item id
-  productId: string;     // REAL PRODUCT ID (IMPORTANT!)
+  productId: string;
   name: string;
   size?: string;
   quantity: number;
   price: number;
   description?: string;
+
+  // 🔥 ADD THESE
+  exchangeRequested?: boolean;
+  exchangeStatus?: string | null;
+  newSize?: string | null;
+  newColor?: string | null;
 
   product?: {
     id?: string;
@@ -85,6 +91,7 @@ interface Order {
 interface ProductCardProps {
   product: ProductWithReviews;
   orderStatus: string;
+  orderId: string;   // ✅ ADD THIS
   currentUserId: string;
   onSubmitReview: (
     productId: string,
@@ -108,7 +115,7 @@ const STATUS_TEXT: Record<string, { text: string; color: string }> = {
 export default function OrderDetailsPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-const getShipping = (amount: number) => (amount < 1000 ? 100 : 0);
+const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
 
   const params = useParams();
   const orderId = params?.id;
@@ -295,7 +302,7 @@ if (loading)
     </div>
   );
 
-const shippingCharge = order.totalAmount < 1000 ? 100 : 0;
+const shippingCharge = order.totalAmount < 100 ? 100 : 0;
 const finalTotal = order.totalAmount + shippingCharge;
 
   const steps = [
@@ -488,13 +495,14 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
         {/* Products & Reviews */}
         <div className="flex flex-col gap-6">
           {order.items.map((item) => (
-            <ProductCard
-              key={item.id}
-              product={item}
-              orderStatus={order.status}
-              currentUserId={currentUserId}
-              onSubmitReview={handleSubmitReview}
-            />
+           <ProductCard
+  key={item.id}
+  product={item}
+  orderStatus={order.status}
+  orderId={order.id}   // ✅ ADD THIS
+  currentUserId={currentUserId}
+  onSubmitReview={handleSubmitReview}
+/>
           ))}
         </div>
 {/* Delivery Address */}
@@ -672,12 +680,13 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
         <div className="bg-white p-4 border border-gray-200 rounded">
           <div className="flex justify-between text-gray-700 mb-2">
   <span>Total Amount</span>
+  
   <span className="font-medium">₹{finalTotal}</span>
 </div>
 
 {shippingCharge > 0 && (
   <p className="text-xs text-gray-500 mt-1">
-    ₹100 delivery charge applied (Free delivery above ₹1000)
+    Free delivery
   </p>
 )}
 
@@ -692,6 +701,7 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   orderStatus,
+  orderId,     // ✅ ADD THIS
   currentUserId,
   onSubmitReview,
 }) => {
@@ -768,8 +778,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           <div className="text-sm font-medium text-gray-700 mt-2">
-            ₹{product.price * product.quantity}
-          </div>
+  ₹{product.price}
+</div>
         </div>
       </Link>
 
@@ -817,7 +827,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           ))}
         </div>
       )}
-
+    
       {/* REVIEW FORM */}
       {orderStatus === "DELIVERED" && !hasReviewed && (
         <div className="mt-2 border-t border-gray-200 pt-2 flex flex-col gap-2">
@@ -850,7 +860,79 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </button>
         </div>
       )}
+{/* EXCHANGE SECTION */}
+{orderStatus === "DELIVERED" && (
+  <div className="mt-3 border-t pt-3">
+
+    {/* If never requested */}
+    {!product.exchangeRequested &&
+      !product.exchangeStatus && (
+        <Link
+          href={`/orders/${orderId}/exchange/${product.id}`}
+          className="block w-full text-center py-2 border border-gray-500 text-gray-600 rounded text-sm hover:bg-gray-50"
+        >
+          🔁 Request Exchange
+        </Link>
+      )}
+
+    {/* If requested & pending */}
+    {product.exchangeRequested &&
+      product.exchangeStatus === "PENDING" && (
+        <div className="space-y-2">
+          <div className="text-center text-sm text-yellow-600 font-medium">
+            ⏳ Exchange Requested (Pending Approval)
+          </div>
+
+          <button
+            onClick={async () => {
+              const res = await fetch(
+                `/api/orders/${orderId}/exchange/cancel`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ itemId: product.id }),
+                }
+              );
+
+              if (res.ok) {
+                toast.success("Exchange cancelled");
+                window.location.reload();
+              } else {
+                toast.error("Failed to cancel");
+              }
+            }}
+            className="block w-full py-2 border border-red-500 text-red-600 rounded text-sm hover:bg-red-50"
+          >
+            Cancel Exchange
+          </button>
+        </div>
+      )}
+
+    {/* If approved */}
+    {product.exchangeStatus === "APPROVED" && (
+      <div className="text-center text-sm text-green-600 font-medium">
+        ✅ Exchange Approved
+      </div>
+    )}
+
+    {/* If completed */}
+    {product.exchangeStatus === "COMPLETED" && (
+      <div className="text-center text-sm text-blue-600 font-medium">
+        🔁 Exchange Completed (Size Updated to {product.size})
+      </div>
+    )}
+
+    {/* If rejected */}
+    {product.exchangeStatus === "REJECTED" && (
+      <div className="text-center text-sm text-red-600 font-medium">
+        ❌ Exchange Rejected
+      </div>
+    )}
+
+  </div>
+)}
     </div>
+    
   );
 };
 

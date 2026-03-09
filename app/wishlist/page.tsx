@@ -214,7 +214,7 @@ return (
     {/* Header always visible */}
     <Header />
 
-    <div className="pt-20">
+    <div className="pt-22">
 
     {loading && userId && wishlist.length === 0 ? (
   <div className="flex justify-center items-center py-20">
@@ -248,7 +248,7 @@ return (
     </Link>
   </div>
 ) : (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-1">
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-2">
     {wishlist.map((product) => {
       const isPendingRemove = pendingRemovals.includes(product.id);
 
