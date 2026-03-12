@@ -132,7 +132,7 @@ const offerText = getOfferDisplay(offer)
             />
           </button>
         </div>
-<div className="absolute top-3 left-3 z-20">
+<div className="absolute top-1 left-1 z-20">
   {offerText && (
     <span className="bg-black text-white text-[10px] px-2 py-[3px] rounded-sm tracking-wide">
       {offerText}
