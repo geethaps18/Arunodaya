@@ -425,7 +425,7 @@ if (loading)
     Online Payment
     </span>
       <p className="text-xs text-gray-500">
-        Google Pay, PhonePe, Visa & more
+      UPI, Cards, Net Banking & more
       </p>
   </div>
   </div>
