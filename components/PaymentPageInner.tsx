@@ -422,7 +422,7 @@ if (loading)
     <img src="/images/upi.png" className="w-10 h-10" />
     <div>
     <span className="font-medium">
-      UPI / Cards / Net Banking
+    Online Payment
     </span>
       <p className="text-xs text-gray-500">
         Google Pay, PhonePe, Visa & more
