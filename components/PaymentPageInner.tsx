@@ -53,7 +53,7 @@ const [isAddressLoading, setIsAddressLoading] = useState(true);
 
   const [userId, setUserId] = useState<string | null>(null);
   const [bagItems, setBagItems] = useState<BagItem[]>([]);
-  const [paymentMode, setPaymentMode] = useState<"COD" | "Card" | "UPI" | string>("COD");
+ const [paymentMode, setPaymentMode] = useState<"COD" | "ONLINE">("COD");
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [upiId, setUpiId] = useState<string>("");
@@ -259,11 +259,11 @@ useEffect(() => {
 };
 
   const handlePayment = () => {
-    if (paymentMode === "COD") {
-      createCODOrder();
-    } else if (["GPay", "PhonePe", "Paytm", "Card"].includes(paymentMode)) {
-      handleRazorpayPayment();
-    } else {
+  if (paymentMode === "COD") {
+  createCODOrder();
+} else if (paymentMode === "ONLINE") {
+  handleRazorpayPayment();
+} else {
       toast.error("Select a valid payment method");
     }
   };
@@ -378,7 +378,7 @@ if (loading)
 
           {/* COD */}
           <label
-  className={`flex justify-between items-center p-5 border rounded-lg cursor-pointer transition-all ${
+  className={`flex justify-between items-center p-8 border rounded-lg cursor-pointer transition-all ${
     paymentMode === "COD"
       ? "border-black shadow-md bg-gray-50"
       : "bg-white hover:shadow-md"
@@ -392,7 +392,7 @@ if (loading)
       onChange={() => setPaymentMode("COD")}
       className="accent-black"
     />
-    <img src="/images/COD.png" alt="COD" className="w-8 h-8 rounded-full" />
+    <img src="/images/COD.png" alt="COD" className="w-10 h-10 rounded-full" />
     <span className="font-medium">Cash on Delivery</span>
   </div>
 
@@ -404,53 +404,9 @@ if (loading)
 
 
           {/* UPI Section */}
-          <label
-            className={`flex flex-col gap-2 p-5 border rounded-lg cursor-pointer transition-all ${
-              ["GPay", "PhonePe", "Paytm"].includes(paymentMode)
-                ? "border-black shadow-md bg-gray-100"
-                : "bg-white hover:shadow-md"
-            }`}
-          >
-            <span className="font-medium mb-2">Pay via UPI</span>
-            <div className="flex flex-col gap-5">
-              {["GPay", "PhonePe", "Paytm"].map((method) => (
-                <div
-  key={method}
-  className="flex justify-between items-center gap-3 cursor-pointer"
-  onClick={() => setPaymentMode(method)}
->
-  <div className="flex items-center gap-3">
-    <input
-      type="radio"
-      value={method}
-      checked={paymentMode === method}
-      onChange={() => setPaymentMode(method)}
-      className="accent-black"
-    />
-    <img
-      src={`/images/${method.toLowerCase()}.png`}
-      alt={method}
-      className="w-8 h-8 rounded-full"
-    />
-    <span className="font-medium">{method}</span>
-  </div>
-
-  {/* TOTAL */}
-  <span className="text-sm font-semibold text-gray-900">
-    {formattedTotal}
-  </span>
-</div>
-
-              ))}
-            </div>
-
-          
-          </label>
-
-          {/* CARD Section */}
-      <label
-  className={`flex justify-between items-center p-5 border rounded-lg cursor-pointer transition-all ${
-    paymentMode === "Card"
+   <label
+  className={`flex justify-between items-center p-8 border rounded-lg cursor-pointer ${
+    paymentMode === "ONLINE"
       ? "border-black shadow-md bg-gray-100"
       : "bg-white hover:shadow-md"
   }`}
@@ -458,20 +414,23 @@ if (loading)
   <div className="flex items-center gap-3">
     <input
       type="radio"
-      value="Card"
-      checked={paymentMode === "Card"}
-      onChange={() => setPaymentMode("Card")}
+      value="ONLINE"
+      checked={paymentMode === "ONLINE"}
+      onChange={() => setPaymentMode("ONLINE")}
       className="accent-black"
     />
-    <img src="/images/CARD.png" alt="Card" className="w-8 h-8 rounded-full" />
-    <span className="font-medium">Credit / Debit Card</span>
+    <img src="/images/upi.png" className="w-10 h-10" />
+    <span className="font-medium">
+      UPI / Cards / Net Banking
+    </span>
   </div>
 
-  {/* TOTAL */}
-  <span className="text-sm font-semibold text-gray-900">
+  <span className="text-sm font-semibold">
     {formattedTotal}
   </span>
 </label>
+
+  
 
         </div>
 <div className="hidden md:flex flex-col gap-3 mt-4">
