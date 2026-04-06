@@ -55,14 +55,15 @@ export const categories: SubCategory[] = [
         ],
       },
 
-      {
-        id: genId(),
-        name: "Blazers & Suits",
-        image: "/images/blazer.png",
-        subCategories: [
-          { id: genId(), name: "Blazer Sets", image: "/images/blazer.png", subCategories: [] },
-        ],
-      },
+    {
+  id: genId(),
+  name: "Blazers & Suits",
+  image: "/images/blazer.png",
+  subCategories: [
+    { id: genId(), name: "Blazers", image: "/images/blazer.png", subCategories: [] }, // ✅ ADD THIS
+    { id: genId(), name: "Blazer Sets", image: "/images/blazer.png", subCategories: [] },
+  ],
+}
     ],
   },
 
@@ -86,6 +87,7 @@ export const categories: SubCategory[] = [
             name: "Kurtas",
             image: "/images/kurta.png",
             subCategories: [
+              { id: genId(), name: "Short Umbrella", image: "/images/umbrella.png", subCategories: [] },
               { id: genId(), name: "Regular Kurta", image: "/images/regular-kurta.png", subCategories: [] },
               { id: genId(), name: "Silk Kurta", image: "/images/silk-kurta.png", subCategories: [] },
             ],
@@ -129,7 +131,9 @@ export const categories: SubCategory[] = [
             name: "Tops",
             image: "/images/top.png",
             subCategories: [
-              { id: genId(), name: "Jeans Tops", image: "/images/jeans-top.png", subCategories: [] },
+              { id: genId(), name: "Silk Tops", image: "/images/top.png", subCategories: [] },
+              { id: genId(), name: "T-Shirts", image: "/images/w-tshirt.png", subCategories: [] },
+              { id: genId(), name: "Jeans Tops", image: "/images/w-jeans-top.png", subCategories: [] },
               { id: genId(), name: "Embroidery Tops", image: "/images/embroidery-top.png", subCategories: [] },
             ],
           },
@@ -164,41 +168,55 @@ export const categories: SubCategory[] = [
           { id: genId(), name: "Women’s Jeans", image: "/images/women-jeans.png", subCategories: [] },
         ],
       },
+      {
+  id: genId(),
+  name: "Inners Wear",
+  image: "/images/inner.png",
+  subCategories: []
+}
     ],
   },
+  
 
   // ================= KIDS =================
   {
-    id: genId(),
-    name: "Kids",
-    image: "/images/kids.png",
-    subCategories: [
+  id: genId(),
+  name: "Kids",
+  image: "/images/kids.png",
+  subCategories: [
 
-      {
-        id: genId(),
-        name: "Boys",
-        image: "/images/boys.png",
-        subCategories: [
-          { id: genId(), name: "Boys Casual Shirts", image: "/images/shirt-boys.png", subCategories: [] },
-          { id: genId(), name: "Boys Jeans", image: "/images/jeans-boy.png", subCategories: [] },
-          { id: genId(), name: "Blazer Sets", image: "/images/blazer-boys.png", subCategories: [] },
-          { id: genId(), name: "Kurta Sets Boys", image: "/images/kurta-set-boys.png", subCategories: [] },
-        ],
-      },
+    {
+      id: genId(),
+      name: "Boys",
+      image: "/images/boys.png",
+      subCategories: [
+        { id: genId(), name: "Boys T-Shirts", image: "/images/tshirt.png", subCategories: [] },
+        { id: genId(), name: "Boys Casual Shirts", image: "/images/shirt-boys.png", subCategories: [] },
+        { id: genId(), name: "Boys Jeans", image: "/images/jeans-boy.png", subCategories: [] },
+        { id: genId(), name: "Boys Night Pants", image: "/images/nightpant.png", subCategories: [] },
+        { id: genId(), name: "Boys Shorts", image: "/images/shorts.png", subCategories: [] },
+        { id: genId(), name: "Boys Formal Pants", image: "/images/formal-trouser.png", subCategories: [] },
+        { id: genId(), name: "Boys Suits", image: "/images/suit.png", subCategories: [] },
+        { id: genId(), name: "Box Items", image: "/images/box.png", subCategories: [] },
+      ],
+    },
 
-      {
-        id: genId(),
-        name: "Girls",
-        image: "/images/girls.png",
-        subCategories: [
-          { id: genId(), name: "Kids Gown", image: "/images/girls-gown.png", subCategories: [] },
-          { id: genId(), name: "Kids Sharara Sets", image: "/images/girls-sharara.png", subCategories: [] },
-          { id: genId(), name: "Kids Girls Jeans", image: "/images/girl-jean.png", subCategories: [] },
-        ],
-      },
+    {
+      id: genId(),
+      name: "Girls",
+      image: "/images/girls.png",
+      subCategories: [
+        { id: genId(), name: "Kids Gown", image: "/images/girls-gown.png", subCategories: [] },
+        { id: genId(), name: "Kids Sharara Sets", image: "/images/girls-sharara.png", subCategories: [] },
+        { id: genId(), name: "Frocks", image: "/images/frock.png", subCategories: [] },
+        { id: genId(), name: "Kids T-Shirts", image: "/images/tshirt.png", subCategories: [] },
+        { id: genId(), name: "Kids Jeans Set", image: "/images/jeans-boy.png", subCategories: [] },
+        { id: genId(), name: "Night Dress", image: "/images/nighty.png", subCategories: [] },
+        { id: genId(), name: "Western Wear", image: "/images/western.png", subCategories: [] },
+        { id: genId(), name: "Mom's Care", image: "/images/mom.png", subCategories: [] },
+      ],
+    },
 
-    
-    ],
-  },
-
+  ],
+}
 ];

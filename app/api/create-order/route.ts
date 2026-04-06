@@ -125,9 +125,10 @@ function calculateBundleTotal(items: any[]) {
   const grouped: Record<string, any[]> = {};
 
   items.forEach((item) => {
-    const category = item.name.toLowerCase(); // or use category field
+    const category = item.category || "default";
 
     if (!grouped[category]) grouped[category] = [];
+
     grouped[category].push(item);
   });
 
@@ -158,7 +159,6 @@ function calculateBundleTotal(items: any[]) {
 
   return total;
 }
-
 /* ---------------- MAIN API ---------------- */
 export async function POST(req: Request) {
   try {
@@ -206,18 +206,21 @@ const orderItems = await Promise.all(
       }
     }
 
-    return {
-      productId: product.id,
-      siteId: product.siteId,
-      name: product.name,
-      brandName: product.brandName ?? "ARUNODAYA",
-      quantity: Number(item.quantity),
-      price,
-      size: item.size ?? null,
-      color: item.color ?? null,
-      variantId: item.variantId ?? null,
-      image: product.images?.[0] ?? null,
-    };
+   return {
+  productId: product.id,
+  siteId: product.siteId,
+  name: product.name,
+  brandName: product.brandName ?? "ARUNODAYA",
+  quantity: Number(item.quantity),
+  price,
+
+  category: product.subSubSubCategory?.toLowerCase() ?? "default",
+
+  size: item.size ?? null,
+  color: item.color ?? null,
+  variantId: item.variantId ?? null,
+  image: product.images?.[0] ?? null,
+};
   })
 );
   const totalAmount = calculateBundleTotal(orderItems);

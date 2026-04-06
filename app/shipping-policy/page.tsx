@@ -47,7 +47,10 @@ export default function ShippingPolicy() {
       <h2 className="text-xl font-semibold mt-6">
         Contact
       </h2>
-      <p>Email: support@arunodaya.com</p>
+     <p className="mt-3 text-gray-700">
+          Email :  arunodayacollections25@gmail.com<br />
+          Phone : +918088546236
+        </p>
     </div>
   );
 }

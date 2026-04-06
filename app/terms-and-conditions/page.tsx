@@ -1,6 +1,8 @@
 export default function TermsAndConditions() {
   return (
+   
     <div className="max-w-4xl mx-auto p-6">
+      
       <h1 className="text-3xl font-bold mb-4">Terms & Conditions</h1>
       <p>By using Arunodaya, you agree to the following terms:</p>
 
@@ -28,7 +30,12 @@ export default function TermsAndConditions() {
       </p>
 
       <h2 className="text-xl font-semibold mt-6">Contact</h2>
-      <p>Email: support@arunodaya.com</p>
+       <p className="mt-3 text-gray-700">
+          Email :  arunodayacollections25@gmail.com<br />
+          Phone : +918088546236
+        </p>
     </div>
+    
   );
+   
 }

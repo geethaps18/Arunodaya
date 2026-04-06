@@ -26,7 +26,8 @@ import { COLOR_OPTIONS } from "@/data/colors";
 import { Zoom } from "swiper/modules";
 import "swiper/css/zoom";
 import { offers } from "@/data/offers";
-import { getAllOffers } from "@/lib/getAllOffers"
+import { getAllOffers } from "@/lib/getAllOffers";
+import ProductTrust from "@/components/ProductTrust";
 
 
 const productCache = new Map<string, ProductWithReviews>();
@@ -1269,7 +1270,7 @@ const sizeChartData = baseChart.filter(row =>
   />
 </div>
 
-
+<ProductTrust />
 
 <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white flex gap-2 p-3 z-50">
   {isProductOutOfStock ? (

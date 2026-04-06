@@ -1,13 +1,15 @@
+import Header from "@/components/Header";
+
 export const dynamic = "force-dynamic";
 
 
 
 export default function PrivacyPolicy() {
   return (
+   
     <>
-    
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="max-w-4xl mx-auto px-6  py-12">
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-sm text-gray-500">
           Last updated: {new Date().toLocaleDateString()}
@@ -44,8 +46,8 @@ export default function PrivacyPolicy() {
 
         <h2 className="text-xl font-semibold mt-8">Contact Us</h2>
         <p className="mt-3 text-gray-700">
-          Email: support@arunodaya.com <br />
-          Phone: +91 XXXXXXXXXX
+          Email :  arunodayacollections25@gmail.com<br />
+          Phone : +918088546236
         </p>
       </div>
 
