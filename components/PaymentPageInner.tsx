@@ -407,8 +407,8 @@ if (loading)
    <label
   className={`flex justify-between items-center p-8 border rounded-lg cursor-pointer ${
     paymentMode === "ONLINE"
-      ? "border-black shadow-md bg-gray-100"
-      : "bg-white hover:shadow-md"
+      ? "border-black  bg-gray-100"
+      : "bg-white "
   }`}
 >
   <div className="flex items-center gap-3">
@@ -420,9 +420,14 @@ if (loading)
       className="accent-black"
     />
     <img src="/images/upi.png" className="w-10 h-10" />
+    <div>
     <span className="font-medium">
       UPI / Cards / Net Banking
     </span>
+      <p className="text-xs text-gray-500">
+        Google Pay, PhonePe, Visa & more
+      </p>
+  </div>
   </div>
 
   <span className="text-sm font-semibold">
