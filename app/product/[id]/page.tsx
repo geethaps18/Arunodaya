@@ -7,10 +7,7 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Scrollbar, Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import "swiper/css/navigation";
+
 import { ShoppingBag, Heart, Share2 } from "lucide-react";
 import { useWishlist } from "@/app/context/WishlistContext";
 import { useCart } from "@/app/context/BagContext";
@@ -24,7 +21,7 @@ import Link from "next/link";
 import ProductAccordion from "@/components/ProductAccordion";
 import { COLOR_OPTIONS } from "@/data/colors";
 import { Zoom } from "swiper/modules";
-import "swiper/css/zoom";
+
 import { offers } from "@/data/offers";
 import { getAllOffers } from "@/lib/getAllOffers";
 import ProductTrust from "@/components/ProductTrust";

@@ -12,6 +12,11 @@ import AppLayoutWrapper from "@/components/AppLayoutWrapper";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import TopLoader from "@/components/TopLoader";
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import 'swiper/css/scrollbar';
+import 'swiper/css/zoom';
 import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({
