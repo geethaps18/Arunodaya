@@ -29,7 +29,7 @@ export default function ProductTrust() {
                  {/* Quality Checked */}
         <div className="flex flex-col items-center gap-2">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 flex items-center justify-center shadow-md">
-            <span className="text-white text-xl">⭐</span>
+            <span className="text-orange-600 text-xl">⭐</span>
           </div>
           <p className="text-sm font-semibold text-gray-700">
             Quality Checked
