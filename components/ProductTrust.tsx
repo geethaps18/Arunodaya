@@ -13,46 +13,40 @@ export default function ProductTrust() {
           {/* Icons Row */}
           <div className="flex items-center justify-between relative z-10">
             
-            {/* Genuine */}
-            <div className="flex flex-col items-center flex-1 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-100 to-yellow-50 flex items-center justify-center shadow-sm transition">
-                <span className="text-xl">🏷️</span>
-              </div>
-              <p className="mt-2 text-xs font-medium text-gray-800 tracking-wide">
-                Genuine Product
-              </p>
-              <span className="text-[10px] text-gray-400">
-                100% Original
-              </span>
-            </div>
+                   {/* Genuine Product */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-300 to-yellow-300 flex items-center justify-center shadow-md">
+            <span className="text-white text-xl">✔</span>
+          </div>
+          <p className="text-sm font-semibold text-gray-700">
+            Genuine Product
+          </p>
+        </div>
 
             {/* Divider */}
             <div className="h-12 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent" />
 
-            {/* Quality */}
-            <div className="flex flex-col items-center flex-1 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-50 flex items-center justify-center shadow-sm transition">
-                <span className="text-xl">✔️</span>
-              </div>
-              <p className="mt-2 text-xs font-medium text-gray-800 tracking-wide">
-                Quality Checked
-              </p>
-              <span className="text-[10px] text-gray-400">
-                Verified by team
-              </span>
-            </div>
+                 {/* Quality Checked */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 flex items-center justify-center shadow-md">
+            <span className="text-white text-xl">⭐</span>
+          </div>
+          <p className="text-sm font-semibold text-gray-700">
+            Quality Checked
+          </p>
+        </div>
 
           </div>
 
-          {/* Bottom Info */}
-          <div className="mt-5 pt-4 border-t border-gray-100 relative z-10">
-            <p className="text-sm font-semibold text-gray-900 flex items-center gap-1">
-              🔄 Easy 7 days exchange
-            </p>
-            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-              Hassle-free exchange for size or fit issues.
-            </p>
-          </div>
+          {/* Exchange Info */}
+      <div className="mt-5 px-4 text-center">
+        <p className="text-base font-semibold text-gray-800">
+          Easy 7 days exchange
+        </p>
+        <p className="text-sm text-gray-500">
+          Exchange available for size or product issues. No returns.
+        </p>
+      </div>
 
         </div>
       </div>
