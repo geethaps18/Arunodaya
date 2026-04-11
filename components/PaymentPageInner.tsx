@@ -246,8 +246,50 @@ useEffect(() => {
     name: "Arunodaya Collections",
     description: "Order Payment",
     order_id: data.orderId,
-    handler: function (response) {
-      router.push(`/payment-success?razorpay_payment_id=${response.razorpay_payment_id}`);
+   handler: async function (response) {
+  console.log("Payment success:", response);
+
+  if (!userId || !selectedAddress || bagItems.length === 0) {
+    alert("Missing order data");
+    return;
+  }
+
+  // ✅ same like COD
+  const orderItems = bagItems.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: item.price,
+    size: item.size,
+    color: item.color,
+    variantId: item.variantId,
+  }));
+
+  try {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        items: orderItems,
+        paymentMode: "ONLINE",
+        address: selectedAddress,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // ✅ now order is saved
+      router.push(`/order-success/${data.order.id}`);
+    } else {
+      alert("Order saving failed after payment");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong");
+  }
     },
     theme: {
       color: "black",

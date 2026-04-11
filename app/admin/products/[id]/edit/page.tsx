@@ -8,7 +8,6 @@ interface PageProps {
 
 export default async function EditProductPage({ params }: PageProps) {
   const { id } = await params;
-
   return (
     <ProductFormTabbed
       mode="edit"

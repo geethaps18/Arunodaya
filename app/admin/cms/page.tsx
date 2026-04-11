@@ -43,17 +43,7 @@ useEffect(() => {
   return (
     <div className="px-2 py-12 sm:px-6 lg:px-12 space-y-4">
       
-      {/* 🔗 MEDIA PAGE BUTTON */}
-      <div className="flex justify-end">
-        <a
-          href="/admin/media"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
-        >
-          📁 Open Media Upload
-        </a>
-      </div>
+   
 
       <div className="h-screen">
         <Puck

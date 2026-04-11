@@ -150,10 +150,10 @@ setVideoPreview(null);
 
 
 useEffect(() => {
-if (!duplicateId || mode === "edit") return;
+  if (mode !== "edit" || !productId) return;
 
   (async () => {
- const res = await fetch(`/api/admin/products/${duplicateId}`);
+    const res = await fetch(`/api/admin/products/${productId}`);
     const data = await res.json();
 
     setName(data.name ?? "");
@@ -197,7 +197,7 @@ if (!duplicateId || mode === "edit") return;
     setSubSubCategory(subSubCat);
 
     setVariants(
-      (data.variants || []).map((v:any) => ({
+      (data.variants || []).map((v: any) => ({
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
@@ -211,7 +211,6 @@ if (!duplicateId || mode === "edit") return;
       }))
     );
   })();
-
 }, [mode, productId]);
 
 useEffect(() => {
@@ -632,7 +631,9 @@ function calculateVariantDiscount(m: string, p: string) {
   return (
     <div className="max-w-6xl mx-auto py-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">Add Product</h2>
+       <h2 className="text-2xl font-semibold">
+  {mode === "edit" ? "Edit Product" : "Add Product"}
+</h2>
         <div className="flex items-center gap-2">
           <button onClick={() => setActiveTab(t => Math.max(0, t-1))} className="p-2 rounded border hover:bg-gray-50"><ChevronLeft size={16} /></button>
           <button onClick={() => setActiveTab(t => Math.min(Tabs.length-1, t+1))} className="p-2 rounded border hover:bg-gray-50"><ChevronRight size={16} /></button>
@@ -1106,7 +1107,7 @@ setSubSubSubCategory(null); // ✅ ADD
               <div className="flex gap-3">
                 <button type="button" onClick={()=>setActiveTab( (t) => Math.max(0, t-1) )} className="px-4 py-2 rounded border">Back</button>
                 <button type="button" onClick={()=>handleSubmit()} disabled={loading} className="px-4 py-2 rounded bg-indigo-600 text-white flex items-center gap-2">
-                  {loading && <Loader2 className="animate-spin" size={16} />} Submit Product
+                  {loading && <Loader2 className="animate-spin" size={16} />} {mode === "edit" ? "Update Product" : "Add Product"}
                 </button>
               </div>
             </div>

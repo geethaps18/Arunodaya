@@ -42,7 +42,11 @@ export async function POST(req: Request) {
         .end(buffer);
     });
 
-    return NextResponse.json(uploadResult);
+  const result: any = uploadResult;
+
+return NextResponse.json({
+  url: result.secure_url, // ✅ THIS FIX
+});
   } catch (error) {
     console.error("Upload failed:", error);
     return NextResponse.json(
