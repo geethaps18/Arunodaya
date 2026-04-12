@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Arunodaya",
     description: "Arunodaya Collections",
-    url: "https://www.arunodaya.in",
+    url: "https://www.arunodayacollections.com",
     siteName: "Arunodaya",
     images: [
       {

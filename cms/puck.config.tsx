@@ -38,10 +38,10 @@ export const puckConfig: Config = {
         } = props as any;
 
         // 🔥 support new media object
-       const imageUrl =
-  typeof image === "string"
-    ? image
-    : image?.url || "";
+const imageUrl =
+  typeof image === "object"
+    ? image?.url
+    : image || "";
 
         // 🔥 empty state inside CMS
         if (!imageUrl) {

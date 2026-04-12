@@ -1,6 +1,10 @@
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
 
+// ✅ ADD THESE
+import Media from "@/models/Media";
+import { connectMongo } from "@/lib/mongoose";
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
@@ -9,6 +13,9 @@ cloudinary.config({
 
 export async function POST(req: Request) {
   try {
+    // ✅ CONNECT MONGO (ADDED)
+    await connectMongo();
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
@@ -42,11 +49,21 @@ export async function POST(req: Request) {
         .end(buffer);
     });
 
-  const result: any = uploadResult;
+    const result: any = uploadResult;
 
-return NextResponse.json({
-  url: result.secure_url, // ✅ THIS FIX
-});
+    // 🔥 SAVE TO MONGODB (ADDED ONLY THIS PART)
+    await (Media as any).create({
+      mediaType: "image",
+      url: result.secure_url,
+      publicId: result.public_id,
+      fullPublicId: result.public_id,
+      folder: "products",
+    });
+
+    return NextResponse.json({
+      url: result.secure_url, // ✅ SAME AS YOUR CODE
+    });
+
   } catch (error) {
     console.error("Upload failed:", error);
     return NextResponse.json(
