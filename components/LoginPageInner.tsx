@@ -146,21 +146,11 @@ const redirectTo = rawRedirect.startsWith("/")
 <div className="flex flex-col items-center mb-6">
   <Link href="/">
     <img
-      src="/images/arunodayalogo4.png"
+      src="/images/arunodayalogo2.png"
       alt="arunodaya Logo"
-      className="w-80 h-auto object-contain cursor-pointer"
+      className="w-50 h-auto object-contain cursor-pointer"
     />
   </Link>
-
-  {/* Kannada Text */}
-  <div className="text-center mt-3 leading-tight">
-    <h3 className="text-base font-semibold mb-2 text-gray-700 tracking-wide">
-      ಇದು
-    </h3>
-    <h3 className="text-lg font-bold text-gray-800 mb-6 tracking-wide">
-      ದಾವಣಗೆರೆ ಮಣ್ಣಿನ ಬ್ರಾಂಡ್
-    </h3>
-  </div>
 
   {/* Login Title */}
   <h1 className="text-xl font-bold mt-4">

@@ -105,21 +105,13 @@ export default function SignupPageInner() {
         <div className="flex justify-center mb-4">
          <Link href="/">
   <img
-    src="/images/arunodayalogo4.png"
+    src="/images/arunodayalogo2.png"
     alt="arunodaya Logo"
-    className="w-80  object-contain cursor-pointer"
+    className="w-50  object-contain cursor-pointer"
   />
 </Link>
         </div>
-    {/* Kannada Text */}
-  <div className="text-center mt-3 leading-tight">
-    <h3 className="text-base font-semibold mb-2 text-gray-700 tracking-wide">
-      ಇದು
-    </h3>
-    <h3 className="text-lg font-bold mb-6 text-gray-800 tracking-wide">
-      ದಾವಣಗೆರೆ ಮಣ್ಣಿನ ಬ್ರಾಂಡ್
-    </h3>
-  </div>
+    
         <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
 
         <form onSubmit={handleSignup} className="space-y-4">
