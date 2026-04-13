@@ -36,9 +36,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Arunodaya",
+  title: "Arunodaya Collections",
   description:
-    "Arunodaya Collections Sarees, Men’s Wear, Kids, and Home.",
+    "Arunodaya Collections Women, Men, Kids.",
   icons: {
     icon: "/images/arunodaya.png",
   },
