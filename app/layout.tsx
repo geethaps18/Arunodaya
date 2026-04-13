@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title: "Arunodaya Collections",
     description: "Arunodaya Collections",
     url: "https://www.arunodayacollections.com",
-    siteName: "Arunodaya",
+    siteName: "Arunodaya Collections",
     images: [
       {
         url: "/images/arunodayalogo.png",
