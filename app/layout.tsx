@@ -37,11 +37,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Arunodaya Collections",
-  description:
-    "Arunodaya Collections Women, Men, Kids.",
-  icons: {
-    icon: "/images/arunodaya.png",
-  },
+  description: "Arunodaya Collections Women, Men, Kids.",
+
+ 
+
   openGraph: {
     title: "Arunodaya Collections",
     description: "Arunodaya Collections",
@@ -49,10 +48,10 @@ export const metadata: Metadata = {
     siteName: "Arunodaya Collections",
     images: [
       {
-        url: "/images/arunodayalogo.png",
+        url: "favicon.png",
         width: 800,
         height: 800,
-        alt: "arunodaya Logo",
+        alt: "Arunodaya Logo",
       },
     ],
     locale: "en_IN",
