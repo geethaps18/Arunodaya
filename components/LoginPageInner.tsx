@@ -142,19 +142,31 @@ const redirectTo = rawRedirect.startsWith("/")
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md bg-white shadow-lg p-8 rounded-lg">
         
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-         <Link href="/">
-  <img
-    src="/images/arunodayalogo1.png"
-    alt="arunodaya Logo"
-    className="w-40 h-40 object-contain cursor-pointer"
-  />
-</Link>
-        </div>
+      {/* Logo */}
+<div className="flex flex-col items-center mb-6">
+  <Link href="/">
+    <img
+      src="/images/arunodayalogo3.png"
+      alt="arunodaya Logo"
+      className="w-40 h-auto object-contain cursor-pointer"
+    />
+  </Link>
 
-        <h1 className="text-2xl font-bold mb-6 text-center">Login / Sign Up</h1>
+  {/* Kannada Text */}
+  <div className="text-center mt-3 leading-tight">
+    <h3 className="text-base font-semibold mb-2 text-gray-700 tracking-wide">
+      ಇದು
+    </h3>
+    <h3 className="text-lg font-bold text-gray-800 mb-6 tracking-wide">
+      ದಾವಣಗೆರೆ ಮಣ್ಣಿನ ಬ್ರಾಂಡ್
+    </h3>
+  </div>
 
+  {/* Login Title */}
+  <h1 className="text-xl font-bold mt-4">
+    Login / Sign Up
+  </h1>
+</div>
         {/* Email Login Only */}
         <form onSubmit={handleVerifyOtp} className="space-y-4">
           {!otpSent && (
