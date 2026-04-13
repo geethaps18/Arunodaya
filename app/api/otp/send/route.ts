@@ -20,7 +20,7 @@ async function sendEmailOtp(email: string, otp: string) {
   });
 
   // Convert logo to base64
-  const logoPath = path.join(process.cwd(), "public/images/logo.png");
+  const logoPath = path.join(process.cwd(), "public/images/arunodayalogo.png");
   const logoBase64 = fs.readFileSync(logoPath).toString("base64");
 
   const html = `
@@ -72,8 +72,9 @@ async function sendEmailOtp(email: string, otp: string) {
     <div style="background:#111111; padding:18px; text-align:center; font-size:12px; color:#aaaaaa;">
       © ${new Date().getFullYear()} Arunodaya Collections <br/>
       Need help? 
-      <a href="mailto:${process.env.EMAIL_USER}" style="color:#ffffff; text-decoration:none;">
-        ${process.env.EMAIL_USER}
+     <a href="mailto:arunodayacollections25@gmail.com" style="color:#ffffff; text-decoration:none;">
+  arunodayacollections25@gmail.com
+</a>
       </a>
     </div>
 

@@ -31,8 +31,10 @@ export default function BuilderOrdersClient() {
   const [packingId, setPackingId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
- const markAsPacked = async (orderItemId: string) => {
-  // ✅ OPTIMISTIC UI UPDATE
+const markAsPacked = async (orderItemId: string) => {
+  setPackingId(orderItemId); // ✅ move here (better control)
+
+  // OPTIMISTIC UI
   setOrders(prev =>
     prev.map(item =>
       item.id === orderItemId
@@ -54,16 +56,14 @@ export default function BuilderOrdersClient() {
 
     toast.success("Order marked as packed", { id: t });
 
-    // optional: re-sync from backend
-    fetchOrders();
+    await fetchOrders();
   } catch {
     toast.error("Failed to update order", { id: t });
-
-    // ❌ rollback if API fails
-    fetchOrders();
+    await fetchOrders();
+  } finally {
+    setPackingId(null); // ✅ RESET after done
   }
 };
-
 
 
   const fetchOrders = async () => {
@@ -155,16 +155,15 @@ export default function BuilderOrdersClient() {
           <div className="text-xs">
       {!item.confirmedAt ? (
 <button
-  disabled={packingId === item.id}
-  onClick={() => {
-    setPackingId(item.id);        // ✅ set loading state
-    markAsPacked(item.id);        // ✅ trigger action
-  }}
+  disabled={packingId === item.id || !!item.confirmedAt}
+  onClick={() => markAsPacked(item.id)}
   className={`px-4 py-2 text-sm rounded-lg text-white
-    ${packingId === item.id ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}
+    ${packingId === item.id || item.confirmedAt
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-green-600 hover:bg-green-700"}
   `}
 >
-  Mark as Packed
+  {packingId === item.id ? "Packing..." : "Mark as Packed"}
 </button>
 
 

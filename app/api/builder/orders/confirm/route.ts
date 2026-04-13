@@ -4,54 +4,84 @@ import { getOwnerId } from "@/utils/getOwnerId";
 
 export async function PUT(req: Request) {
   try {
+    /* ---------------- AUTH ---------------- */
     const ownerId = await getOwnerId();
+
     if (!ownerId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const { orderItemId } = await req.json();
+    /* ---------------- BODY ---------------- */
+    const body = await req.json();
+    const { orderItemId } = body;
+
     if (!orderItemId) {
       return NextResponse.json(
-        { error: "Missing orderItemId" },
+        { error: "orderItemId is required" },
         { status: 400 }
       );
     }
 
-    // ✅ Fetch item → product → site
+    /* ---------------- FETCH ITEM ---------------- */
     const item = await prisma.orderItem.findUnique({
       where: { id: orderItemId },
       include: {
         product: {
           include: {
-            site: true, // 👈 VERY IMPORTANT
+            site: true,
           },
         },
       },
     });
 
     if (!item || !item.product?.site) {
-      return NextResponse.json({ error: "Order item not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Order item not found" },
+        { status: 404 }
+      );
     }
 
-    // 🔐 OWNER CHECK
+    /* ---------------- OWNER CHECK ---------------- */
     if (item.product.site.ownerId !== ownerId) {
-      return NextResponse.json({ error: "Not allowed" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Not allowed" },
+        { status: 403 }
+      );
     }
 
-    // ✅ CONFIRM / PACK
+    /* ---------------- ALREADY PACKED CHECK ---------------- */
+    if (item.packedAt) {
+      return NextResponse.json(
+        { error: "Order already packed" },
+        { status: 400 }
+      );
+    }
+
+    /* ---------------- UPDATE ---------------- */
     await prisma.orderItem.update({
       where: { id: orderItemId },
       data: {
-        packed: true,
-        packedAt: new Date(),
+        packedAt: new Date(), // ✅ enough (no need packed: true)
       },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("SELLER CONFIRM ERROR:", err);
+    /* ---------------- RESPONSE ---------------- */
+    return NextResponse.json({
+      success: true,
+      message: "Order marked as packed",
+    });
+
+  } catch (err: any) {
+    console.error("🔥 SELLER PACK ERROR:", err);
+
     return NextResponse.json(
-      { error: "Failed to confirm item" },
+      {
+        error: "Failed to mark order as packed",
+        details: err.message,
+      },
       { status: 500 }
     );
   }

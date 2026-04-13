@@ -26,6 +26,7 @@ export async function GET(req: Request) {
         size: true,
         image: true,
         createdAt: true,
+          packedAt: true, 
 
         product: {
           select: { images: true },
@@ -55,7 +56,7 @@ export async function GET(req: Request) {
       orderId: item.orderId,
       status: item.order?.status,
       paymentMode: item.order?.paymentMode,
-      confirmedAt: item.order?.confirmedAt ?? null,
+  confirmedAt: item.packedAt ?? null,
 
       customer: item.order?.user,
       address: item.order?.address,

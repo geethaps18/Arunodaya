@@ -43,13 +43,13 @@ export const metadata: Metadata = {
     icon: "/images/arunodaya.png",
   },
   openGraph: {
-    title: "Arunodaya",
+    title: "Arunodaya Collections",
     description: "Arunodaya Collections",
     url: "https://www.arunodayacollections.com",
     siteName: "Arunodaya",
     images: [
       {
-        url: "/images/arunodaya.png",
+        url: "/images/arunodayalogo.png",
         width: 800,
         height: 800,
         alt: "arunodaya Logo",

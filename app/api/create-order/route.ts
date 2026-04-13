@@ -76,14 +76,14 @@ async function sendOrderEmail(to: string, order: any, items: any[]) {
   await transporter.sendMail({
     from: `"Arunodaya Collections" <${EMAIL_USER}>`,
     to,
-    subject: `Order Confirmed - ${order.id}`,
+    subject: `Order Placed - ${order.id}`,
     html: `
       <h2>Hi ${order.user?.name || "Customer"} 👋</h2>
       <p>Your order has been placed successfully.</p>
       <p><b>Order ID:</b> ${order.id}</p>
       <p>${itemList}</p>
       <p><b>Total:</b> ₹${order.totalAmount}</p>
-      <p>— Team Arunodaya</p>
+      <p>— Team Arunodaya Collections</p>
     `,
   });
 }
