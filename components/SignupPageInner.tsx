@@ -105,9 +105,9 @@ export default function SignupPageInner() {
         <div className="flex justify-center mb-4">
          <Link href="/">
   <img
-    src="/images/arunodayalogo3.png"
+    src="/images/arunodayalogo4.png"
     alt="arunodaya Logo"
-    className="w-40 h-full object-contain cursor-pointer"
+    className="w-80  object-contain cursor-pointer"
   />
 </Link>
         </div>
