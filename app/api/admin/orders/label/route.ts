@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const firstItem = order.items[0];
     let seller = {
       storeName: "Arunodaya Collections",
-      phone: "8088546236",
+      phone: "+91 8073 033 273",
       email: "arunodayacollections25@gmail.com",
       address: "Davanagere — 577001",
     };
@@ -132,15 +132,38 @@ export async function POST(req: Request) {
     if (fs.existsSync(boldPath)) doc.registerFont("b", boldPath);
 
     const pdfPromise = pdfToBuffer(doc);
+const logoPath = path.join(
+  process.cwd(),
+  "public/images/arunodayalogo.png"
+);
+/* ================= HEADER ================= */
 
-    /* ================= HEADER ================= */
-    if (fs.existsSync(boldPath)) doc.font("b");
-    doc.fontSize(12).text(seller.storeName, { align: "center" });
+// Center logo properly
+if (fs.existsSync(logoPath)) {
+  doc.image(
+    logoPath,
+    doc.page.width / 2 - 40,
+    10,
+    { width: 80 }
+  );
 
-    if (fs.existsSync(regularPath)) doc.font("r");
-    doc.fontSize(8).text("Shipping Label", { align: "center" });
+  // 🔥 Force proper spacing after logo
+  doc.moveDown(4);
+}
 
-    doc.moveDown(0.4);
+// Store name
+if (fs.existsSync(boldPath)) doc.font("b");
+doc.fontSize(11).text(seller.storeName, {
+  align: "center",
+});
+doc.moveDown(0.8);
+// Subtitle
+if (fs.existsSync(regularPath)) doc.font("r");
+doc.fontSize(8).text("Shipping Label", {
+  align: "center",
+});
+
+doc.moveDown(0.8);
 
     /* ================= ORDER + BARCODE ================= */
     doc.fontSize(8).text(`Order ID: ${order.id}`);

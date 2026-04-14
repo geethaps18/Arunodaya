@@ -46,12 +46,15 @@ export async function POST(req: NextRequest) {
     if (!order) {
       return new Response("Order not found", { status: 404 });
     }
-
+const logoPath = path.join(
+  process.cwd(),
+  "public/images/arunodayalogo.png"
+);
     /* ---------------- Resolve Seller (Builder) ---------------- */
     let seller = {
       storeName: "Arunodaya Collections",
       address: "Arunodaya collections Davangere @ AVK COLLEGE ROAD, Davanagere — 577001",
-      phone: "8088546236",
+      phone: "+91 8073 033 273",
       email: "arunodayacollections25@gmail.com",
     };
 
@@ -125,14 +128,37 @@ ${address.city || ""}, ${address.state || ""} - ${address.pincode || ""}
 
     /* ================= HEADER ================= */
     if (fs.existsSync(boldPath)) doc.font("b");
-    doc.fillColor(title).fontSize(22).text(seller.storeName, { align: "center" });
+  /* ================= HEADER ================= */
 
-    if (fs.existsSync(regularPath)) doc.font("r");
-    doc.fillColor(accent)
-      .fontSize(10)
-      .text("Invoice", { align: "center" });
+// Logo (center top)
+if (fs.existsSync(logoPath)) {
+  doc.image(
+    logoPath,
+    doc.page.width / 2 - 50,
+    30,
+    { width: 100 }
+  );
 
-    doc.moveDown(1);
+  // proper spacing after logo
+  doc.moveDown(3);
+}
+
+// Store name
+if (fs.existsSync(boldPath)) doc.font("b");
+doc.fillColor(title).fontSize(20).text(seller.storeName, {
+  align: "center",
+});
+
+doc.moveDown(0.8);
+// Invoice title
+if (fs.existsSync(regularPath)) doc.font("r");
+doc.fillColor(accent)
+  .fontSize(11)
+  .text("Invoice", { align: "center" });
+
+doc.moveDown(1);
+
+  
 
     /* ================= ORDER META ================= */
     doc.fillColor("black").fontSize(11);
