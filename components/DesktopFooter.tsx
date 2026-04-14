@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function DesktopFooter() {
   return (
-    <footer className="hidden lg:block bg-gray-50 border-t mt-24">
+    <footer className="hidden lg:block  border-t mt-24">
       <div className="max-w-7xl mx-auto px-8 py-16 grid grid-cols-4 gap-12 text-sm text-gray-600">
 
         {/* BRAND */}
@@ -27,8 +27,7 @@ export default function DesktopFooter() {
           </p>
 
           <p className="mt-4 text-sm leading-relaxed text-gray-700">
-            Discover premium sarees, ethnic wear, western fashion, kids’ wear,
-            jewellery, and home essentials.
+            Discover premium ethnic wear, western fashion, Men and kid's wear.
           </p>
         </div>
 
@@ -43,21 +42,7 @@ export default function DesktopFooter() {
                 Stores & Contact
               </Link>
             </li>
-            <li>
-              <Link href="/faq" className="hover:text-black">
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/refund-policy" className="hover:text-black">
-                Returns
-              </Link>
-            </li>
-            <li>
-              <Link href="/shipping-policy" className="hover:text-black">
-                Shipping
-              </Link>
-            </li>
+           
             <li>
               <Link href="/orders" className="hover:text-black">
                 Track Order
@@ -100,9 +85,9 @@ export default function DesktopFooter() {
           <h4 className="font-semibold text-gray-900 mb-4">
             CONTACT
           </h4>
-          <p>Email: support@arunodaya.com</p>
-          <p className="mt-2">Phone: +91 XXXXX XXXXX</p>
-          <p className="mt-2">Karnataka, India</p>
+          <p>Email: arunodayacollections25@gmail.com</p>
+          <p className="mt-2">Phone: +91 8073 033 273</p>
+          <p className="mt-2"> Davanagere, Karnataka, India</p>
         </div>
 
       </div>

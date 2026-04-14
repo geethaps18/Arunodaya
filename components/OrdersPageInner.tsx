@@ -101,7 +101,7 @@ export default function OrdersPage() {
  
 
   return (
-    <div className="min-h-screen flex flex-col pt-2">
+    <div className="min-h-screen flex flex-col pt-8">
       <Header />
       <Toaster />
 

@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
         <h2 className="text-xl font-semibold mt-8">Contact Us</h2>
         <p className="mt-3 text-gray-700">
           Email :  arunodayacollections25@gmail.com<br />
-          Phone : +918088546236
+          Phone : +91 8073 033 273
         </p>
       </div>
 

@@ -32,7 +32,7 @@ export default function TermsAndConditions() {
       <h2 className="text-xl font-semibold mt-6">Contact</h2>
        <p className="mt-3 text-gray-700">
           Email :  arunodayacollections25@gmail.com<br />
-          Phone : +918088546236
+          Phone : +91 8073 033 273
         </p>
     </div>
     
