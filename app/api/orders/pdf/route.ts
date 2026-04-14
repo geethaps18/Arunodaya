@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     let seller = {
       storeName: "Arunodaya Collections",
       address: "Arunodaya collections Davangere @ AVK COLLEGE ROAD, Davanagere — 577001",
-      phone: "9770808020",
-      email: "hello@arunodaya.com",
+      phone: "8088546236",
+      email: "arunodayacollections25@gmail.com",
     };
 
     const firstItem = order.items[0];

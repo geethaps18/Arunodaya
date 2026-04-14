@@ -50,7 +50,8 @@ export async function POST(req: Request) {
     const firstItem = order.items[0];
     let seller = {
       storeName: "Arunodaya Collections",
-      phone: "9770808020",
+      phone: "8088546236",
+      email: "arunodayacollections25@gmail.com",
       address: "Davanagere — 577001",
     };
 
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
           seller = {
             storeName: settings.storeName || seller.storeName,
             phone: settings.phone || seller.phone,
+            email: settings.email || seller.email,
             address: settings.address || seller.address,
           };
         }
