@@ -82,7 +82,7 @@ async function sendEmailOtp(email: string, otp: string) {
   `;
 
   await transporter.sendMail({
-    from: `"Arunodaya Collections" <${process.env.EMAIL_USER}>`,
+    from: `"Arunodaya Collections" <arunodayacollections25@gmail.com>`,
     to: email,
     subject: "Your Arunodaya Collections OTP Code",
     html,
