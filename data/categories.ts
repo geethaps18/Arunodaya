@@ -140,7 +140,6 @@ export const categories: SubCategory[] = [
 
           { id: genId(), name: "Skirts", image: "/images/skirt.png", subCategories: [] },
           { id: genId(), name: "Shrugs", image: "/images/shrug.png", subCategories: [] },
-          { id: genId(), name: "Leggings", image: "/images/leggings.png", subCategories: [] },
           { id: genId(), name: "Jeans", image: "/images/women-jeans.png", subCategories: [] },
           { id: genId(), name: "Jeans Jacket", image: "/images/jeans-jacket.png", subCategories: [] },
         ],
@@ -159,15 +158,44 @@ export const categories: SubCategory[] = [
       },
 
       // ---------- BOTTOM WEAR ----------
-      {
-        id: genId(),
-        name: "Bottom Wear",
-        image: "/images/leggings.png",
-        subCategories: [
-          { id: genId(), name: "Leggings", image: "/images/leggings.png", subCategories: [] },
-          { id: genId(), name: "Women’s Jeans", image: "/images/women-jeans.png", subCategories: [] },
-        ],
-      },
+    {
+  id: genId(),
+  name: "Bottom Wear",
+  image: "/images/leggings.png",
+  subCategories: [
+    {
+      id: genId(),
+      name: "Leggings",
+      image: "/images/leggings.png",
+      subCategories: [
+        {
+          id: genId(),
+          name: "Ankle Leggings",
+          image: "/images/ankle-leggings.png",
+          subCategories: [],
+        },
+        {
+          id: genId(),
+          name: "Wrinkle Leggings",
+          image: "/images/wrinkle-leggings.png",
+          subCategories: [],
+        },
+        {
+          id: genId(),
+          name: "Branded Leggings",
+          image: "/images/branded-leggings.png",
+          subCategories: [],
+        },
+      ],
+    },
+    {
+      id: genId(),
+      name: "Women’s Jeans",
+      image: "/images/women-jeans.png",
+      subCategories: [],
+    },
+  ],
+},
       {
   id: genId(),
   name: "Inners Wear",
