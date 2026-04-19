@@ -218,14 +218,14 @@ export const categories: SubCategory[] = [
       name: "Boys",
       image: "/images/boys.png",
       subCategories: [
-        { id: genId(), name: "Boys T-Shirts", image: "/images/tshirt.png", subCategories: [] },
+        { id: genId(), name: "Boys T-Shirts", image: "/images/boys-tshirt.png", subCategories: [] },
         { id: genId(), name: "Boys Casual Shirts", image: "/images/shirt-boys.png", subCategories: [] },
         { id: genId(), name: "Boys Jeans", image: "/images/jeans-boy.png", subCategories: [] },
-        { id: genId(), name: "Boys Night Pants", image: "/images/nightpant.png", subCategories: [] },
-        { id: genId(), name: "Boys Shorts", image: "/images/shorts.png", subCategories: [] },
+        { id: genId(), name: "Boys Night Pants", image: "/images/boys-nightpants.png", subCategories: [] },
+        { id: genId(), name: "Boys Shorts", image: "/images/boys-shorts.png", subCategories: [] },
         { id: genId(), name: "Boys Formal Pants", image: "/images/formal-trouser.png", subCategories: [] },
-        { id: genId(), name: "Boys Suits", image: "/images/suit.png", subCategories: [] },
-        { id: genId(), name: "Box Items", image: "/images/box.png", subCategories: [] },
+        { id: genId(), name: "Boys Suits", image: "/images/boys-suits.png", subCategories: [] },
+       
       ],
     },
 
