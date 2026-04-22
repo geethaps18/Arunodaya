@@ -41,9 +41,9 @@ export default function Sub1Page() {
   const key = `sub1-${mainSlug ?? "x"}-${sub1Slug ?? "x"}`;
 
   const apiURL =
-    mainCat && sub1Cat
-      ? `/api/products?category=${encodeURIComponent(mainCat.name)}&subCategory=${encodeURIComponent(sub1Cat.name)}`
-      : `/api/products?category=invalid`;
+  mainCat && sub1Cat
+    ? `/api/products?category=${mainSlug}&subCategory=${sub1Slug}`
+    : `/api/products?category=invalid`;
 
   // ✅ ALWAYS CALL HOOK
   const {

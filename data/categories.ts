@@ -111,7 +111,7 @@ export const categories: SubCategory[] = [
           },
 
           { id: genId(), name: "Dupatta", image: "/images/duppata-set.png", subCategories: [] },
-          { id: genId(), name: "Palazzo", image: "/images/palazzo.png", subCategories: [] },
+         
           { id: genId(), name: "Arunodaya Gold", image: "/images/arunodaya-gold.png", subCategories: [] },
         ],
       },
@@ -158,11 +158,12 @@ export const categories: SubCategory[] = [
       },
 
       // ---------- BOTTOM WEAR ----------
-    {
+{
   id: genId(),
   name: "Bottom Wear",
   image: "/images/leggings.png",
   subCategories: [
+
     {
       id: genId(),
       name: "Leggings",
@@ -188,12 +189,28 @@ export const categories: SubCategory[] = [
         },
       ],
     },
+
     {
       id: genId(),
       name: "Women’s Jeans",
       image: "/images/women-jeans.png",
       subCategories: [],
     },
+
+    {
+      id: genId(),
+      name: "Straight Pant", // ✅ NEW
+      image: "/images/straight-pant.png",
+      subCategories: [],
+    },
+
+    {
+      id: genId(),
+      name: "Palazzo", // ✅ MOVED HERE
+      image: "/images/palazzo.png",
+      subCategories: [],
+    },
+
   ],
 },
       {

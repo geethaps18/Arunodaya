@@ -13,6 +13,13 @@ import { useSearchParams } from "next/navigation";
   - Uses FormData POST to /api/products
   - Image previews, drag & drop, variant management
 */
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
 
 type ColorOption = { name: string; hex: string };
 type Variant = {
@@ -177,21 +184,21 @@ useEffect(() => {
       setVideoPreview(data.video);
     }
 
-    const cat =
-      categories.find(x => x.name.toLowerCase() === data.category) || null;
+   const cat =
+  categories.find(x => slugify(x.name) === data.category) || null;
 
     setCategory(cat);
 
     const subCat =
       cat?.subCategories?.find(
-        s => s.name.toLowerCase() === data.subCategory
+       s => slugify(s.name) === data.subCategory
       ) || null;
 
     setSubCategory(subCat);
 
     const subSubCat =
       subCat?.subCategories?.find(
-        s => s.name.toLowerCase() === data.subSubCategory
+        s => slugify(s.name) === data.subSubCategory
       ) || null;
 
     setSubSubCategory(subSubCat);
@@ -241,23 +248,29 @@ useEffect(() => {
     if (data.video) {
       setVideoPreview(data.video);
     }
-
-    const cat =
-      categories.find(x => x.name.toLowerCase() === data.category) || null;
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
+   const cat =
+  categories.find(x => slugify(x.name) === data.category) || null;
 
     setCategory(cat);
 
     const subCat =
       cat?.subCategories?.find(
-        s => s.name.toLowerCase() === data.subCategory
+       s => slugify(s.name) === data.subCategory
       ) || null;
 
     setSubCategory(subCat);
 
-    const subSubCat =
-      subCat?.subCategories?.find(
-        s => s.name.toLowerCase() === data.subSubCategory
-      ) || null;
+   const subSubCat =
+  subCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubCategory
+  ) || null;
 
     setSubSubCategory(subSubCat);
 
@@ -489,14 +502,20 @@ if (resolvedBrandId) {
   form.append("brandName", brandInput.trim());
 }
 
-
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
 
       form.append("description", description);
-      const catPath = [
-  category?.name,
-  subCategory?.name,
-  subSubCategory?.name,
-  subSubSubCategory?.name   // ✅ THIS WAS MISSING
+const catPath = [
+  slugify(category?.name),
+  slugify(subCategory?.name),
+  slugify(subSubCategory?.name),
+  slugify(subSubSubCategory?.name)
 ].filter(Boolean);
 
       form.append("categoryPath", JSON.stringify(catPath));
