@@ -735,9 +735,23 @@ const KIDS_CHART = [
   { size: "2-3Y", chest: 21, waist: 20, length: 19 },
   { size: "3-4Y", chest: 22, waist: 21, length: 20 },
 ];
-
+const JEANS_CHART = [
+  { size: "28", waist: 28, hip: 34 },
+  { size: "30", waist: 30, hip: 36 },
+  { size: "32", waist: 32, hip: 38 },
+  { size: "34", waist: 34, hip: 40 },
+  { size: "36", waist: 36, hip: 42 },
+  { size: "38", waist: 38, hip: 44 },
+  { size: "40", waist: 40, hip: 46 },
+];
+const isJeans =
+  product.subCategory?.toLowerCase().includes("jeans");
 // Select correct chart
-const baseChart = isKidsCategory ? KIDS_CHART : STANDARD_CHART;
+const baseChart = isJeans
+  ? JEANS_CHART
+  : isKidsCategory
+  ? KIDS_CHART
+  : STANDARD_CHART;
 
 // 🔥 Show only sizes available in product
 const sizeChartData = baseChart.filter(row =>
@@ -1390,20 +1404,46 @@ const sizeChartData = baseChart.filter(row =>
       <div className="overflow-x-auto">
         <table className="w-full text-sm border">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">Size</th>
-              <th className="p-2 border">Chest (in)</th>
-              <th className="p-2 border">Waist (in)</th>
-              <th className="p-2 border">Length (in)</th>
-            </tr>
-          </thead>
-        <tbody>
+  <tr className="bg-gray-100">
+    <th className="p-2 border">Size</th>
+
+    {isJeans ? (
+      <>
+        <th className="p-2 border">Waist (in)</th>
+        <th className="p-2 border">Hip (in)</th>
+      </>
+    ) : (
+      <>
+        <th className="p-2 border">Chest (in)</th>
+        <th className="p-2 border">Waist (in)</th>
+        <th className="p-2 border">Length (in)</th>
+      </>
+    )}
+  </tr>
+</thead>
+<tbody>
   {sizeChartData.map((row) => (
     <tr key={row.size}>
       <td className="p-2 border">{row.size}</td>
-      <td className="p-2 border">{row.chest}</td>
-      <td className="p-2 border">{row.waist}</td>
-      <td className="p-2 border">{row.length}</td>
+
+      {isJeans ? (
+        <>
+          <td className="p-2 border">{row.waist}</td>
+          <td className="p-2 border">
+            {"hip" in row ? row.hip : "-"}
+          </td>
+        </>
+      ) : (
+        <>
+          <td className="p-2 border">
+            {"chest" in row ? row.chest : "-"}
+          </td>
+          <td className="p-2 border">{row.waist}</td>
+          <td className="p-2 border">
+            {"length" in row ? row.length : "-"}
+          </td>
+        </>
+      )}
     </tr>
   ))}
 </tbody>

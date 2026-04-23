@@ -9,6 +9,7 @@ export const COLOR_OPTIONS = [
   { name: "Charcoal", hex: "#374151" },
   { name: "Taupe", hex: "#483C32" },
   { name: "Stone", hex: "#E5E7EB" },
+  { name: "Ash", hex: "#B2BEB5" }, // ✅ Jeans
 
   // 🤎 Earth Tones
   { name: "Beige", hex: "#F5F5DC" },
@@ -25,6 +26,8 @@ export const COLOR_OPTIONS = [
   { name: "Sky Blue", hex: "#38BDF8" },
   { name: "Teal", hex: "#0D9488" },
   { name: "Turquoise", hex: "#40E0D0" },
+  { name: "Dark Blue", hex: "#1E3A8A" }, // ✅ Jeans
+  { name: "Denim", hex: "#2563EB" },
 
   // 🔴 Reds & Pinks
   { name: "Maroon", hex: "#800000" },
@@ -41,6 +44,9 @@ export const COLOR_OPTIONS = [
   { name: "Emerald", hex: "#059669" },
   { name: "Mint", hex: "#A7F3D0" },
   { name: "Forest Green", hex: "#14532D" },
+  { name: "Mehendi Green", hex: "#3A5F0B" }, // ✅ Dupatta
+  { name: "Parrot Green", hex: "#50C878" }, // ✅ Dupatta
+  { name: "Dhaana Green", hex: "#6B8E23" }, // ✅ Dupatta (similar to leaf green)
 
   // 🟣 Purples
   { name: "Lavender", hex: "#C4B5FD" },
@@ -52,10 +58,10 @@ export const COLOR_OPTIONS = [
   { name: "Gold", hex: "#D4AF37" },
   { name: "Sunflower", hex: "#FACC15" },
   { name: "Peach", hex: "#FDBA74" },
+  { name: "Mango Yellow", hex: "#FFC324" }, // ✅ Dupatta
 
   // 🧡 Trendy Extras
   { name: "Rust", hex: "#B7410E" },
   { name: "Coral", hex: "#FB7185" },
   { name: "Mocha", hex: "#967969" },
-  { name: "Denim", hex: "#2563EB" },
 ];

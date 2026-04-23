@@ -13,6 +13,13 @@ import { useSearchParams } from "next/navigation";
   - Uses FormData POST to /api/products
   - Image previews, drag & drop, variant management
 */
+const slugify = (text?: string) =>
+  text
+    ?.toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
 
 type ColorOption = { name: string; hex: string };
 type Variant = {
@@ -109,6 +116,7 @@ const [brandId, setBrandId] = useState("");
   "Free Size",
   "One Size"
 ];
+const JEANS_SIZES = ["28","30","32","34","36","38","40"];
 const KIDS_SIZES = [
   "0-3M",
   "3-6M",
@@ -130,7 +138,35 @@ const KIDS_SIZES = [
   "12-13Y",
   "13-14Y"
 ];
-  const currentSizes = category?.name === "Kids" ? KIDS_SIZES : STANDARD_SIZES;
+  const currentSizes = (() => {
+  const cat = category?.name?.toLowerCase();
+  const sub = subCategory?.name?.toLowerCase();
+
+  // 👖 Jeans / Pants / Bottom wear
+  if (
+    sub?.includes("jeans") ||
+    sub?.includes("pant") ||
+    sub?.includes("bottom")
+  ) {
+    return JEANS_SIZES;
+  }
+
+  // 🧣 Dupatta / Saree
+  if (
+    sub?.includes("dupatta") ||
+    sub?.includes("saree")
+  ) {
+    return ["Free Size"];
+  }
+
+  // 👶 Kids
+  if (cat === "kids") {
+    return KIDS_SIZES;
+  }
+
+  // 👕 Default
+  return STANDARD_SIZES;
+})();
   const [customColor, setCustomColor] = useState({
   name: "",
   hex: "#000000",
@@ -197,21 +233,31 @@ useEffect(() => {
     setExistingImages([]);
 
     // Category restore
-    const cat =
-      categories.find(x => x.name.toLowerCase() === data.category) || null;
-    setCategory(cat);
+ const cat =
+  categories.find(x => slugify(x.name) === data.category) || null;
 
-    const subCat =
-      cat?.subCategories?.find(s => s.name.toLowerCase() === data.subCategory) || null;
-    setSubCategory(subCat);
+setCategory(cat);
 
-    const subSubCat =
-      subCat?.subCategories?.find(s => s.name.toLowerCase() === data.subSubCategory) || null;
-    setSubSubCategory(subSubCat);
+const subCat =
+  cat?.subCategories?.find(
+    s => slugify(s.name) === data.subCategory
+  ) || null;
 
-    const subSubSubCat =
-      subSubCat?.subCategories?.find(s => s.name.toLowerCase() === data.subSubSubCategory) || null;
-    setSubSubSubCategory(subSubSubCat);
+setSubCategory(subCat);
+
+const subSubCat =
+  subCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubCategory
+  ) || null;
+
+setSubSubCategory(subSubCat);
+
+const subSubSubCat =
+  subSubCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubSubCategory
+  ) || null;
+
+setSubSubSubCategory(subSubSubCat);
 
     // Variants
     setVariants(
@@ -262,16 +308,14 @@ if (data.video) {
  
 // category (case-insensitive match)
 const cat =
-  categories.find(
-    x => x.name.toLowerCase() === data.category
-  ) || null;
+  categories.find(x => slugify(x.name) === data.category) || null;
 
 setCategory(cat);
 
 // subcategory
 const subCat =
   cat?.subCategories?.find(
-    s => s.name.toLowerCase() === data.subCategory
+    s => slugify(s.name) === data.subCategory
   ) || null;
 
 setSubCategory(subCat);
@@ -279,15 +323,17 @@ setSubCategory(subCat);
 // sub-subcategory
 const subSubCat =
   subCat?.subCategories?.find(
-    s => s.name.toLowerCase() === data.subSubCategory
+    s => slugify(s.name) === data.subSubCategory
   ) || null;
 
 setSubSubCategory(subSubCat);
 // sub-sub-subcategory
 const subSubSubCat =
   subSubCat?.subCategories?.find(
-    s => s.name.toLowerCase() === data.subSubSubCategory
+    s => slugify(s.name) === data.subSubSubCategory
   ) || null;
+
+setSubSubSubCategory(subSubSubCat);
 
 setSubSubSubCategory(subSubSubCat);
 
@@ -527,11 +573,11 @@ if (resolvedBrandId) {
 
     form.append("description", description);
 
-   const catPath = [
-  category?.name,
-  subCategory?.name,
-  subSubCategory?.name,
-  subSubSubCategory?.name, // ✅ ADD THIS
+ const catPath = [
+  slugify(category?.name),
+  slugify(subCategory?.name),
+  slugify(subSubCategory?.name),
+  slugify(subSubSubCategory?.name),
 ].filter(Boolean);
 
 

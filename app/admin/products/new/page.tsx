@@ -99,9 +99,58 @@ const [brandId, setBrandId] = useState("");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Sizes + Colors constants
-  const STANDARD_SIZES = ["XS","S","M","L","XL","XXL","FREE","One Size"];
-  const KIDS_SIZES = ["0-3M","3-6M","6-9M","9-12M","1-2Y","2-3Y","3-4Y"];
-  const currentSizes = category?.name === "Kids" ? KIDS_SIZES : STANDARD_SIZES;
+  const STANDARD_SIZES = ["XS","S","M","L","XL","XXL","XXXL","4XL","5XL","6XL","FREE","One Size"];
+const KIDS_SIZES = [
+  "0-3M",
+  "3-6M",
+  "6-9M",
+  "9-12M",
+  "12-18M",
+  "18-24M",
+  "1-2Y",
+  "2-3Y",
+  "3-4Y",
+  "4-5Y",
+  "5-6Y",
+  "6-7Y",
+  "7-8Y",
+  "8-9Y",
+  "9-10Y",
+  "10-11Y",
+  "11-12Y",
+  "12-13Y",
+  "13-14Y"
+];
+  const JEANS_SIZES = ["28","30","32","34","36","38","40"];
+ const currentSizes = (() => {
+  const cat = category?.name?.toLowerCase();
+  const sub = subCategory?.name?.toLowerCase();
+
+  // 👖 Jeans / Pants / Bottom wear
+  if (
+    sub?.includes("jeans") ||
+    sub?.includes("pant") ||
+    sub?.includes("bottom")
+  ) {
+    return JEANS_SIZES;
+  }
+
+  // 🧣 Dupatta / Saree
+  if (
+    sub?.includes("dupatta") ||
+    sub?.includes("saree")
+  ) {
+    return ["Free Size"];
+  }
+
+  // 👶 Kids
+  if (cat === "kids") {
+    return KIDS_SIZES;
+  }
+
+  // 👕 Default
+  return STANDARD_SIZES;
+})();
   const [customColor, setCustomColor] = useState({
   name: "",
   hex: "#000000",
