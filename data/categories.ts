@@ -81,13 +81,7 @@ export const categories: SubCategory[] = [
         name: "Ethnic Wear",
         image: "/images/kurti.png",
         subCategories: [
-{
-  id: genId(),
-  name: "1 Minute Saree",
-  image: "/images/saree.png",
-  slug: "one-minute-saree", // ✅ IMPORTANT
-  subCategories: [],
-},
+
           {
             
             id: genId(),
@@ -120,6 +114,13 @@ export const categories: SubCategory[] = [
           { id: genId(), name: "Dupatta", image: "/images/duppata-set.png", subCategories: [] },
          
           { id: genId(), name: "Arunodaya Gold", image: "/images/arunodaya-gold.png", subCategories: [] },
+       {
+  id: genId(),
+  name: "1 Minute Saree",
+  image: "/images/saree.png",
+  slug: "one-minute-saree", // ✅ IMPORTANT
+  subCategories: [],
+},
         ],
       },
 
