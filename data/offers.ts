@@ -117,7 +117,13 @@ export const offers = {
       { mrp: 2000, price: 1040 }
     ]
   },
-
+"one-minute-saree": {
+  mrp: 3799,
+  price: 1980,
+  discount: 100,
+  finalPrice: 1880,
+  tag: "3 Days Offer"
+},
   "premium-sets": {
     variants: [
       { mrp: 2500, price: 1250 },

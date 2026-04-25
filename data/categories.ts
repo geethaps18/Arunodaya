@@ -4,6 +4,7 @@ export type SubCategory = {
   id: string;
   name: string;
   image: string;
+  slug?: string; // ✅ ADD THIS
   subCategories: SubCategory[];
 };
 
@@ -80,7 +81,13 @@ export const categories: SubCategory[] = [
         name: "Ethnic Wear",
         image: "/images/kurti.png",
         subCategories: [
-
+{
+  id: genId(),
+  name: "1 Minute Saree",
+  image: "/images/saree.png",
+  slug: "one-minute-saree", // ✅ IMPORTANT
+  subCategories: [],
+},
           {
             
             id: genId(),
