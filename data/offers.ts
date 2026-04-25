@@ -183,7 +183,7 @@ export const offers = {
   ]
 },
 
-"full-sets": {
+"full-set": {
   mrp: 950,
   price: 760,
   bundles: [
