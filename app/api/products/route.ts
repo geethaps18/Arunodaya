@@ -15,7 +15,14 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
-
+function safeParse(value: FormDataEntryValue | null, fallback: any) {
+  try {
+    if (!value || typeof value !== "string") return fallback;
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
 // ----------------------
 // Upload helper (Cloudinary)
 // ----------------------
@@ -268,9 +275,7 @@ export async function POST(req: Request) {
     const normalize = (v?: string | null) =>
       v ? v.trim().toLowerCase().replace(/\s+/g, "-") : null;
 
-    const categoryPath = formData.get("categoryPath")
-      ? JSON.parse(formData.get("categoryPath") as string)
-      : [];
+   const categoryPath = safeParse(formData.get("categoryPath"), []);
 
     const category = normalize(categoryPath[0]);
 const subCategory = normalize(categoryPath[1]);
@@ -293,28 +298,18 @@ const discountAmount =
     /* ---------------------------------
        MEDIA & DETAILS
     ----------------------------------*/
-    const images: string[] = formData.get("images")
-      ? JSON.parse(formData.get("images") as string)
-      : [];
+   const images: string[] = safeParse(formData.get("images"), []);
 
-    const fit = formData.get("fit")
-      ? JSON.parse(formData.get("fit") as string)
-      : [];
+    const fit = safeParse(formData.get("fit"), []);
 
-    const fabricCare = formData.get("fabricCare")
-      ? JSON.parse(formData.get("fabricCare") as string)
-      : [];
+   const fabricCare = safeParse(formData.get("fabricCare"), []);
 
-    const features = formData.get("features")
-      ? JSON.parse(formData.get("features") as string)
-      : [];
+    const features = safeParse(formData.get("features"), []);
 
     /* ---------------------------------
        VARIANTS
     ----------------------------------*/
-    const variants = formData.get("variants")
-      ? JSON.parse(formData.get("variants") as string)
-      : [];
+ const variants = safeParse(formData.get("variants"), []);
 
     const variantData = [];
 
