@@ -101,22 +101,11 @@ const [brandId, setBrandId] = useState("");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Sizes + Colors constants
- const STANDARD_SIZES = [
-  "XXS",
-  "XS",
-  "S",
-  "M",
-  "L",
-  "XL",
-  "XXL",
-  "XXXL",
-  "4XL",
-  "5XL",
-  "6XL",
-  "Free Size",
-  "One Size"
+const ALL_SIZES = [
+  "XXS","XS","S","M","L","XL","XXL","XXXL","4XL","5XL",
+  "28","30","32","34","36","38","40",
+  "Free Size"
 ];
-const JEANS_SIZES = ["28","30","32","34","36","38","40"];
 const KIDS_SIZES = [
   "0-3M",
   "3-6M",
@@ -138,34 +127,27 @@ const KIDS_SIZES = [
   "12-13Y",
   "13-14Y"
 ];
-  const currentSizes = (() => {
-  const cat = category?.name?.toLowerCase();
-  const sub = subCategory?.name?.toLowerCase();
 
-  // 👖 Jeans / Pants / Bottom wear
-  if (
-    sub?.includes("jeans") ||
-    sub?.includes("pant") ||
-    sub?.includes("bottom")
-  ) {
-    return JEANS_SIZES;
+
+const currentSizes = (() => {
+  const sub = subCategory?.name;
+
+  // 👕 TOP WEAR
+  if (sub === "Top Wear") {
+    return ALL_SIZES;
   }
 
-  // 🧣 Dupatta / Saree
-  if (
-    sub?.includes("dupatta") ||
-    sub?.includes("saree")
-  ) {
-    return ["Free Size"];
+  // 👖 BOTTOM WEAR
+  if (sub === "Bottom Wear") {
+    return ALL_SIZES;
   }
 
   // 👶 Kids
-  if (cat === "kids") {
+  if (category?.name === "Kids") {
     return KIDS_SIZES;
   }
 
-  // 👕 Default
-  return STANDARD_SIZES;
+  return ALL_SIZES;
 })();
   const [customColor, setCustomColor] = useState({
   name: "",
