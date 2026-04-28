@@ -100,7 +100,7 @@ const [brandId, setBrandId] = useState("");
 
   // Sizes + Colors constants
 const ALL_SIZES = [
-  "XS","S","M","L","XL","XXL","XXXL","4XL","5XL",
+  "XXS","XS","S","M","L","XL","XXL","XXXL","4XL","5XL",
   "28","30","32","34","36","38","40",
   "Free Size"
 ];
