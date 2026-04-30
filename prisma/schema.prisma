@@ -29,6 +29,7 @@ model OTP {
   otp       String
   expiresAt DateTime
   createdAt DateTime @default(now())
+    attempts  Int      @default(0)
 }
 
 

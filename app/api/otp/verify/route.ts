@@ -18,10 +18,37 @@ export async function POST(req: Request) {
     }
 
     /* ---------------- 1️⃣ Validate OTP ---------------- */
-    const record = await prisma.oTP.findFirst({
-      where: { contact },
-      orderBy: { createdAt: "desc" },
-    });
+   const record = await prisma.oTP.findUnique({
+  where: { contact },
+});
+
+if (!record) {
+  return NextResponse.json({ message: "No OTP found ❌" }, { status: 400 });
+}
+
+if (record.expiresAt < new Date()) {
+  await prisma.oTP.delete({ where: { contact } });
+  return NextResponse.json({ message: "OTP expired ❌" }, { status: 400 });
+}
+
+if (record.attempts >= 5) {
+  return NextResponse.json(
+    { message: "Too many attempts ❌" },
+    { status: 429 }
+  );
+}
+
+if (record.otp !== otp) {
+  await prisma.oTP.update({
+    where: { contact },
+    data: { attempts: { increment: 1 } },
+  });
+
+  return NextResponse.json({ message: "Invalid OTP ❌" }, { status: 400 });
+}
+
+// success
+await prisma.oTP.delete({ where: { contact } });
 
     if (!record) {
       return NextResponse.json({ message: "No OTP found ❌" }, { status: 400 });
