@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     /* ---------------- 1️⃣ Validate OTP ---------------- */
-   const record = await prisma.oTP.findUnique({
+const record = await prisma.oTP.findUnique({
   where: { contact },
 });
 
@@ -47,23 +47,10 @@ if (record.otp !== otp) {
   return NextResponse.json({ message: "Invalid OTP ❌" }, { status: 400 });
 }
 
-// success
+// ✅ success
 await prisma.oTP.delete({ where: { contact } });
 
-    if (!record) {
-      return NextResponse.json({ message: "No OTP found ❌" }, { status: 400 });
-    }
-
-    if (record.otp !== otp) {
-      return NextResponse.json({ message: "Invalid OTP ❌" }, { status: 400 });
-    }
-
-    if (record.expiresAt < new Date()) {
-      await prisma.oTP.deleteMany({ where: { contact } });
-      return NextResponse.json({ message: "OTP expired ❌" }, { status: 400 });
-    }
-
-    await prisma.oTP.deleteMany({ where: { contact } });
+    
 
     /* ---------------- 2️⃣ Find / Create User ---------------- */
     const isEmail = contact.includes("@");
