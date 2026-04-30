@@ -12,6 +12,7 @@ export default function AdminCreateSellerPage() {
     phone: "",
     email: "",
     brandName: "",
+     password: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -25,8 +26,7 @@ export default function AdminCreateSellerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-   if (!form.name || !form.phone || !form.brandName || !form.email) {
+if (!form.name || !form.phone || !form.brandName || !form.email || !form.password) {
   toast.error("Please fill all required fields");
   return;
 }
@@ -127,7 +127,25 @@ export default function AdminCreateSellerPage() {
 
           </p>
         </div>
+<div>
+  <label className="block text-sm font-medium mb-1">
+    Staff Password *
+  </label>
 
+  <input
+    type="password"
+    name="password"
+    value={form.password || ""}
+    onChange={handleChange}
+    placeholder="Enter password"
+    className="w-full border rounded-lg px-4 py-2"
+    required
+  />
+
+  <p className="text-xs text-gray-500 mt-1">
+    This password will be used by staff to login
+  </p>
+</div>
         {/* Storefront Name */}
         <div>
       <label className="block text-sm font-medium mb-1">
@@ -159,5 +177,6 @@ export default function AdminCreateSellerPage() {
         </button>
       </form>
     </div>
+    
   );
 }

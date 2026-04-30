@@ -214,7 +214,7 @@ return (
     {/* Header always visible */}
     <Header />
 
-    <div className="pt-22">
+    <div className="pt-28">
 
     {loading && userId && wishlist.length === 0 ? (
   <div className="flex justify-center items-center py-20">

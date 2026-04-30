@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-
+import { sendSmsOtp } from "@/lib/sendSmsOtp";
 // ✅ Generate 6-digit OTP
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -101,7 +101,7 @@ async function sendWhatsappOtp(phone: string, otp: string) {
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
-      to: phone,
+   to: `91${phone}`,
       type: "text",
       text: {
         body: `Arunodaya Collections
@@ -127,7 +127,12 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+if (!contact.includes("@") && !/^\d{10}$/.test(contact)) {
+  return NextResponse.json(
+    { message: "Invalid phone number ❌" },
+    { status: 400 }
+  );
+}
     const isEmail = contact.includes("@");
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60_000);
@@ -139,14 +144,13 @@ export async function POST(req: Request) {
       create: { contact, otp, expiresAt },
     });
 
-    // ✅ Send OTP
-    if (isEmail) {
-      await sendEmailOtp(contact, otp);
-    } else {
-      await sendWhatsappOtp(contact, otp);
-    }
+if (isEmail) {
+  await sendEmailOtp(contact, otp);
+} else {
+  await sendSmsOtp(contact, otp);
+  await sendWhatsappOtp(contact, otp); // backup
+}
 
-    console.log(`[OTP] ${contact} -> ${otp}`);
 
     return NextResponse.json({
       message: "OTP sent successfully ✅",

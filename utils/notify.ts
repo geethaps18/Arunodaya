@@ -183,7 +183,7 @@ export async function sendOrderNotification(options: NotificationOptions) {
     });
 
     await transporter.sendMail({
-      from: `"Arunodaya Collections" <${process.env.EMAIL_USER!}>`,
+      from: `"Arunodaya Collections" <arunodayacollections25@gmail.com>`,
       to: finalEmail,
       subject: `Order Update • #${orderId} • ${status
         .replace(/_/g, " ")

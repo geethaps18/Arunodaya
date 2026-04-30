@@ -1,68 +1,51 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // ✅ added useEffect
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { setCookie, getCookie } from "cookies-next";
+import { setCookie } from "cookies-next";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
-
 
 export default function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
- const rawRedirect = searchParams.get("redirect") || "/";
-const redirectTo = rawRedirect.startsWith("/")
-  ? rawRedirect
-  : `/${rawRedirect}`;
 
+  const rawRedirect = searchParams.get("redirect") || "/";
+  const redirectTo = rawRedirect.startsWith("/") ? rawRedirect : `/${rawRedirect}`;
 
-  // 🔥 If already logged in → redirect
-  useEffect(() => {
-  if (redirectTo) {
-    sessionStorage.setItem("auth_redirect", redirectTo);
-  }
-}, [redirectTo]);
-
-  useEffect(() => {
-    const token = String(getCookie("token") || "");
-
-    if (!token || token === "undefined") return;
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const now = Math.floor(Date.now() / 1000);
-
-      if (!payload.exp || payload.exp < now) {
-        document.cookie =
-          "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        return;
-      }
-
-      router.replace(redirectTo);
-    } catch {
-      document.cookie =
-        "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-  }, []);
-  
-
-  // ------------------------
-  // EMAIL ONLY LOGIN
-  // ------------------------
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [verified, setVerified] = useState(false);
 
-  const isEmailValid = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  /* ---------- 🔥 AUTO OTP DETECT (ANDROID) ---------- */
+  useEffect(() => {
+    if (!otpSent) return;
 
-  // Send OTP
+    if ("OTPCredential" in window) {
+      const ac = new AbortController();
+
+      navigator.credentials
+        .get({
+          otp: { transport: ["sms"] },
+          signal: ac.signal,
+        } as any)
+        .then((otpCredential: any) => {
+          if (otpCredential?.code) {
+            setOtp(otpCredential.code); // 🔥 auto-fill
+          }
+        })
+        .catch(() => {});
+
+      return () => ac.abort();
+    }
+  }, [otpSent]);
+
+  /* ---------- SEND OTP ---------- */
   const handleSendOtp = async () => {
-    if (!email) return toast.error("Enter your email");
-    if (!isEmailValid(email)) return toast.error("Enter valid email");
+    if (!/^\d{10}$/.test(phone)) {
+      return toast.error("Enter valid 10-digit phone number");
+    }
 
     setLoading(true);
 
@@ -70,167 +53,126 @@ const redirectTo = rawRedirect.startsWith("/")
       const res = await fetch("/api/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contact: email }),
+        body: JSON.stringify({ contact: phone }),
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-      if (res.ok) {
-        toast.success(data.message || "OTP sent to your email");
-        setOtpSent(true);
-      } else {
-        toast.error(data.message || "Failed to send OTP");
-      }
-    } catch {
-      toast.error("Something went wrong");
+      toast.success("OTP sent 📱");
+      setOtpSent(true);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  // Verify OTP
- const handleVerifyOtp = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!otp) return toast.error("Enter OTP");
+  /* ---------- VERIFY OTP ---------- */
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  setLoading(true);
+    if (!otp) return toast.error("Enter OTP");
 
-  try {
-    const res = await fetch("/api/otp/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contact: email, otp }),
-    });
+    setLoading(true);
 
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contact: phone, otp }),
+      });
 
-    if (res.ok && data.token) {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
       setCookie("token", data.token, {
         maxAge: 60 * 60 * 24 * 365,
         path: "/",
       });
 
-      sessionStorage.removeItem("loginToastShown");
-      toast.success("Login successful");
-      setVerified(true);
-    } else {
-      if (res.status === 404) {
-        toast.error("Account not found. Please sign up first.");
-        setTimeout(() => {
-          router.push(`/signup?redirect=${encodeURIComponent(redirectTo)}`);
-        }, 1500);
-      } else if (res.status === 403) {
-        toast.error("Your account is blocked. Please contact support.");
-      } else {
-        toast.error(data.message || "Invalid OTP");
-      }
+      toast.success("Login successful ✅");
+      router.push(redirectTo);
+    } catch (err: any) {
+      toast.error(err.message || "Invalid OTP");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    toast.error("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // Redirect after success
-  useEffect(() => {
-    if (verified) router.replace(redirectTo);
-  }, [verified]);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md bg-white shadow-lg p-8 rounded-lg">
+      <div className="w-full max-w-md bg-white shadow-xl p-8 rounded-2xl transition-all duration-200">
         
-      {/* Logo */}
-<div className="flex flex-col items-center mb-6">
-  <Link href="/">
-    <img
-      src="/images/arunodayalogo2.png"
-      alt="arunodaya Logo"
-      className="w-50 h-auto object-contain cursor-pointer"
-    />
-  </Link>
+        {/* HEADER */}
+        <div className="flex flex-col items-center mb-6">
+          <Link href="/">
+            <img src="/images/arunodayalogo2.png" className="w-40 mb-2" />
+          </Link>
 
-  {/* Login Title */}
-  <h1 className="text-xl font-bold mt-4">
-    Login / Sign Up
-  </h1>
-</div>
-        {/* Email Login Only */}
+          <h1 className="text-xl font-semibold mt-2">Continue</h1>
+
+          <p className="text-sm text-gray-600 text-center mt-1">
+            Enter your phone number to continue
+          </p>
+        </div>
+
+        {/* FORM */}
         <form onSubmit={handleVerifyOtp} className="space-y-4">
-          {!otpSent && (
+
+          {!otpSent ? (
             <>
-              <input
-                type="email"
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border px-3 py-2 rounded-md"
-              />
+              <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-black focus-within:ring-1 focus-within:ring-black">
+                <span className="text-gray-500 mr-2">+91</span>
+                <input
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full outline-none text-base"
+                />
+              </div>
 
               <button
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-gray-800 text-white py-2 rounded-md"
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 active:scale-[0.98] transition"
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
             </>
-            
-          )}
-          <button
-  type="button"
-  onClick={() => signIn("google")}
-  className="w-full flex items-center justify-center gap-2 border py-2 rounded-md hover:bg-gray-100 mb-4"
->
-  <img src="/google.svg" alt="Google" className="w-5 h-5" />
-  Continue with Google
-</button>
-
-<div className="text-center text-sm text-gray-400 mb-4">
-  OR
-</div>
-
-
-          {otpSent && !verified && (
+          ) : (
             <>
+              <p className="text-sm text-gray-600 text-center">
+                OTP sent to +91 {phone}
+              </p>
+
               <input
                 type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code" // ✅ iPhone
+                pattern="\d{6}"
+                maxLength={6}
                 placeholder="Enter OTP"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full border px-3 py-2 rounded-md"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                className="w-full border border-gray-300 px-4 py-3 rounded-lg text-base focus:border-black focus:ring-1 focus:ring-black outline-none"
               />
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gray-800 text-white py-2 rounded-md"
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 active:scale-[0.98] transition"
               >
                 {loading ? "Verifying..." : "Verify OTP"}
               </button>
             </>
           )}
-
-          {verified && (
-            <p className="text-green-600 text-center">
-              Login successful! Redirecting...
-            </p>
-          )}
         </form>
 
-        <p className="text-center text-gray-500 mt-4">
-          New here?{" "}
-          <button
-            onClick={() =>
-              router.push(`/signup?redirect=${encodeURIComponent(redirectTo)}`)
-            }
-            className="text-gray-900 hover:underline"
-          >
-            Sign Up
-          </button>
+        <p className="text-center text-gray-400 text-sm mt-6">
+          Secure login via OTP 🔐
         </p>
       </div>
     </div>

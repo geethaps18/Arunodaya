@@ -43,7 +43,7 @@ model User {
 
   createdAt DateTime @default(now())
   blocked   Boolean  @default(false)
-
+  password  String? 
   addresses Address[]
   ratings   Rating[]
   reviews   Review[]

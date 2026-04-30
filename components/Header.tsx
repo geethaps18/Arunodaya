@@ -53,42 +53,38 @@ export default function Header({ productName }: HeaderProps) {
 
 useEffect(() => {
   const checkRoles = async () => {
-    const token = getCookie("token");
-    if (!token) return;
-
-    const res = await fetch("/api/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    const res = await fetch("/api/me");
     const data = await res.json();
+
     const user = data.user;
 
-    if (!user) return;
+    console.log("USER:", user);
 
-    // ADMIN check (unchanged logic)
-    if (user.contact === process.env.NEXT_PUBLIC_ADMIN_CONTACT) {
+    if (!user) {
+      setIsAdmin(false);
+      setIsSeller(false);
+      return;
+    }
+
+    if (user.role === "ADMIN") {
+      console.log("ADMIN DETECTED 🔥");
       setIsAdmin(true);
       setIsSeller(false);
       return;
     }
 
-    // SELLER check
     if (user.role === "SELLER") {
       setIsSeller(true);
       setIsAdmin(false);
       return;
     }
 
-    // CUSTOMER fallback
     setIsAdmin(false);
     setIsSeller(false);
   };
 
   checkRoles();
-}, []);
-
+}, [pathname, mounted]); // ✅ FINAL FIX
 
 useEffect(() => {
   // Close mega menu on route change
@@ -451,22 +447,25 @@ width: itemRect.width,
             </Link>
           )}
 
-        {isAdmin && (
-  <div className="relative">
-    <LayoutDashboard
-      className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 stroke-[1.2]" 
-      onClick={() => router.push("/admin")}
-    />
-  </div>
+ {isAdmin && (
+  <button
+    onClick={() => router.push("/admin")}
+    className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-gray-100"
+    title="Admin Dashboard"
+  >
+    <LayoutDashboard className="w-5 h-5 text-gray-600" />
+    <span className="hidden sm:block text-xs font-medium">Admin</span>
+  </button>
 )}
 
 {isSeller && (
   <button
     onClick={() => router.push("/builder")}
+    className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-gray-100"
     title="Seller Panel"
-    className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 transition"
   >
-    <UserCog className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 stroke-[1.2]" />
+    <UserCog className="w-5 h-5 text-gray-600" />
+    <span className="hidden sm:block text-xs font-medium">Seller</span>
   </button>
 )}
     </div>

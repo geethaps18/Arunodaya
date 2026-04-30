@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getOwnerId } from "@/utils/getOwnerId";
 import slugify from "slugify";
-
+import bcrypt from "bcryptjs";
 /* =========================
    ADMIN CREATE SELLER + SITE
 ========================= */
@@ -23,18 +23,34 @@ export async function POST(req: Request) {
     }
 
     // 📦 READ BODY FIRST
-    const { name, phone, email, brandName } = await req.json();
+ const { name, phone, email, brandName, password } = await req.json();
+const cleanPhone = phone.trim(); // ✅ 
+// ✅ NOW password exists
+if (!name || !phone || !email || !brandName || !password) {
+  return NextResponse.json(
+    { error: "All fields are required" },
+    { status: 400 }
+  );
+}
 
-    if (!name || !phone || !email || !brandName) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
-    }
-
+// ✅ safe to use
+if (password.length < 6) {
+  return NextResponse.json(
+    { error: "Password must be at least 6 characters" },
+    { status: 400 }
+  );
+}
+if (!/^\d{10}$/.test(cleanPhone)) {
+  return NextResponse.json(
+    { error: "Enter valid 10-digit phone number" },
+    { status: 400 }
+  );
+}
+const hashedPassword = await bcrypt.hash(password, 10);
+const cleanEmail = email.trim().toLowerCase();
     // 🚫 BLOCK reused emails (THIS WAS MISSING)
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+     where: { email: cleanEmail }
     });
 
     if (existingUser) {
@@ -56,13 +72,14 @@ export async function POST(req: Request) {
     // 🔁 TRANSACTION
     const result = await prisma.$transaction(async (tx) => {
       const seller = await tx.user.create({
-        data: {
-          name,
-          phone,
-          email,
-          role: "SELLER",
-        },
-      });
+  data: {
+    name,
+   phone: cleanPhone,
+   email: cleanEmail,
+    password: hashedPassword, // ✅ IMPORTANT
+    role: "SELLER",
+  },
+});
 
       const site = await tx.site.create({
         data: {
@@ -78,11 +95,15 @@ export async function POST(req: Request) {
       return { seller, site };
     });
 
-    return NextResponse.json({
-      success: true,
-      seller: result.seller,
-      site: result.site,
-    });
+   return NextResponse.json({
+  success: true,
+  seller: {
+    id: result.seller.id,
+    name: result.seller.name,
+    email: result.seller.email,
+  },
+  site: result.site,
+});
   } catch (error: any) {
     console.error("CREATE SELLER ERROR:", error);
 
@@ -99,6 +120,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
 
 /* =========================
    ADMIN FETCH SELLERS

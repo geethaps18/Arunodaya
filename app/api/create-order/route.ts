@@ -74,7 +74,7 @@ async function sendOrderEmail(to: string, order: any, items: any[]) {
     .join("<br>");
 
   await transporter.sendMail({
-    from: `"Arunodaya Collections" <${EMAIL_USER}>`,
+    from: `"Arunodaya Collections" <arunodayacollections25@gmail.com>`,
     to,
     subject: `Order Placed - ${order.id}`,
     html: `
