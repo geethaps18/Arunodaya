@@ -39,7 +39,11 @@ export const metadata: Metadata = {
   title: "Arunodaya Collections",
   description: "Arunodaya Collections Women, Men, Kids.",
 
- 
+  icons: {
+    icon: "/favicon.ico",       // 👈 IMPORTANT
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 
   openGraph: {
     title: "Arunodaya Collections",
@@ -48,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Arunodaya Collections",
     images: [
       {
-        url: "favicon.png",
+        url: "/favicon.png",
         width: 800,
         height: 800,
         alt: "Arunodaya Logo",
