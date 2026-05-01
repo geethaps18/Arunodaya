@@ -220,7 +220,7 @@ useEffect(() => {
 
           
  {/* Left: Back Arrow + Logo + Page Name */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ">
          {isBackArrowPage && (
   <div
     className="lg:hidden cursor-pointer p-1.5 rounded-full hover:bg-gray-100 transition"
@@ -488,14 +488,14 @@ width: itemRect.width,
       "
     >
       {/* TOP BAR */}
-      <div className="flex items-center gap-3 p-4 border-b">
+      <div className="flex items-center gap-3 p-4 border-b pt-6">
         {/* Back only on mobile */}
-        <button
-          onClick={() => setIsSearchOpen(false)}
-          className="lg:hidden p-2 rounded-full bg-gray-100 hover:bg-gray-200"
-        >
-          <ArrowLeft size={22} className="text-gray-600" />
-        </button>
+       <button
+  onClick={() => setIsSearchOpen(false)}
+  className="lg:hidden p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+>
+  <ArrowLeft size={22} className="mt-[1px]" />
+</button>
 
         <div className="flex-1">
           <Suspense fallback={null}>

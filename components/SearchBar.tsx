@@ -188,7 +188,7 @@ useEffect(() => {
   };
 
   return (
-    <div ref={ref} className="relative w-full">
+    <div ref={ref} className="relative w-full pt-6">
       <div
         className="flex items-center w-full border border-gray-300 rounded-full px-4 py-2 shadow-sm bg-white"
         onClick={() => {
