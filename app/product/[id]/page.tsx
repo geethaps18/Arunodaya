@@ -489,7 +489,7 @@ const discount =
       reviewer:
         typeof r.user === "string"
           ? r.user
-          : (r.user && (r.user as any).name) || r.userName || "BSCFashion User",
+          : (r.user && (r.user as any).name) || r.userName || "ARUNODAYA COLLECTIONS User",
       createdAt: r.createdAt,
     }))
   );
@@ -569,12 +569,6 @@ const handleAddToBagOnly = () => {
 };
 
 const handleBuyNow = () => {
-  const token = getCookie("token");
-  if (!token) {
-    router.push("/login?redirect=address");
-    return;
-  }
-
   if (!selectedVariant) {
     toast.error("Please select variant");
     return;
@@ -594,12 +588,23 @@ const handleBuyNow = () => {
         : product.images,
   };
 
-  // ✅ TEMP STORAGE (IMPORTANT)
+  // 🔥 ALWAYS STORE FIRST (IMPORTANT)
   sessionStorage.setItem("BUY_NOW_ITEM", JSON.stringify(buyNowItem));
 
+  const token = getCookie("token");
+
+  if (!token) {
+    router.push(
+      `/login?redirect=${encodeURIComponent(
+        "/checkout/address?mode=buynow"
+      )}`
+    );
+    return;
+  }
+
+  // ✅ logged in → direct checkout
   router.push("/checkout/address?mode=buynow");
 };
-
 
 
 const sizes = Array.from(
