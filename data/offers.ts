@@ -124,15 +124,7 @@ export const offers = {
   finalPrice: 1880,
   tag: "3 Days Offer"
 },
-  "premium-sets": {
-    variants: [
-      { mrp: 2500, price: 1250 },
-      { mrp: 2680, price: 1340 },
-      { mrp: 2960, price: 1480 },
-      { mrp: 4000, price: 2000 }
-    ]
-  },
-
+ 
   "dupatta": {
     normal: [
       { qty: 1, price: 100 },

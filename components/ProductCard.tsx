@@ -73,7 +73,10 @@ const offerText = getOfferDisplay(offer)
       : ["/placeholder.png"];
 
   const mainImage = hovered ? images[1] ?? images[0] : images[0];
-
+const discount =
+  product.mrp && product.price
+    ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+    : 0;
   /* -------------------- WISHLIST -------------------- */
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -178,25 +181,23 @@ const offerText = getOfferDisplay(offer)
   )}
         </div>
 
-        <div className="flex items-center gap-2 mt-2">
-              {product.mrp && product.mrp > product.price && (
-            <span className="text-gray-400 line-through text-xs md:text-sm">
-              ₹{product.mrp.toLocaleString("en-IN")}
-            </span>
-          )}
-        
-          <span className="text-gray-900 text-sm md:text-base font-medium">
-            ₹{product.price.toLocaleString("en-IN")}
-          </span>
-            {product.discount && product.discount > 0 && (
-  <span className="text-[11px] tracking-wide text-gray-500">
-    {product.discount}% off
+       <div className="flex items-center gap-2 mt-2">
+  {product.mrp && product.mrp > product.price && (
+    <span className="text-gray-400 line-through text-xs md:text-sm">
+      ₹{product.mrp.toLocaleString("en-IN")}
+    </span>
+  )}
+
+  <span className="text-gray-900 text-sm md:text-base font-medium">
+    ₹{product.price.toLocaleString("en-IN")}
   </span>
-  
-)}
 
-
-        </div>
+  {discount > 0 && (
+    <span className="text-[11px] tracking-wide text-gray-500">
+      {discount}% off
+    </span>
+  )}
+</div>
 
       </div>
     </Link>
