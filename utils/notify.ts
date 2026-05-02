@@ -158,11 +158,10 @@ export async function sendOrderNotification(options: NotificationOptions) {
       ${itemListHtml}
     </table>
 
-    <div style="margin-top:20px; font-size:14px; line-height:1.8;">
-      <div><strong>Total:</strong> ₹${total.toFixed(2)}</div>
-      <div><strong>Payment Mode:</strong> ${paymentMode}</div>
-    </div>
-  </div>
+  <div style="margin-top:20px; font-size:14px; line-height:1.8;">
+  <div><strong>Total:</strong> ₹${total.toFixed(2)}</div>
+  <div><strong>Payment Mode:</strong> ${paymentMode}</div>
+</div>
 
   <div style="background:#111111; text-align:center; padding:14px; font-size:12px; color:#aaaaaa;">
     © ${new Date().getFullYear()} Arunodaya Collections

@@ -7,7 +7,7 @@ import LoadingRing from "./LoadingRing";
 import CheckoutStepper from "@/components/CheckoutStepper";
 import { getCookie } from "cookies-next";
 import { offers } from "@/data/offers";
-
+import { getShippingCharge } from "@/utils/shipping";
 interface BagItem {
   id: string;
   productId: string;
@@ -115,7 +115,7 @@ const totalSelling = (() => {
   return total;
 })();
 
-const shippingCharge = totalSelling >= 100 ? 0 : 100;
+const shippingCharge = getShippingCharge(selectedAddress?.pincode);
 
 const finalOrderTotal = totalSelling + shippingCharge;
 

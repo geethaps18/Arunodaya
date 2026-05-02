@@ -6,7 +6,7 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 import QRCode from "qrcode";
-
+import { getShippingCharge } from "@/utils/shipping";
 /* ---------------- PDF BUFFER ---------------- */
 function pdfToBuffer(doc: PDFKit.PDFDocument): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -97,6 +97,8 @@ ${address.landmark || ""}
 ${address.city || ""}, ${address.state || ""} - ${address.pincode || ""}
 `.trim();
 
+const shippingCharge = getShippingCharge(address.pincode);
+const finalTotal = (order.totalAmount || 0) + shippingCharge;
     /* ---------------- Styling ---------------- */
     const gold = "#CBA135";
     const maroon = "#800000";
@@ -215,12 +217,22 @@ doc.moveDown(1);
     doc.moveDown(1);
 
     /* ================= TOTAL ================= */
-    if (fs.existsSync(boldPath)) doc.font("b");
-    doc.fillColor(title)
-      .fontSize(16)
-      .text(`Total Amount: ₹${order.totalAmount}`);
+  if (fs.existsSync(boldPath)) doc.font("b");
 
-    doc.moveDown(1.5);
+doc.fillColor("black").fontSize(12);
+doc.text(`Subtotal: ₹${order.totalAmount}`);
+
+doc.text(
+  `Shipping: ${
+    shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`
+  }`
+);
+
+doc.moveDown(0.5);
+
+doc.fillColor(title)
+  .fontSize(16)
+  .text(`Total Amount: ₹${finalTotal}`);
 
     /* ================= FOOTER ================= */
     if (fs.existsSync(regularPath)) doc.font("r");

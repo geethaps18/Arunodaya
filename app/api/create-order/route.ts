@@ -6,7 +6,7 @@ import Razorpay from "razorpay";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { offers } from "@/data/offers";
-
+import { getShippingCharge } from "@/utils/shipping";
 /* ---------------- CONFIG ---------------- */
 const WHATSAPP_API_URL = "https://graph.facebook.com/v19.0";
 const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
@@ -224,6 +224,8 @@ const orderItems = await Promise.all(
   })
 );
   const totalAmount = calculateBundleTotal(orderItems);
+  const shippingCharge = getShippingCharge(address?.pincode || "");
+const finalTotal = totalAmount + shippingCharge;
     /* ---------------- RAZORPAY ---------------- */
     let razorpayOrder: any = null;
 
@@ -234,7 +236,7 @@ const orderItems = await Promise.all(
       });
 
       razorpayOrder = await razorpay.orders.create({
-        amount: totalAmount * 100,
+       amount: finalTotal * 100,
         currency: "INR",
       });
     }
@@ -244,7 +246,7 @@ const orderItems = await Promise.all(
       const createdOrder = await tx.order.create({
         data: {
           userId: user.id,
-          totalAmount,
+         totalAmount: finalTotal,
           paymentMode: paymentMode || "COD",
           address,
           upiId: paymentMode === "UPI" ? upiId ?? null : null,

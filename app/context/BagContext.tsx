@@ -43,7 +43,6 @@ interface BagContextType {
   bagItems: BagItem[];
   totalCount: number;
   subtotal: number;
-  shipping: number;
   total: number;
   isSyncing: boolean;
   
@@ -369,8 +368,7 @@ const subtotal = useMemo(() => {
   return total;
 }, [bagItems]);
 
-  const shipping = useMemo(() => (subtotal > 100 ? 0 : 100), [subtotal]);
-  const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
+ const total = useMemo(() => subtotal, [subtotal]);
 
   // -------------------
   // Provider
@@ -381,7 +379,7 @@ const subtotal = useMemo(() => {
         bagItems,
         totalCount,
         subtotal,
-        shipping,
+  
         total,
         isSyncing,
         addToCart,

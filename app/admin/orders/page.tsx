@@ -14,7 +14,7 @@ import {
   Package,
 } from "lucide-react";
 import toast from "react-hot-toast";
-
+import { getShippingCharge } from "@/utils/shipping";
 type OrderItem = {
   id: string;
   name: string;
@@ -59,7 +59,7 @@ export default function AdminOrdersPage() {
   const [limit, setLimit] = useState<number>(15);
   const [refreshToggle, setRefreshToggle] = useState(false);
   
-const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
+
   const DB_TO_LABEL: Record<string, string> = {
     PENDING: "Order Placed",
     CONFIRMED: "Confirmed",
@@ -661,14 +661,25 @@ return (
 
                 </div>
                {(() => {
-  const base = order.totalAmount ?? 0;
-  const shipping = getShipping(base);
-  const finalTotal = base + shipping;
+ const base = order.totalAmount ?? 0;
+const shipping = getShippingCharge(order.address?.pincode);
+const finalTotal = base + shipping;
 
   return (
-    <p className="text-right text-sm font-semibold mt-2">
-      Total: ₹{finalTotal}
-    </p>
+    <div className="text-right text-sm mt-2 space-y-1">
+  <p>
+    Shipping:{" "}
+    {shipping === 0 ? (
+      <span className="text-green-600 font-medium">FREE</span>
+    ) : (
+      `₹${shipping}`
+    )}
+  </p>
+
+  <p className="font-semibold">
+    Total: ₹{finalTotal}
+  </p>
+</div>
   );
 })()}
 

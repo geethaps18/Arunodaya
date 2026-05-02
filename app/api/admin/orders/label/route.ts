@@ -6,7 +6,7 @@ import PDFDocument from "pdfkit";
 import bwipjs from "bwip-js";
 import fs from "fs";
 import path from "path";
-
+import { getShippingCharge } from "@/utils/shipping";
 /* ---------------- PDF → Buffer ---------------- */
 function pdfToBuffer(doc: PDFKit.PDFDocument): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -102,7 +102,8 @@ export async function POST(req: Request) {
     ]
       .filter(Boolean)
       .map((s) => s.trim());
-
+const shippingCharge = getShippingCharge(addressObj.pincode);
+const finalTotal = (order.totalAmount || 0) + shippingCharge;
     /* ---------------- Barcode ---------------- */
     const barcode = await bwipjs.toBuffer({
       bcid: "code128",
@@ -197,13 +198,23 @@ doc.moveDown(0.8);
     doc.moveDown(0.4);
 
     /* ================= PAYMENT ================= */
-    if (fs.existsSync(boldPath)) doc.font("b");
-    doc.fontSize(9).text(
-      order.paymentMode === "COD"
-        ? `COD: ₹${(order.totalAmount ?? 0).toFixed(2)}`
-        : "Payment: Prepaid"
-    );
+if (fs.existsSync(boldPath)) doc.font("b");
 
+doc.fontSize(9);
+
+if (order.paymentMode === "COD") {
+  doc.text(`Subtotal: ₹${order.totalAmount}`);
+
+  doc.text(
+    `Shipping: ${
+      shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`
+    }`
+  );
+
+  doc.text(`COD: ₹${finalTotal}`);
+} else {
+  doc.text("Payment: Prepaid");
+}
     doc.moveDown(0.6);
 
     /* ================= FOOTER ================= */

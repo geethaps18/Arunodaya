@@ -14,7 +14,6 @@ export default function BagPage() {
     bagItems,
     totalCount,
     subtotal,
-    shipping,
     total,
     updateQuantity,
     removeFromCart,
@@ -256,23 +255,17 @@ const handleQuantity = (uniqueKey: string, change: number) => {
     </>
   )}
 
- <div className="flex justify-between text-sm text-gray-700">
-  <span>
-    Shipping{" "}
-    <span className="text-xs text-gray-500">
-      (Free)
-    </span>
-  </span>
+<div className="flex justify-between items-center text-sm">
+  <span className="text-gray-700 font-medium">Shipping</span>
 
-  <span>
-    {shipping === 0 ? (
-      <span className="text-green-600 font-medium">FREE</span>
-    ) : (
-      <span>+ ₹{shipping}</span>
-    )}
+  <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+    Calculated at checkout
   </span>
 </div>
 
+<p className="text-xs text-gray-500 mt-2 leading-relaxed">
+  Free delivery in <span className="font-medium text-gray-700">Davanagere</span> · ₹49 outside
+</p>
 
   <hr />
 
@@ -288,7 +281,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
         pathname: "/checkout/address",
         query: {
           subtotal: subtotal,
-          shipping,
+        
           discount: totalDiscount,
           total: finalOrderTotal,
           totalCount,
@@ -316,7 +309,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
             pathname: "/checkout/address",
             query: {
 subtotal: subtotal,
-  shipping,
+  
   discount: totalDiscount,
   total: finalOrderTotal,
   totalCount,

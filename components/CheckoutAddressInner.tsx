@@ -279,8 +279,12 @@ const totalSelling = (() => {
 // Discount
 const totalDiscount = totalMRP - totalSelling;
 
-// Shipping
-const shippingCharge = totalSelling >= 100 ? 0 : 100;
+const city = selectedAddress?.city?.toLowerCase().trim() || "";
+
+const isDavanagere =
+  city === "davanagere" || city === "davangere";
+
+const shippingCharge = isDavanagere ? 0 : 49;
 
 // Final Total
 const finalOrderTotal = totalSelling + shippingCharge;
@@ -573,9 +577,7 @@ return (
   )}
 
   <div className="flex justify-between">
-    <span>
-      Shipping <span className="text-xs text-gray-500">(Free)</span>
-    </span>
+  <span>Shipping</span>
     <span>
       {shippingCharge === 0 ? (
         <span className="text-green-600 font-medium">FREE</span>

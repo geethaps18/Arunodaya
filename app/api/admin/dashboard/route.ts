@@ -6,61 +6,77 @@ export async function GET() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
 
-    // Fetch basic stats
+    // ✅ BASIC COUNTS (ONLY SIMPLE QUERIES HERE)
     const [
       totalOrders,
       totalProducts,
       totalCustomers,
       pendingOrders,
       deliveredOrders,
-      outOfStock,
-      todaySales,
-      monthlyRevenue,
-      topSelling,
-      wishlistCount, 
+      wishlistCount,
     ] = await Promise.all([
       prisma.order.count(),
       prisma.product.count(),
       prisma.user.count(),
       prisma.order.count({
-        where: { status: { in: ["Order Placed", "Confirmed"] } }
+        where: { status: { in: ["Order Placed", "Confirmed"] } },
       }),
       prisma.order.count({
-        where: { status: "Delivered" }
+        where: { status: "Delivered" },
       }),
-      prisma.product.count({ where: { stock: 0 } }),
-
-      prisma.order.aggregate({
-        where: { createdAt: { gte: today } },
-        _sum: { totalAmount: true }
-      }),
-
-      prisma.order.aggregate({
-        where: { createdAt: { gte: startOfMonth } },
-        _sum: { totalAmount: true }
-      }),
-
-      // Fixed: group by product.category instead of orderItem.category
-      prisma.orderItem.findMany({
-        include: { product: true },
-      }),
-      prisma.wishlist.count(), 
+      prisma.wishlist.count(),
     ]);
 
-    // Calculate top category manually
+    // ✅ FETCH PRODUCTS WITH VARIANTS
+    const products = await prisma.product.findMany({
+      include: { variants: true },
+    });
+
+    // ✅ CORRECT OUT OF STOCK LOGIC
+    const outOfStockProducts = products.filter(
+      (p) =>
+        p.variants.length > 0 &&
+        p.variants.every((v) => (v.stock ?? 0) <= 0)
+    );
+
+    const outOfStock = outOfStockProducts.length;
+
+    // ✅ TODAY SALES
+    const todaySalesAgg = await prisma.order.aggregate({
+      where: { createdAt: { gte: today } },
+      _sum: { totalAmount: true },
+    });
+
+    // ✅ MONTHLY SALES
+    const monthlyRevenueAgg = await prisma.order.aggregate({
+      where: { createdAt: { gte: startOfMonth } },
+      _sum: { totalAmount: true },
+    });
+
+    // ✅ TOP CATEGORY
+    const topSelling = await prisma.orderItem.findMany({
+      include: { product: true },
+    });
+
     const categoryCount: Record<string, number> = {};
 
     topSelling.forEach((item) => {
       const category = item.product?.category || "Unknown";
-      categoryCount[category] = (categoryCount[category] || 0) + item.quantity;
+      categoryCount[category] =
+        (categoryCount[category] || 0) + (item.quantity || 0);
     });
 
     const topCategory =
       Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0]?.[0] ||
       "N/A";
 
+    // ✅ FINAL RESPONSE
     return NextResponse.json({
       totalOrders,
       totalProducts,
@@ -68,13 +84,17 @@ export async function GET() {
       pendingOrders,
       deliveredOrders,
       outOfStock,
-      todaySales: todaySales._sum.totalAmount || 0,
-      monthlyRevenue: monthlyRevenue._sum.totalAmount || 0,
+      outOfStockProducts,
+      todaySales: todaySalesAgg._sum.totalAmount || 0,
+      monthlyRevenue: monthlyRevenueAgg._sum.totalAmount || 0,
       topCategory,
-      wishlistCount, 
+      wishlistCount,
     });
   } catch (error) {
     console.error("DASHBOARD ERROR:", error);
-    return NextResponse.json({ error: "Failed to load dashboard data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load dashboard data" },
+      { status: 500 }
+    );
   }
 }

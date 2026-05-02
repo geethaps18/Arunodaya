@@ -13,7 +13,11 @@ import {
   Flame,
   Heart,
 } from "lucide-react";
-
+type Product = {
+  id: string;
+  name: string;
+  images?: string[];
+};
 type DashboardStats = {
   todaySales: number;
   totalOrders: number;
@@ -25,6 +29,7 @@ type DashboardStats = {
   monthlyRevenue: number;
   topCategory: string;
   wishlistCount?: number;
+  outOfStockProducts?: Product[];
 };
 
 export default function AdminDashboard() {
