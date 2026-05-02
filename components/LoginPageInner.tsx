@@ -80,7 +80,11 @@ export default function LoginPageInner() {
       const res = await fetch("/api/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contact: phone, otp }),
+        body: JSON.stringify({
+  contact: phone,
+  otp,
+  signup: true,
+}),
       });
 
       const data = await res.json();

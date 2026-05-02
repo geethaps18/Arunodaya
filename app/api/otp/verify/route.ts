@@ -13,7 +13,8 @@ export async function POST(req: Request) {
   try {
   const body = await req.json();
 
-const contact = normalizeContact(body.contact);
+const rawContact = body.contact || body.phone || body.mobile;
+const contact = normalizeContact(rawContact || "");
 const otp = body.otp;
 const name = body.name;
 const signup = body.signup;
@@ -26,9 +27,12 @@ const signup = body.signup;
     }
 
     /* ---------------- 1️⃣ Validate OTP ---------------- */
-const record = await prisma.oTP.findUnique({
+const record = await prisma.oTP.findFirst({
   where: { contact },
 });
+
+console.log("VERIFY CONTACT:", contact);
+console.log("DB RECORD:", record);
 
 if (!record) {
   return NextResponse.json({ message: "No OTP found ❌" }, { status: 400 });
@@ -46,7 +50,7 @@ if (record.attempts >= 5) {
   );
 }
 
-if (record.otp !== otp) {
+if (String(record.otp) !== String(otp)) {
   await prisma.oTP.update({
     where: { contact },
     data: { attempts: { increment: 1 } },
@@ -62,21 +66,36 @@ await prisma.oTP.delete({ where: { contact } });
 
     /* ---------------- 2️⃣ Find / Create User ---------------- */
     const isEmail = contact.includes("@");
-    let user = isEmail
-      ? await prisma.user.findFirst({ where: { email: contact } })
-      : await prisma.user.findFirst({ where: { phone: contact } });
+    let user;
 
-    if (!user && signup) {
-      user = await prisma.user.create({
-        data: {
-          email: isEmail ? contact : undefined,
-          phone: !isEmail ? contact : undefined,
-          name: name || "New User",
-          role: "CUSTOMER",
-        },
-      });
-    }
+if (isEmail) {
+  // 🔹 Email login (admin/staff)
+  user = await prisma.user.findFirst({
+    where: { email: contact },
+  });
 
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: contact,
+        name: name || "Admin",
+        role: "ADMIN",
+      },
+    });
+  }
+
+} else {
+  // 🔹 Phone login (customer)
+  user = await prisma.user.upsert({
+    where: { phone: contact }, // ✅ only phone
+    update: {},
+    create: {
+      phone: contact,
+      name: name || "New User",
+      role: "CUSTOMER",
+    },
+  });
+}
     if (!user) {
       return NextResponse.json(
         { message: "User not found ❌" },
