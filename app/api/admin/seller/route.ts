@@ -49,7 +49,7 @@ if (!/^\d{10}$/.test(cleanPhone)) {
 const hashedPassword = await bcrypt.hash(password, 10);
 const cleanEmail = email.trim().toLowerCase();
     // 🚫 BLOCK reused emails (THIS WAS MISSING)
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
      where: { email: cleanEmail }
     });
 

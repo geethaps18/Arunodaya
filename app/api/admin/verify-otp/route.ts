@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     await prisma.oTP.deleteMany({ where: { contact: email } });
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email },
     });
 

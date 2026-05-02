@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email: cleanEmail },
     });
 
@@ -55,7 +55,7 @@ const updatedEmail = newEmail
 
 // ✅ prevent duplicate email
 if (newEmail) {
-  const existingUser = await prisma.user.findUnique({
+  const existingUser = await prisma.user.findFirst({
     where: { email: updatedEmail },
   });
 
