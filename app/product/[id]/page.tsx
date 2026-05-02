@@ -561,7 +561,7 @@ const handleAddToBagWithLoginCheck = () => {
 const handleAddToBagOnly = () => {
   const token = getCookie("token");
   if (!token) {
-    router.push("/login?redirect=address");
+    router.push("/login?redirect=bag");
     return;
   }
 

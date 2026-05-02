@@ -11,13 +11,22 @@ export function getAllOffers(offer: any) {
       list.push(`Buy ${b.qty} for ₹${b.price}`);
     });
   }
-
+  // -------------------------
+  // 🎯 SPECIAL FREE OFFERS
+  // -------------------------
+  if (offer.offers?.length) {
+    offer.offers.forEach((o: any) => {
+      if (o.qty && o.free) {
+        list.push(`Buy ${o.qty} get ${o.free} FREE`);
+      }
+    });
+  }
   // Variants
   if (offer.variants?.length) {
     offer.variants.forEach((v: any) => {
       if (v.mrp && v.price) {
         const percent = Math.round((1 - v.price / v.mrp) * 100);
-        list.push(`${percent}% OFF on variant`);
+      
       }
       if (v.bundles?.length) {
         v.bundles.forEach((b: any) => {
