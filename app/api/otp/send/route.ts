@@ -4,6 +4,14 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { sendSmsOtp } from "@/lib/sendSmsOtp";
+
+// ✅ KEEP HERE (TOP OF FILE)
+const normalizeContact = (contact: string) => {
+  if (contact.includes("@")) return contact.trim().toLowerCase();
+
+  // phone normalize → last 10 digits only
+  return contact.replace(/\D/g, "").slice(-10);
+};
 // ✅ Generate 6-digit OTP
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -119,7 +127,8 @@ If you did not request this, please ignore this message.`,
 // ✅ Main API
 export async function POST(req: Request) {
   try {
-    const { contact } = await req.json();
+ const body = await req.json();
+const contact = normalizeContact(body.contact);
 
     if (!contact) {
       return NextResponse.json(

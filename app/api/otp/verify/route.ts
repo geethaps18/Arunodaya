@@ -2,13 +2,21 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db";
-
+const normalizeContact = (contact: string) => {
+  if (contact.includes("@")) return contact.trim().toLowerCase();
+  return contact.replace(/\D/g, "").slice(-10);
+};
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_CONTACT!;
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
 
 export async function POST(req: Request) {
   try {
-    const { contact, otp, name, signup } = await req.json();
+  const body = await req.json();
+
+const contact = normalizeContact(body.contact);
+const otp = body.otp;
+const name = body.name;
+const signup = body.signup;
 
     if (!contact || !otp) {
       return NextResponse.json(
