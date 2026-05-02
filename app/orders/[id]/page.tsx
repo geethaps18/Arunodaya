@@ -115,7 +115,7 @@ const STATUS_TEXT: Record<string, { text: string; color: string }> = {
 export default function OrderDetailsPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-
+const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
 
   const params = useParams();
   const orderId = params?.id;
@@ -302,9 +302,7 @@ if (loading)
     </div>
   );
 
-
-
-const shippingCharge = getShippingCharge(order.address?.pincode);
+const shippingCharge = order.totalAmount < 100 ? 100 : 0;
 const finalTotal = order.totalAmount + shippingCharge;
 
   const steps = [
@@ -686,15 +684,11 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
   <span className="font-medium">₹{finalTotal}</span>
 </div>
 
-<p
-  className={`text-xs mt-1 ${
-    shippingCharge === 0 ? "text-green-600" : "text-gray-500"
-  }`}
->
-  {shippingCharge === 0
-    ? "Free delivery"
-    : `Shipping charge ₹${shippingCharge}`}
-</p>
+{shippingCharge > 0 && (
+  <p className="text-xs text-gray-500 mt-1">
+    Free delivery
+  </p>
+)}
 
         </div>
       </main>
