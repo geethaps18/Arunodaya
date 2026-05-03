@@ -322,16 +322,7 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
           const label = DB_TO_LABEL[dbStatus] ?? dbStatus;
           const statusColor = colorsByDB[dbStatus] ?? "bg-gray-100";
           const nextDb = NEXT_STATUS_DB[dbStatus];
-const allPacked =
-  Array.isArray(order.items) &&
-  order.items.length > 0 &&
-  order.items.every((it: any) => {
-    // ✅ Platform/Admin products are auto-packed
-    if (it.isPlatform === true) return true;
-
-    // ❗ Marketplace seller products must pack
-    return it.packed === true;
-  });
+const allPacked = true;
 
 
 
@@ -512,17 +503,10 @@ return (
   </div>
 </div>
 
-{/* Seller Packing Status */}
 <div className="mt-2">
-  {allPacked ? (
-    <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-      Packed by You
-    </span>
-  ) : (
-    <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-      Waiting for Staff to Pack
-    </span>
-  )}
+  <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+    Ready to Process
+  </span>
 </div>
 
               {/* Items */}
@@ -544,7 +528,7 @@ return (
 
         <div>
           <div className="text-xs text-gray-500 uppercase tracking-wide">
-            {it.brandName ?? "BSCFASHION"}
+            {it.brandName ?? "ARUNODAYA"}
           </div>
 
           <div className="font-medium truncate" style={{ maxWidth: 200 }}>
@@ -675,20 +659,14 @@ return (
               </div>
 
               {/* Move to next */}
-              {nextDb && allPacked && (
+              {nextDb &&  (
 
                 <div className="mt-2 flex justify-end">
                  {nextDb && (
-  <button
-    disabled={!allPacked}
-    onClick={() => moveToNext(order.id, order.status)}
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-      ${
-        allPacked
-          ? "bg-blue-600 text-white hover:bg-blue-700"
-          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-      }`}
-  >
+<button
+  onClick={() => moveToNext(order.id, order.status)}
+  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700"
+>
     Move to {DB_TO_LABEL[nextDb]}
     <ArrowRight size={14} />
   </button>
