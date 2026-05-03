@@ -9,6 +9,13 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import type { JSX } from "react";
 
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 
 // Recursive function to find category path by slug segments
 function findCategoryPath(
@@ -21,7 +28,7 @@ function findCategoryPath(
 
   for (const seg of segments) {
     current = currentCats.find(
-      (c) => c.name.toLowerCase().replace(/\s+/g, "-") === seg
+     (c) => slugify(c.name) === seg
     );
     if (!current) break;
     path.push(current);
@@ -33,11 +40,10 @@ function findCategoryPath(
 
 // Generate full path slug for a category given its parent path
 function getCategorySlug(path: SubCategory[], sub?: SubCategory) {
-  const segments = [...path.map((p) => p.name.toLowerCase().replace(/\s+/g, "-"))];
-  if (sub) segments.push(sub.name.toLowerCase().replace(/\s+/g, "-"));
+  const segments = [...path.map((p) => slugify(p.name))];
+  if (sub) segments.push(slugify(sub.name));
   return `/categories/${segments.join("/")}`;
 }
-
 // Generate unique key for subcategory
 function getCategoryId(sub: SubCategory, parentPath: SubCategory[]): string {
   return [...parentPath.map(p => p.name), sub.name].join("-").toLowerCase().replace(/\s+/g, "-");
@@ -69,9 +75,10 @@ export default function CategoriesPage() {
   const pathname = usePathname();
   const slugSegments = pathname.replace(/^\/categories\/?/, "").split("/").filter(Boolean);
 
-  const initialMain = slugSegments.length > 0
-    ? slugSegments[0].replace(/-/g, " ").toLowerCase()
-    : categories[0].name.toLowerCase();
+const initialMain =
+  slugSegments.length > 0
+    ? categories.find(c => slugify(c.name) === slugSegments[0])?.name
+    : categories[0].name;
 
   const [activeMain, setActiveMain] = useState(
     categories.find((c) => c.name.toLowerCase() === initialMain)?.name || categories[0].name
@@ -179,7 +186,10 @@ export default function CategoriesPage() {
                 <span className="font-semibold text-gray-800">{p.name}</span>
               ) : (
                 <Link
-                  href={`/categories/${path.slice(0, idx + 1).map((s) => s.name.toLowerCase().replace(/\s+/g, "-")).join("/")}`}
+                  href={`/categories/${path
+  .slice(0, idx + 1)
+  .map((s) => slugify(s.name))
+  .join("/")}`}
                   className="hover:text-gray-600"
                 >
                   {p.name}
