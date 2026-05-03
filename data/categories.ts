@@ -101,8 +101,7 @@ export const categories: SubCategory[] = [
             image: "/images/kurtaset-women.png",
             subCategories: [
               { id: genId(), name: "Cotton Sets", image: "/images/cotton-set.png", subCategories: [] },
-              { id: genId(), name: "Arunodaya Sets", image: "/images/arunodaya-set.png", subCategories: [] },
-              { id: genId(), name: "Plazzo Sets", image: "/images/plazzo-set.png", subCategories: [] },
+              { id: genId(), name: "Arunodaya Sets", image: "/images/arunodaya-sets.png", subCategories: [] },
               { id: genId(), name: "Coard Sets", image: "/images/coard-set.png", subCategories: [] },
               { id: genId(), name: "Patiyala Sets", image: "/images/patiyala-set.png", subCategories: [] },
               { id: genId(), name: "Sharara Sets", image: "/images/sharara-set.png", subCategories: [] },
@@ -120,7 +119,7 @@ export const categories: SubCategory[] = [
        {
   id: genId(),
   name: "1 Minute Saree",
-  image: "/images/saree.png",
+  image: "/images/one-minute-saree.png",
   slug: "one-minute-saree", // ✅ IMPORTANT
   subCategories: [],
 },
@@ -136,8 +135,8 @@ export const categories: SubCategory[] = [
 
           { id: genId(), name: "Western Sets", image: "/images/western-set.png", subCategories: [] },
           { id: genId(), name: "Crop Top Sets", image: "/images/crop-top.png", subCategories: [] },
-          { id: genId(), name: "Formal Shirt", image: "/images/formal-shirt.png", subCategories: [] },
-          { id: genId(), name: "Casual Shirt", image: "/images/casual-shirt.png", subCategories: [] },
+          { id: genId(), name: "Formal Shirt", image: "/images/women-formal-shirt.png", subCategories: [] },
+          { id: genId(), name: "Casual Shirt", image: "/images/women-casual-shirt.png", subCategories: [] },
           {
             id: genId(),
             name: "Tops",
@@ -145,10 +144,10 @@ export const categories: SubCategory[] = [
             subCategories: [
               { id: genId(), name: "Silk Tops", image: "/images/top.png", subCategories: [] },
                { id: genId(), name: "Woodies", image: "/images/women-woodies.png", subCategories: [] },
-                { id: genId(), name: "Corean T-shirt", image: "/images/corean-tshirt.png", subCategories: [] },
+                { id: genId(), name: "Corean T-shirt", image: "/images/corean-top.png", subCategories: [] },
               { id: genId(), name: "T-Shirts", image: "/images/w-tshirt.png", subCategories: [] },
                { id: genId(), name: "Western Top", image: "/images/western-top.png", subCategories: [] },
-               { id: genId(), name: "Short Kurta", image: "/images/short-kurta.png", subCategories: [] },
+               { id: genId(), name: "Short Kurta", image: "/images/short-kurtha.png", subCategories: [] },
               { id: genId(), name: "Jeans Tops", image: "/images/w-jeans-top.png", subCategories: [] },
               { id: genId(), name: "Embroidery Tops", image: "/images/embroidery-top.png", subCategories: [] },
             ],

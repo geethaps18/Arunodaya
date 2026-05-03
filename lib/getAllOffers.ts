@@ -16,9 +16,13 @@ export function getAllOffers(offer: any) {
   // -------------------------
   if (offer.offers?.length) {
     offer.offers.forEach((o: any) => {
-      if (o.qty && o.free) {
-        list.push(`Buy ${o.qty} get ${o.free} FREE`);
-      }
+     if (o.qty && o.freeOptions?.length) {
+  const text = o.freeOptions
+    .map((f: any) => `${f.qty} ${f.type}`)
+    .join(" OR ");
+
+  list.push(`Buy ${o.qty} get ${text} FREE`);
+}
     });
   }
   // Variants

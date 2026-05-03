@@ -155,23 +155,37 @@ export const offers = {
   mrp: 499,
   price: 340,
   offers: [
-    { qty: 3, free: "1 leggings" },
-    { qty: 6, free: "3 leggings" },
-    { qty: 6, free: "1 top" }
+    {
+      qty: 3,
+      freeOptions: [
+        { type: "leggings", qty: 1 }
+      ]
+    },
+    {
+      qty: 6,
+      freeOptions: [
+        { type: "leggings", qty: 3 },
+        { type: "kurta", qty: 1 }
+      ]
+    }
   ]
 },
 
 "umbrella-sets": {
-  variants: [
-    { mrp: 800, price: 640 },
-    { mrp: 900, price: 720 },
-    { mrp: 1000, price: 800 },
-    { mrp: 1150, price: 920 }
-  ],
   offers: [
-    { qty: 3, free: "2 leggings" },
-    { qty: 6, free: "4 leggings" },
-    { qty: 6, free: "1 top" }
+    {
+      qty: 3,
+      freeOptions: [
+        { type: "leggings", qty: 2 }
+      ]
+    },
+    {
+      qty: 6,
+      freeOptions: [
+        { type: "leggings", qty: 4 },
+        { type: "kurta", qty: 1 }
+      ]
+    }
   ]
 },
 
