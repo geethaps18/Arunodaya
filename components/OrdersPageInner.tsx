@@ -22,6 +22,7 @@ interface OrderItem {
   id: string;
   product: Product;
   size?: string;
+    isFree?: boolean;
 }
 
 interface Order {
@@ -154,7 +155,11 @@ export default function OrdersPage() {
     </div>
   ) : (
     filteredOrders.map((order) => {
-      const firstItem = order.items[0];
+   const sortedItems = [...order.items].sort(
+  (a, b) => Number(a.isFree) - Number(b.isFree)
+);
+
+const firstItem = sortedItems[0];
 
       return (
         <div

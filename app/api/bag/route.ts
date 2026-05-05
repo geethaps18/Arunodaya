@@ -11,6 +11,7 @@ interface BagItemPayload {
   size?: string;
   color?: string;
   variantId?: string;
+    isFree?: boolean; 
   
 }
 
@@ -37,6 +38,7 @@ function mapBagItem(item: any) {
   return {
     id: item.id,
     quantity: item.quantity,
+       isFree: item.isFree,
     size: item.size,
     color: item.color,
     variantId: item.variantId,
@@ -111,13 +113,15 @@ export async function POST(req: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+const body: BagItemPayload = await req.json();
 
-  const {
-    productId,
-    size,
-    color,
-    variantId,
-  }: BagItemPayload = await req.json();
+const {
+  productId,
+  size,
+  color,
+  variantId,
+  isFree,
+} = body;
 
   if (!productId || !variantId) {
     return NextResponse.json(
@@ -161,7 +165,7 @@ if (nextQty > variant.stock) {
 
 
 
-const finalPrice = variant.price;
+const finalPrice = isFree ? 0 : variant.price;
   if (existing) {
     await prisma.bag.update({
       where: { id: existing.id },
@@ -170,17 +174,18 @@ const finalPrice = variant.price;
       },
     });
   } else {
-    await prisma.bag.create({
-      data: {
-        userId,
-        productId,
-        variantId,
-        size: finalSize,
-        color: finalColor,
-        price: finalPrice, // ✅ STORED SAFELY
-        quantity: 1,
-      },
-    });
+ await prisma.bag.create({
+  data: {
+    userId,
+    productId,
+    variantId,
+    size: finalSize,
+    color: finalColor,
+    price: finalPrice,
+    quantity: 1,
+    isFree: isFree ?? false, // ✅ ADD THIS
+  },
+});
   }
 
   const items = await prisma.bag.findMany({

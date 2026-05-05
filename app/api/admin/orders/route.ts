@@ -16,6 +16,8 @@ export async function GET() {
             price: true,
             size: true,
             image: true, // ⭐ IMPORTANT
+                color: true,
+    isFree: true, // 🔥 ADD THIS
             packed: true,
             packedAt: true,
            confirmedAt:true,
@@ -46,7 +48,7 @@ export async function GET() {
     // 🔥 FLATTEN HERE
     isPlatform: it.product?.isPlatform ?? false,
     sellerId: it.product?.sellerId ?? null,
-
+  isFree: it.isFree ?? false, 
     image:
       it.image ||
       it.product?.images?.[0] ||

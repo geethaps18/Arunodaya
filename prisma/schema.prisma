@@ -283,7 +283,7 @@ model Bag {
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   price     Float? 
-
+  isFree    Boolean  @default(false)
   user    User?    @relation(fields: [userId], references: [id])
   product Product? @relation(fields: [productId], references: [id])
   variant   ProductVariant? @relation(fields: [variantId], references: [id])
@@ -363,7 +363,7 @@ model OrderItem {
   image     String?
   packed    Boolean   @default(false)
   packedAt  DateTime?
-
+  isFree    Boolean  @default(false) 
   confirmedAt DateTime?
 
   sellerId String? 

@@ -8,24 +8,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/app/context/BagContext";
 import { useWishlist } from "@/app/context/WishlistContext";
 import CheckoutStepper from "@/components/CheckoutStepper";
-
+import { useEffect } from "react";
 export default function BagPage() {
   const {
     bagItems,
     totalCount,
     subtotal,
     total,
+      freeOffer,
+        addToCart, 
     updateQuantity,
     removeFromCart,
     updateSize,
      isSyncing, 
   } = useCart();
 
-
+ 
   const { wishlist, toggleWishlist } = useWishlist();
-
+const freeItemInCart = bagItems.some(item => item.price === 0);
   // --- Discount logic (can move into context if global) ---
-
+const freeItems = bagItems.filter(i => i.price === 0);
+const normalItems = bagItems.filter(i => i.price !== 0);
   const totalMRP = bagItems.reduce((sum, item) => {
   const mrp = item.product.mrp ?? item.price; // fallback safety
   return sum + mrp * item.quantity;
@@ -33,8 +36,15 @@ export default function BagPage() {
 
 const totalDiscount = totalMRP - subtotal;
 const finalOrderTotal = total;
+const [selectedGift, setSelectedGift] = useState<any>(null);
+const [freeProducts, setFreeProducts] = useState<any[]>([]);
+useEffect(() => {
+  if (!selectedGift) return;
 
-
+  fetch(`/api/free-products?type=${selectedGift.type}`)
+    .then(res => res.json())
+    .then(setFreeProducts);
+}, [selectedGift]);
   // --- Handlers ---
 const handleQuantity = (uniqueKey: string, change: number) => {
   const item = bagItems.find(i => i.uniqueKey === uniqueKey);
@@ -66,7 +76,42 @@ const handleQuantity = (uniqueKey: string, change: number) => {
     handleRemove(uniqueKey);
     toggleWishlist(item.product);
   };
+const handleAddFreeItem = async (product: any) => {
+  try {
+    const freeExists = bagItems.some(i => i.price === 0);
 
+    if (freeExists) {
+      toast("Only one free item allowed");
+      return;
+    }
+
+    const size = product.availableSizes?.[0] || "M";
+
+    // 🔥 SAFE VARIANT HANDLING
+    const variantId =
+      product.variants?.[0]?.id ||
+      product.variantId ||
+      "default"; // fallback
+
+    console.log("ADDING FREE:", { product, size, variantId });
+
+    await addToCart(
+      product,
+      0,
+      size,
+      undefined,
+      variantId,
+      product.images,
+      product.stock
+    );
+
+    toast.success("Free item added 🎁");
+
+  } catch (err) {
+    console.error("FREE ADD ERROR:", err);
+    toast.error("Failed to add free item");
+  }
+};
   // --- Empty Bag ---
   if (!bagItems.length)
     return (
@@ -101,7 +146,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
         {/* Items List */}
         <div className="grid grid-cols-1 gap-0.5">
           <AnimatePresence>
-            {bagItems.map((item) => (
+           {normalItems.map((item) => (
               <motion.div
                 key={item.uniqueKey}
                 initial={{ opacity: 0, y: -10 }}
@@ -156,9 +201,31 @@ const handleQuantity = (uniqueKey: string, change: number) => {
 ) : null}
 
 
-                  <p className="text-sm sm:text-base font-semibold text-gray-800 mt-1">
-  ₹{item.price * item.quantity}
-</p>
+
+  <div className="flex items-center gap-2 mt-1">
+
+    {/* Selling Price */}
+    <span className="text-base font-semibold text-gray-900">
+      ₹{item.price}
+    </span>
+
+    {/* MRP */}
+    {item.product.mrp && item.product.mrp > item.price && (
+      <span className="text-sm text-gray-400 line-through">
+        ₹{item.product.mrp}
+      </span>
+    )}
+
+    {/* Discount % */}
+    {item.product.mrp && item.product.mrp > item.price && (
+      <span className="text-sm text-green-600 font-medium">
+        {Math.round(
+          ((item.product.mrp - item.price) / item.product.mrp) * 100
+        )}
+        % OFF
+      </span>
+    )}
+  </div>
 
 
                     {/* Quantity */}
@@ -215,7 +282,50 @@ const handleQuantity = (uniqueKey: string, change: number) => {
             ))}
           </AnimatePresence>
         </div>
+{freeItems.length > 0 && (
+  <div className="mt-4">
 
+    <p className="text-green-700 font-semibold mb-2">
+      🎁 Your Free Gift
+    </p>
+
+    {freeItems.map((item) => (
+      <div
+        key={item.uniqueKey}
+        className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3"
+      >
+        {/* IMAGE */}
+        <img
+          src={item.images?.[0]}
+          className="w-16 h-16 object-cover rounded"
+        />
+
+        {/* INFO */}
+        <div className="flex-1">
+          <p className="text-sm font-medium">
+            {item.product.name}
+          </p>
+
+          <p className="text-xs text-gray-600">
+            {item.size} • {item.color}
+          </p>
+
+          <p className="text-green-600 text-xs font-semibold">
+            FREE 🎁
+          </p>
+        </div>
+
+        {/* REMOVE BUTTON */}
+        <button
+          onClick={() => removeFromCart(item.uniqueKey)}
+          className="text-red-500 text-xs font-medium"
+        >
+          Remove
+        </button>
+      </div>
+    ))}
+  </div>
+)}
         {/* Sidebar: Wishlist + Price Details + Desktop Button */}
         <div className="mt-4 lg:mt-0 lg:w-1/3 flex flex-col gap-4 lg:sticky lg:px-10 lg:top-20">
           {wishlist.length > 0 && (
@@ -230,7 +340,57 @@ const handleQuantity = (uniqueKey: string, change: number) => {
               </Link>
             </div>
           )}
+{freeOffer && !freeItemInCart && (
+  <div className="bg-green-50 border p-4 rounded-xl mb-4">
 
+    <p className="text-green-700 font-semibold">
+      🎁 Free Gift Unlocked!
+    </p>
+
+    {freeOffer.chooseOne ? (
+      <p className="text-sm text-gray-600 mt-1">
+        Choose any ONE:
+      </p>
+    ) : null}
+
+    <div className="mt-2 space-y-1">
+      {freeOffer.freeOptions.map((f: any, i: number) => (
+        <div key={i} className="flex items-center gap-2">
+          {freeOffer.chooseOne && (
+           <input
+  type="radio"
+  name="freeGift"
+onChange={() => {
+  setSelectedGift(f);
+
+  // 👉 redirect based on gift type
+  if (f.type === "legging" || f.type === "leggings") {
+    window.location.href = "/categories/women/bottom-wear/leggings";
+  }
+
+  if (f.type === "kurta") {
+    window.location.href = "/categories/women/ethnic-wear/arunodaya-gold";
+  }
+}}
+/>
+          )}
+ <button
+  onClick={() => {
+    window.location.href = `/free-gift?type=${f.type}&qty=${f.qty}`;
+  }}
+   className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-700"
+>
+ Add {f.qty} {f.type}
+</button>
+        </div>
+      ))}
+    </div>
+
+  </div>
+  
+)}
+
+   
         {/* ================= PRICE DETAILS ================= */}
 <div className="bg-white shadow-md p-8 space-y-4">
   <h2 className="font-medium text-gray-800">
@@ -253,6 +413,7 @@ const handleQuantity = (uniqueKey: string, change: number) => {
         You saved ₹{totalDiscount} on this order 🎉
       </p>
     </>
+    
   )}
 
 <div className="flex justify-between items-center text-sm">

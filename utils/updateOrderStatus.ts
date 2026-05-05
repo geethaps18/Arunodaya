@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { sendOrderNotification } from "@/utils/notify";
 
 // DB → Notification mapping
-const DB_TO_NOTIFICATION = {
+const DB_TO_NOTIFICATION: Record<string, any> = {
   PENDING: "ordered",
   CONFIRMED: "packed",
   SHIPPED: "shipped",
@@ -21,66 +21,98 @@ const TIMESTAMP_FIELDS: Record<string, string | null> = {
 
 export async function updateOrderStatus(orderId: string, newDbStatus: string) {
   try {
-    // Fetch old order
-    const order = await prisma.order.findUnique({
+    // 1) Fetch order (before update for existence)
+    const existing = await prisma.order.findUnique({
       where: { id: orderId },
       include: { user: true, items: true },
     });
 
-    if (!order) throw new Error("Order not found");
+    if (!existing) throw new Error("Order not found");
 
-    // Decide which timestamp field to update
+    // 2) Decide timestamp field
     const timestampField = TIMESTAMP_FIELDS[newDbStatus];
 
-    // Build data payload
     const dataToUpdate: any = {
       status: newDbStatus,
       updatedAt: new Date(),
     };
 
-    // ⭐ Save timeline timestamp only when status changes
     if (timestampField) {
       dataToUpdate[timestampField] = new Date();
     }
 
-    // Update DB
+    // 3) Update order
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: dataToUpdate,
       include: { user: true, items: true },
     });
 
-    // Prepare items for email/SMS
-    const mappedItems = updatedOrder.items.map((item) => ({
+    // 4) Parse address safely (string | object)
+    let parsedAddress: any = null;
+    try {
+      parsedAddress =
+        typeof updatedOrder.address === "string"
+          ? JSON.parse(updatedOrder.address)
+          : updatedOrder.address;
+    } catch {
+      parsedAddress = null;
+    }
+
+    // 5) Map items (include color + isFree for better emails)
+    const mappedItems = updatedOrder.items.map((item: any) => ({
       name: item.name,
       qty: item.quantity,
       price: item.price,
       size: item.size ?? undefined,
+      color: item.color ?? undefined,
       image: item.image ?? undefined,
+      isFree: item.isFree ?? false,
     }));
 
-    // Fix phone formatting
-    let phone = updatedOrder.user?.phone ?? "0000000000";
-    phone = phone.replace(/\D/g, "");
+    // 6) Normalize phone
+    let phone = parsedAddress?.phone || updatedOrder.user?.phone || "0000000000";
+    phone = String(phone).replace(/\D/g, "");
     if (!phone.startsWith("+")) phone = "+91" + phone;
 
-    // Send notification
+    // 7) Resolve email (ADDRESS EMAIL FIRST — as you want)
+    const addressEmail =
+      typeof parsedAddress?.email === "string" &&
+      parsedAddress.email.includes("@")
+        ? parsedAddress.email.trim()
+        : null;
+
+    const userEmail =
+      typeof updatedOrder.user?.email === "string" &&
+      updatedOrder.user.email.includes("@")
+        ? updatedOrder.user.email.trim()
+        : null;
+
+    const finalAddressEmail = addressEmail || null; // strict: address only
+    // (optional fallback) const finalAddressEmail = addressEmail || userEmail;
+
+    // 8) Send notification (email + WhatsApp handled inside)
+    if (!DB_TO_NOTIFICATION[newDbStatus]) {
+      console.warn("⚠️ Unknown status mapping:", newDbStatus);
+    }
+
     await sendOrderNotification({
-      email: updatedOrder.user?.email ?? "noemail@bscfashion.com",
+      email: userEmail ?? undefined,              // keep for name fallback
+      addressEmail: finalAddressEmail ?? undefined, // 🔥 IMPORTANT
       phone,
       customerName: updatedOrder.user?.name ?? "Customer",
+      addressName: parsedAddress?.name,
       orderId: updatedOrder.id,
       items: mappedItems,
       total: updatedOrder.totalAmount,
       paymentMode: updatedOrder.paymentMode,
-      status: DB_TO_NOTIFICATION[newDbStatus],
+      status: DB_TO_NOTIFICATION[newDbStatus] ?? "ordered",
     });
 
     return {
       success: true,
       order: updatedOrder,
     };
-
   } catch (err) {
     console.error("❌ Order Update Error:", err);
     throw err;

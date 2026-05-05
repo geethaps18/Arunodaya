@@ -560,12 +560,23 @@ const handleAddToBagWithLoginCheck = () => {
 
 const handleAddToBagOnly = () => {
   const token = getCookie("token");
+
+  // 🔥 SAVE PRODUCT FIRST
+  const pendingItem = {
+    product,
+    selectedSize,
+    selectedColor,
+    selectedVariant,
+  };
+
+  sessionStorage.setItem("PENDING_CART_ITEM", JSON.stringify(pendingItem));
+
   if (!token) {
     router.push("/login?redirect=bag");
     return;
   }
 
-  handleAddToBag(); // existing logic already pushes to /bag
+  handleAddToBag();
 };
 
 const handleBuyNow = () => {

@@ -1,14 +1,5 @@
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>
-}) {
+import CategoryClient from "@/components/CategoryClient";
 
-  const { slug } = await params
-
-  return (
-    <div>
-      Category page
-    </div>
-  )
+export default function Page() {
+  return <CategoryClient />;
 }

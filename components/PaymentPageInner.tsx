@@ -194,6 +194,7 @@ useEffect(() => {
   size: item.size ?? null,
   color: item.color ?? null,
   variantId: item.variantId ?? null,
+   isFree: item.price === 0,
 }));
         setBagItems(mappedItems);
       }
@@ -262,6 +263,7 @@ useEffect(() => {
     size: item.size,
     color: item.color,
     variantId: item.variantId,
+     isFree: item.price === 0,
   }));
 
   try {

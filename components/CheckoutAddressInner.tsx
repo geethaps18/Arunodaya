@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import CheckoutStepper from "@/components/CheckoutStepper";
 import { offers } from "@/data/offers";
+import { getShippingCharge } from "@/utils/shipping";
 // ------------------- Interfaces -------------------
 interface Address {
   id: string;
@@ -35,6 +36,7 @@ interface Address {
 interface BagItem {
   id: string;
   quantity: number;
+  isFree?: boolean; 
   size?: string;
   color?: string | null;       // ✅ ADD
   variantId?: string | null;   // ✅ ADD
@@ -92,7 +94,8 @@ const isBuyNow = mode === "buynow";
     email: "",
 
   });
-
+const normalItems = bagItems.filter(item => !item.isFree);
+const freeItems = bagItems.filter(item => item.isFree);
   const [pincodeSuggestions, setPincodeSuggestions] = useState<PincodeSuggestion[]>([]);
 
   const typeOptions = [
@@ -156,6 +159,7 @@ useEffect(() => {
       return; // 🔥 stop here
     }
 
+
     // ===============================
     // 👜 NORMAL BAG MODE
     // ===============================
@@ -168,15 +172,40 @@ useEffect(() => {
       else if (Array.isArray(bagData.items)) items = bagData.items;
       else if (Array.isArray(bagData.data)) items = bagData.data;
 
-      const normalized: BagItem[] = items.map((it: any) => ({
-        id: it.id ?? it._id,
-        quantity: Number(it.quantity ?? 1),
-        size: it.size ?? null,
-        color: it.color ?? null,
-        variantId: it.variantId ?? null,
-        product: it.product ?? {},
-      }));
+     const map = new Map<string, BagItem>();
 
+items.forEach((it: any) => {
+  const id = it.id ?? it._id;
+
+  if (map.has(id)) {
+    map.get(id)!.quantity += Number(it.quantity ?? 1);
+  } else {
+    map.set(id, {
+      id,
+      quantity: Number(it.quantity ?? 1),
+      size: it.size ?? null,
+      color: it.color ?? null,
+      variantId: it.variantId ?? null,
+      isFree: it.isFree ?? false, // ✅ keep free flag
+      product: it.product ?? {},
+    });
+  }
+});
+
+const normalized = Array.from(map.values());
+setBagItems([
+  ...normalized,
+  {
+    id: "free-test",
+    quantity: 1,
+    isFree: true,
+    product: {
+      name: "Free Gift Test",
+      price: 0,
+      images: ["/placeholder.png"],
+    },
+  },
+]);
       setBagItems(normalized);
 
       let list: Address[] = [];
@@ -227,7 +256,7 @@ const getItemPricing = (item: BagItem) => {
       const qty = Number(item.quantity ?? 1) || 1;
       return acc + price * qty;
     }, 0);
-const totalMRP = bagItems.reduce((sum, item) => {
+const totalMRP = normalItems.reduce((sum, item) => {
   const { mrp } = getItemPricing(item);
   return sum + mrp * item.quantity;
 }, 0);
@@ -237,7 +266,9 @@ const totalSelling = (() => {
 
   const grouped: Record<string, BagItem[]> = {};
 
-  bagItems.forEach((item) => {
+
+
+ normalItems.forEach((item) => {
     const category =
       item.product?.subSubSubCategory?.toLowerCase() || "default";
 
@@ -279,18 +310,55 @@ const totalSelling = (() => {
 // Discount
 const totalDiscount = totalMRP - totalSelling;
 
-const city = selectedAddress?.city?.toLowerCase().trim() || "";
+const shippingCharge = getShippingCharge(
+  selectedAddress?.pincode
+);
+const getDeliveryDate = (pincode?: string) => {
+  const today = new Date();
 
-const isDavanagere =
-  city === "davanagere" || city === "davangere";
+  // Faster delivery for Davanagere
+  const fastDeliveryPincodes = ["577001", "577002", "577003", "577004"];
 
-const shippingCharge = isDavanagere ? 0 : 49;
+  const daysToAdd = fastDeliveryPincodes.includes(pincode || "")
+    ? 2   // local delivery
+    : 7;  // outside
 
+  const deliveryDate = new Date(today);
+  deliveryDate.setDate(today.getDate() + daysToAdd);
+
+  return deliveryDate.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+};
 // Final Total
 const finalOrderTotal = totalSelling + shippingCharge;
 
+const freeItemsCount = freeItems.reduce(
+  (sum, item) => sum + item.quantity,
+  0
+);
+
+// 🔥 Detect required free qty from offers
+let requiredFreeQty = 0;
+
+Object.entries(offers).forEach(([category, offer]: any) => {
+  const categoryItems = bagItems.filter(
+    (item) =>
+      item.product?.subSubSubCategory?.toLowerCase() === category.toLowerCase()
+  );
+
+  const totalQty = categoryItems.reduce((s, i) => s + i.quantity, 0);
+
+  if (offer.freeQty && totalQty >= offer.minQty) {
+    requiredFreeQty = Math.max(requiredFreeQty, offer.freeQty);
+  }
+});
 // Item count
-const totalCount = bagItems.length;
+const totalCount = bagItems.reduce(
+  (sum, item) => sum + item.quantity,
+  0
+);
 
   const getProductImage = (item: BagItem) => {
     const p = item.product || {};
@@ -432,9 +500,17 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
 const handleContinue = () => {
   if (!selectedAddress) {
-    toast.error("Please add or select an address to continue");
+    toast.error("Please add or select an address");
     return;
   }
+
+  // 🔥 FREE GIFT VALIDATION
+if (requiredFreeQty > 0 && freeItemsCount < requiredFreeQty) {
+  toast.error(`Select ${requiredFreeQty} free item(s) to continue`);
+
+  router.push("/bag");
+  return;
+}
 
   router.push(
     `/checkout/payment?addressId=${selectedAddress.id}&mode=${isBuyNow ? "buynow" : "bag"}`
@@ -522,40 +598,72 @@ return (
   <h3 className="font-bold text-lg">Order Summary ({totalCount} items)</h3>
 <div className="max-w-5xl mx-auto p-4 sm:p-6 p relative flex flex-col lg:flex-row gap-6">
 
-  {/* LEFT: Product Cards */}
-  <div className="flex-1 space-y-1 lg:pr-4">
-    {bagItems.length === 0 ? (
-      <p className="text-sm text-gray-600">Your bag is empty</p>
-    ) : (
-      bagItems.map((item) => (
-        <div
-          key={item.id}
-          className="border rounded-lg p-4 flex items-center gap-4 bg-white shadow-sm hover:shadow-md transition"
-        >
-          <img
-            src={getProductImage(item)}
-            alt={item.product?.name}
-            className="w-20 h-20 object-cover rounded"
-          />
-         <div className="flex-1 text-sm text-gray-700 space-y-1">
+<div className="space-y-3">
+
+  {/* NORMAL PRODUCTS */}
+  {normalItems.map((item) => (
+    <div
+      key={item.id}
+      className="border rounded-lg p-4 flex items-center gap-4 bg-white shadow-sm"
+    >
+      <img
+        src={getProductImage(item)}
+        alt={item.product?.name}
+        className="w-20 h-20 object-cover rounded"
+      />
+
+     <div className="flex-1 text-sm text-gray-700">
   <p className="font-medium">{item.product?.name}</p>
-  <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
-  <p>
-    Delivery by{" "}
-    <span className="font-medium">
-      {new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString(
-        "en-IN",
-        { weekday: "short", month: "short", day: "numeric" }
-      )}
+  <p className="text-xs">Qty: {item.quantity}</p>
+
+  {/* 🚚 DELIVERY DATE */}
+  <p className="text-xs text-green-700 mt-1">
+     Delivery by{" "}
+    <span className="font-semibold">
+      {getDeliveryDate(selectedAddress?.pincode)}
     </span>
   </p>
 </div>
+    </div>
+  ))}
 
+
+
+     
+  {freeItems.length > 0 && (
+  <div className="mt-4">
+    <p className="text-green-700 font-semibold mb-2">
+      🎁 Your Free Gift
+    </p>
+
+    {freeItems.map((item) => (
+      <div
+        key={item.id}
+        className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3"
+      >
+        <img
+          src={getProductImage(item)}
+          alt={item.product?.name}
+          className="w-14 h-14 object-cover rounded"
+        />
+
+        <div className="flex-1">
+          <p className="text-sm font-medium">
+            {item.product?.name}
+          </p>
+          <p className="text-xs text-gray-600">
+            {item.size} • {item.color}
+          </p>
+          <p className="text-green-600 text-xs font-semibold">
+            FREE 🎁
+          </p>
         </div>
-      ))
-    )}
+      </div>
+    ))}
   </div>
+)}
 
+</div>
   {/* RIGHT: Price Details + Button */}
   <div className="lg:w-100 flex-shrink-0 space-y-4">
    <div className="space-y-2 text-sm">

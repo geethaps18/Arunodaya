@@ -24,7 +24,7 @@ type OrderItem = {
   size?: string;
   color?: string;
   image?: string;
-
+   isFree?: boolean;
   // 🔥 ADD THESE
   exchangeRequested?: boolean;
   exchangeStatus?: string | null;
@@ -516,12 +516,23 @@ return (
 {order.items?.map((it) => (
   <div
     key={it.id}
-    className="border p-3 rounded-lg bg-gray-50 text-sm space-y-2"
+    className={`border p-3 rounded-lg text-sm space-y-2 ${
+  it.isFree ? "bg-green-50 border-green-200" : "bg-gray-50"
+}`}
   >
     <div className="flex justify-between">
       <div className="flex items-center gap-3">
         <img
-          src={it.image || it.product?.images?.[0] || "/no-image.png"}
+         src={
+  it.image ||
+  (Array.isArray(it.product?.images)
+    ? it.product.images.find((img: string) =>
+        img.toLowerCase().includes((it.color || "").toLowerCase())
+      )
+    : null) ||
+  it.product?.images?.[0] ||
+  "/no-image.png"
+}
           alt={it.name}
           className="w-14 h-14 object-cover rounded border bg-gray-100"
         />
@@ -531,9 +542,17 @@ return (
             {it.brandName ?? "ARUNODAYA"}
           </div>
 
-          <div className="font-medium truncate" style={{ maxWidth: 200 }}>
-            {it.name}
-          </div>
+         <div className="flex items-center gap-2">
+  <div className="font-medium truncate">
+    {it.name}
+  </div>
+
+  {it.isFree && (
+    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded">
+      FREE 🎁
+    </span>
+  )}
+</div>
 
           <div className="text-xs text-gray-500">
             Qty: {it.quantity ?? 1}
@@ -544,11 +563,20 @@ return (
               Size: {it.size}
             </div>
           )}
+          {it.color && (
+  <div className="text-xs text-gray-500">
+    Color: {it.color}
+  </div>
+)}
         </div>
       </div>
 
       <div className="font-semibold text-gray-700">
-        ₹{it.price ?? "-"}
+        {it.isFree ? (
+  <span className="text-green-600 font-semibold">FREE</span>
+) : (
+  <>₹{it.price ?? "-"}</>
+)}
       </div>
     </div>
 

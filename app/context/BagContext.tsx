@@ -21,6 +21,7 @@ export interface Product {
   images?: string[];
   availableSizes?: string[];
   mrp?: number;
+  subSubCategory?: string;   // ✅ ADD THIS
 subCategory?: string;
 subSubSubCategory?: string;   // 🔥 ADD THIS
 }
@@ -44,6 +45,7 @@ interface BagContextType {
   totalCount: number;
   subtotal: number;
   total: number;
+  freeOffer?: any;
   isSyncing: boolean;
   
 addToCart: (
@@ -160,18 +162,18 @@ const addToCart = async (
     return;
   }
 
-  const res = await fetch("/api/bag", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      productId: product.id,
-      size,
-      color,
-      variantId,
-    }),
-  });
-
+ const res = await fetch("/api/bag", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+  body: JSON.stringify({
+    productId: product.id,
+    size,
+    color,
+    variantId,
+    isFree: price === 0   // 🔥 ADD THIS LINE
+  }),
+});
   const data = await res.json();
 
   if (!res.ok) {
@@ -367,7 +369,47 @@ const subtotal = useMemo(() => {
 
   return total;
 }, [bagItems]);
+const freeOffer = useMemo(() => {
+  let result = null;
 
+  const grouped: Record<string, number> = {};
+
+  bagItems.forEach((item) => {
+   const category =
+  item.product.subSubSubCategory ||
+  item.product.subSubCategory ||
+  item.product.name ||   // 🔥 FORCE MATCH
+  "";
+
+  const key = category
+  .toLowerCase()
+  .trim()
+  .replace(/\s+/g, "-")
+  .replace(/_/g, "-")
+  .replace(/[^a-z0-9-]/g, "")
+  .replace(/-+/g, "-");
+
+    grouped[key] = (grouped[key] || 0) + item.quantity;
+  });
+
+  for (const category in grouped) {
+    const offer = offers[category];
+
+    if (!offer || !offer.offers) continue; // 👈 only free offers
+
+    const qty = grouped[category];
+
+    const matched = offer.offers
+      .filter((o: any) => qty >= o.qty)
+      .sort((a: any, b: any) => b.qty - a.qty)[0];
+
+    if (matched) {
+      result = matched;
+    }
+  }
+
+  return result;
+}, [bagItems]);
  const total = useMemo(() => subtotal, [subtotal]);
 
   // -------------------
@@ -382,6 +424,7 @@ const subtotal = useMemo(() => {
   
         total,
         isSyncing,
+        freeOffer,
         addToCart,
         removeFromCart,
         updateQuantity,

@@ -50,6 +50,11 @@ items: order.items
       quantity: item.quantity,
       price: item.price,
       size: item.size ?? null,
+
+ 
+  color: item.color ?? null,      // ✅ ADD THIS
+
+  isFree: item.isFree ?? false, 
       product: {
         id: product.id,
         name: product.name,
@@ -126,6 +131,7 @@ export async function POST(req: NextRequest) {
               price: item.price,
               size: item.size ?? null,
               color: item.color ?? null,
+              isFree: item.isFree ?? false,
             })),
           },
         },

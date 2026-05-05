@@ -63,7 +63,9 @@ interface ProductWithReviews {
   exchangeStatus?: string | null;
   newSize?: string | null;
   newColor?: string | null;
-
+   
+      isFree?: boolean;
+  color?: string;  
   product?: {
     id?: string;
     name?: string;
@@ -339,16 +341,16 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
   // If NOT delivered → estimate based on status
   switch (order.status) {
     case "PENDING":
-      estimatedDate.setDate(createdDate.getDate() + 4);
+      estimatedDate.setDate(createdDate.getDate() + 7);
       break;
     case "SHIPPED":
       estimatedDate.setDate(createdDate.getDate() + 2);
       break;
     case "OUT_FOR_DELIVERY":
-      estimatedDate.setDate(createdDate.getDate() + 1);
+      estimatedDate.setDate(createdDate.getDate() + 4);
       break;
     default:
-      estimatedDate.setDate(createdDate.getDate() + 5);
+      estimatedDate.setDate(createdDate.getDate() + 2);
   }
 
   // Avoid Sunday delivery → move to Monday
@@ -363,7 +365,14 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
   })}`;
 };
 
+const sortedItems = [...order.items].sort((a, b) => {
+  if (a.isFree && !b.isFree) return 1;
+  if (!a.isFree && b.isFree) return -1;
+  return 0;
+});
 
+const mainItems = sortedItems.filter((i) => !i.isFree);
+const freeItems = sortedItems.filter((i) => i.isFree);
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -494,17 +503,42 @@ const currentIndex = steps.findIndex(s => s.key === order.status);
 
         {/* Products & Reviews */}
         <div className="flex flex-col gap-6">
-          {order.items.map((item) => (
-           <ProductCard
-  key={item.id}
-  product={item}
-  orderStatus={order.status}
-  orderId={order.id}   // ✅ ADD THIS
-  currentUserId={currentUserId}
-  onSubmitReview={handleSubmitReview}
-/>
-          ))}
+   {/* MAIN PRODUCTS */}
+{mainItems.length > 0 &&
+  mainItems.map((item) => (
+    <ProductCard
+      key={item.id}
+      product={item}
+      orderStatus={order.status}
+      orderId={order.id}
+      currentUserId={currentUserId}
+      onSubmitReview={handleSubmitReview}
+    />
+  ))}
+{/* FREE GIFTS */}
+{freeItems.length > 0 && (
+  <div className="mt-6 border-t pt-4">
+    <div className="flex items-center gap-2 mb-3">
+      <span className="text-lg">🎁</span>
+      <h3 className="text-sm font-semibold text-green-600">
+        Free Gift Included
+      </h3>
+    </div>
+
+    {freeItems.map((item) => (
+      <ProductCard
+        key={item.id}
+        product={item}
+        orderStatus={order.status}
+        orderId={order.id}
+        currentUserId={currentUserId}
+        onSubmitReview={handleSubmitReview}
+      />
+    ))}
+  </div>
+)}
         </div>
+        
 {/* Delivery Address */}
 
 {order.address && (
@@ -743,7 +777,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md flex flex-col gap-4">
+  <div
+  className={`p-4 rounded-lg shadow-sm flex flex-col gap-4 ${
+    product.isFree
+      ? "bg-green-50 border border-green-200"
+      : "bg-white"
+  }`}
+>
 
       {/* PRODUCT HEADER */}
      <Link
@@ -754,8 +794,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex-shrink-0 w-28 h-28 flex justify-center items-center">
        <img
   src={
-    product.product?.images?.[0] ||   // full product image
-    (product as any).image ||         // fallback stored in order item (IMPORTANT FIX)
+   (product as any).image ||  // full product image
+    product.product?.images?.[0] ||         // fallback stored in order item (IMPORTANT FIX)
     "/placeholder.png"
   }
   alt={product.product?.name || product.name}
@@ -766,19 +806,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         <div className="flex-1">
-          <h2 className="text-sm font-semibold text-gray-700">{product.name}</h2>
+         <div className="flex items-center gap-2">
+  <h2 className="text-sm font-semibold text-gray-700">
+    {product.name}
+  </h2>
+
+  {product.isFree && (
+    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded">
+      FREE 🎁
+    </span>
+  )}
+</div>
 
           {product.description && (
             <p className="text-xs text-gray-500">{product.description}</p>
           )}
 
-          <div className="text-xs text-gray-400 mt-1 flex gap-4">
-            {product.size && <span>Size: {product.size}</span>}
-            <span>Qty: {product.quantity}</span>
-          </div>
+      <div className="text-xs text-gray-400 mt-1 flex gap-4 flex-wrap">
+  {product.size && <span>Size: {product.size}</span>}
+  {product.color && <span>Color: {product.color}</span>}
+  <span>Qty: {product.quantity}</span>
+</div>
 
-          <div className="text-sm font-medium text-gray-700 mt-2">
-  ₹{product.price}
+  <div className="text-sm font-medium mt-2">
+  {product.isFree ? (
+    <span className="text-green-600 font-semibold">FREE</span>
+  ) : (
+    <span className="text-gray-700">₹{product.price}</span>
+  )}
 </div>
         </div>
       </Link>

@@ -47,12 +47,13 @@ export const metadata: Metadata = {
 
   openGraph: {
     title: "Arunodaya Collections",
-    description: "Arunodaya Collections",
+    description: "Arunodaya Collections Women, Men, Kids",
     url: "https://www.arunodayacollections.com",
     siteName: "Arunodaya Collections",
     images: [
-      {
-        url: "/favicon.png",
+      
+  {
+    url: "https://www.arunodayacollections.com/logo.png", 
         width: 800,
         height: 800,
         alt: "Arunodaya Logo",

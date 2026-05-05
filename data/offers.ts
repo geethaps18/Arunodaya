@@ -158,11 +158,12 @@ export const offers = {
     {
       qty: 3,
       freeOptions: [
-        { type: "leggings", qty: 1 }
+        { type: "legging", qty: 1 }
       ]
     },
     {
       qty: 6,
+      chooseOne: true,
       freeOptions: [
         { type: "leggings", qty: 3 },
         { type: "kurta", qty: 1 }

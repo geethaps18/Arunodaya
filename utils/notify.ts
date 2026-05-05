@@ -6,6 +6,7 @@ export type OrderItem = {
   qty: number;
   price: number;
   size?: string;
+    color?: string;
   image?: string;
 };
 
@@ -92,12 +93,16 @@ export async function sendOrderNotification(options: NotificationOptions) {
     // --------------------------
     // EMAIL
     // --------------------------
-    const finalEmail =
-      addressEmail && addressEmail.includes("@")
-        ? addressEmail
-        : email && email.includes("@")
-        ? email
-        : process.env.EMAIL_USER!;
+    const isValidEmail = (e?: string) =>
+  e &&
+  e.includes("@") &&
+  !e.toLowerCase().includes("noemail") &&
+  !e.toLowerCase().includes("dummy");
+
+const finalEmail =
+  typeof addressEmail === "string" && addressEmail.includes("@")
+    ? addressEmail.trim()
+    : null;
 
     const message = STATUS_TEXTS[status](finalName);
 
@@ -116,7 +121,9 @@ export async function sendOrderNotification(options: NotificationOptions) {
     }
     <div>
       <div style="font-weight:500; color:#111111;">
-        ${item.name}${item.size ? " - " + item.size : ""}
+        ${item.name}
+${item.size ? " - " + item.size : ""}
+${item.color ? " - " + item.color : ""}
       </div>
     </div>
   </td>
@@ -181,14 +188,19 @@ export async function sendOrderNotification(options: NotificationOptions) {
       },
     });
 
-    await transporter.sendMail({
-      from: `"Arunodaya Collections" <arunodayacollections25@gmail.com>`,
-      to: finalEmail,
-      subject: `Order Update • #${orderId} • ${status
-        .replace(/_/g, " ")
-        .toUpperCase()}`,
-      html: emailHtml,
-    });
+if (!finalEmail) {
+  console.error("❌ No valid address email provided");
+  return;
+}
+
+await transporter.sendMail({
+  from: `"Arunodaya Collections" <${process.env.EMAIL_USER}>`,
+  to: finalEmail,
+  subject: `Order Update • #${orderId}`,
+  html: emailHtml,
+});
+
+console.log("📧 Email sent to address:", finalEmail);
 
     console.log("📧 Email sent to:", finalEmail);
 

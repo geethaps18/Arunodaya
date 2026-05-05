@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { offers } from "@/data/offers";
 import { getShippingCharge } from "@/utils/shipping";
+import { sendOrderNotification } from "@/utils/notify";
 /* ---------------- CONFIG ---------------- */
 const WHATSAPP_API_URL = "https://graph.facebook.com/v19.0";
 const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
@@ -93,7 +94,7 @@ async function sendWhatsAppMessage(phone: string, order: any, items: any[]) {
   const itemList = items
     .map(
       (i) =>
-        `➜ ${i.name} - ${i.size ?? "One Size"} (${i.quantity}) - ₹${i.price}`
+        `➜ ${i.name} - ${i.size ?? "One Size"} (${i.quantity}) - ${i.price === 0 ? "FREE" : `₹${i.price}`}`
     )
     .join("\n");
 
@@ -194,33 +195,48 @@ const orderItems = await Promise.all(
   items.map(async (item: any) => {
     const product = products.find((p) => p.id === item.productId)!;
 
-    let price = product.price;
+    // 🔥 FIX 1: GET VARIANT FIRST
+    const variant = item.variantId
+      ? await prisma.productVariant.findUnique({
+          where: { id: item.variantId },
+        })
+      : null;
 
-    if (item.variantId) {
-      const variant = await prisma.productVariant.findUnique({
-        where: { id: item.variantId },
-      });
+    // 🔥 FIX 2: PRICE LOGIC
+    let price = item.price;
 
-      if (variant) {
-        price = variant.price;
-      }
+    if (item.price !== 0 && variant?.price) {
+      price = variant.price;
     }
 
-   return {
-  productId: product.id,
-  siteId: product.siteId,
-  name: product.name,
-  brandName: product.brandName ?? "ARUNODAYA",
-  quantity: Number(item.quantity),
-  price,
+    // 🔥 FIX 3: IMAGE LOGIC (CORRECT WAY)
+    const image =
+      item.image || // frontend selected image (best)
+       variant?.images?.[0] ||// variant image
+      product.images?.[0] || // fallback
+      null;
 
-  category: product.subSubSubCategory?.toLowerCase() ?? "default",
+    // ✅ NOW RETURN OBJECT
+    return {
+      productId: product.id,
+      siteId: product.siteId,
+      name: product.name,
+      brandName: product.brandName ?? "ARUNODAYA",
+      quantity: Number(item.quantity),
+      price,
 
-  size: item.size ?? null,
-  color: item.color ?? null,
-  variantId: item.variantId ?? null,
-  image: product.images?.[0] ?? null,
-};
+      category: product.subSubSubCategory?.toLowerCase() ?? "default",
+
+      size: item.size ?? null,
+      color:
+        item.color && item.color !== "nocolor"
+          ? item.color
+          : null,
+
+      variantId: item.variantId ?? null,
+
+      image, // 🔥 IMPORTANT (now valid)
+    };
   })
 );
   const totalAmount = calculateBundleTotal(orderItems);
@@ -278,6 +294,7 @@ const finalTotal = totalAmount + shippingCharge;
             color: item.color,
             variantId: item.variantId,
             image: item.image,
+            isFree: item.price === 0, // 🔥 ADD THIS LINE
           },
         });
       }
@@ -286,7 +303,35 @@ const finalTotal = totalAmount + shippingCharge;
     });
 
     /* ---------------- NOTIFICATIONS ---------------- */
-    if (user.email) await sendOrderEmail(user.email, order, orderItems);
+const isValidEmail = (e?: string) =>
+  e &&
+  e.includes("@") &&
+  !e.toLowerCase().includes("noemail");
+
+const finalEmail = isValidEmail(address?.email)
+  ? address.email
+  : isValidEmail(user.email)
+  ? user.email
+  : null;
+
+await sendOrderNotification({
+  email: user.email,
+  addressEmail: address?.email, // 🔥 important
+  phone: address.phone,
+  customerName: user.name,
+  addressName: address.name,
+  orderId: order.id,
+  items: orderItems.map((i) => ({
+    name: i.name,
+    qty: i.quantity,
+    price: i.price,
+    size: i.size,
+    image: i.image,
+  })),
+  total: order.totalAmount,
+  paymentMode,
+  status: "ordered",
+});
     if (address.phone)
       await sendWhatsAppMessage(address.phone, order, orderItems);
 
