@@ -103,7 +103,7 @@ export const offers = {
     ]
   },
 
-  "coard-sets": {
+  "coard-set": {
     mrp: 800,
     price: 720,
     bundles: [
