@@ -26,7 +26,6 @@ const handler = NextAuth({
           data: {
             email: user.email,
             name: user.name || "Google User",
-            phone: "",
             blocked: false,
           },
         });
