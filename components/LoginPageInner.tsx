@@ -124,7 +124,11 @@ export default function LoginPageInner() {
         <form onSubmit={handleVerifyOtp} className="space-y-4">
 <button
   type="button"
-  onClick={() => signIn("google")}
+  onClick={() =>
+  signIn("google", {
+    callbackUrl: redirectTo || "/",
+  })
+}
   className="w-full flex items-center justify-center gap-3 bg-gray-600 text-white py-3 rounded-xl font-medium hover:bg-gray-400 transition"
 >
   <img
