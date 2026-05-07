@@ -21,30 +21,35 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        if (!user.email) return false;
+        if (!user.email) {
+          console.log("NO EMAIL");
+          return false;
+        }
 
-       const existingUser = await prisma.user.findFirst({
-  where: {
-    email: user.email,
-  },
-});
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            email: user.email,
+          },
+        });
 
         if (!existingUser) {
           await prisma.user.create({
             data: {
-              email: user.email,
               name: user.name || "Google User",
+              email: user.email,
               phone: "",
-              blocked: false,
               role: "USER",
+              blocked: false,
             },
           });
         }
 
         return true;
       } catch (error) {
-        console.error("GOOGLE LOGIN ERROR:", error);
-        return false;
+        console.error("GOOGLE SIGNIN ERROR:", error);
+
+        // IMPORTANT
+        return "/login?error=GoogleSignin";
       }
     },
 
@@ -57,7 +62,7 @@ const handler = NextAuth({
     },
 
     async session({ session, token }) {
-      if (token.email && session.user) {
+      if (session.user && token.email) {
         session.user.email = token.email as string;
       }
 
