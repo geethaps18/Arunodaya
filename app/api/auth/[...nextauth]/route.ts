@@ -1,4 +1,5 @@
 // app/api/auth/[...nextauth]/route.ts
+
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/db";
@@ -11,40 +12,55 @@ const handler = NextAuth({
     }),
   ],
 
-  session: { strategy: "jwt" },
+  secret: process.env.NEXTAUTH_SECRET,
+
+  session: {
+    strategy: "jwt",
+  },
 
   callbacks: {
     async signIn({ user }) {
-      if (!user.email) return false;
+      try {
+        if (!user.email) return false;
 
-      let existingUser = await prisma.user.findFirst({
-        where: { email: user.email },
-      });
+       const existingUser = await prisma.user.findFirst({
+  where: {
+    email: user.email,
+  },
+});
 
-      if (!existingUser) {
-        await prisma.user.create({
-          data: {
-            email: user.email,
-            name: user.name || "Google User",
-            blocked: false,
-          },
-        });
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name || "Google User",
+              phone: "",
+              blocked: false,
+              role: "USER",
+            },
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("GOOGLE LOGIN ERROR:", error);
+        return false;
       }
-
-      return true;
     },
 
     async jwt({ token, user }) {
       if (user?.email) {
         token.email = user.email;
       }
+
       return token;
     },
 
     async session({ session, token }) {
-      if (token.email) {
-        (session.user as any).email = token.email;
+      if (token.email && session.user) {
+        session.user.email = token.email as string;
       }
+
       return session;
     },
   },
@@ -52,8 +68,6 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
-
-  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
