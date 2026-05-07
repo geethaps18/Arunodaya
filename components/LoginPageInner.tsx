@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { setCookie } from "cookies-next";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function LoginPageInner() {
   const router = useRouter();
@@ -123,7 +124,28 @@ export default function LoginPageInner() {
 
         {/* FORM */}
         <form onSubmit={handleVerifyOtp} className="space-y-4">
+<button
+  type="button"
+  onClick={() => signIn("google")}
+  className="w-full flex items-center justify-center gap-3 bg-gray-600 text-white py-3 rounded-xl font-medium hover:bg-gray-400 transition"
+>
+  <img
+    src="https://www.svgrepo.com/show/475656/google-color.svg"
+    alt="Google"
+    className="w-5 h-5 bg-white rounded-full p-0.5"
+  />
 
+  Continue with Google
+</button>
+  <div className="flex items-center my-1">
+  <div className="flex-1 border-t border-gray-300"></div>
+
+  <span className="px-4 text-sm text-gray-500 font-medium">
+    OR
+  </span>
+
+  <div className="flex-1 border-t border-gray-300"></div>
+</div>
           {!otpSent ? (
             <>
               <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-black focus-within:ring-1 focus-within:ring-black">
@@ -143,9 +165,11 @@ export default function LoginPageInner() {
                 disabled={loading}
                 className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 active:scale-[0.98] transition"
               >
+                
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
             </>
+            
           ) : (
             <>
               <p className="text-sm text-gray-600 text-center">
