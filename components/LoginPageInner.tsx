@@ -163,7 +163,7 @@ export default function LoginPageInner() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 active:scale-[0.98] transition"
+                className="w-full bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-400 active:scale-[0.98] transition"
               >
                 
                 {loading ? "Sending OTP..." : "Send OTP"}
