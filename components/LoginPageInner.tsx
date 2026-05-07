@@ -117,9 +117,7 @@ export default function LoginPageInner() {
 
           <h1 className="text-xl font-semibold mt-2">Continue</h1>
 
-          <p className="text-sm text-gray-600 text-center mt-1">
-            Enter your phone number to continue
-          </p>
+         
         </div>
 
         {/* FORM */}
