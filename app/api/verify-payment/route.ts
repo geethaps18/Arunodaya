@@ -46,14 +46,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Update ONLY fields that exist in schema
-  await prisma.order.update({
-  where: { id: order.id },
-  data: {
-    paymentMode: "Online",
-    paymentStatus: "PAID",
-    status: "CONFIRMED",
-  },
-});
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        paymentMode: "Online",
+      },
+    });
 
     return NextResponse.json({
       success: true,

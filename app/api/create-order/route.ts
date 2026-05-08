@@ -259,26 +259,19 @@ const finalTotal = totalAmount + shippingCharge;
 
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
-const createdOrder = await tx.order.create({
-  data: {
-    userId: user.id,
-    totalAmount: finalTotal,
-    paymentMode: paymentMode || "COD",
-
-    paymentStatus:
-      paymentMode === "Online" ? "PENDING" : "PAID",
-
-    address,
-    upiId: paymentMode === "UPI" ? upiId ?? null : null,
-    cardDetails:
-      paymentMode === "Card"
-        ? JSON.stringify(cardDetails)
-        : null,
-
-    razorpayOrderId: razorpayOrder?.id ?? null,
-  },
-  include: { user: true },
-});
+      const createdOrder = await tx.order.create({
+        data: {
+          userId: user.id,
+         totalAmount: finalTotal,
+          paymentMode: paymentMode || "COD",
+          address,
+          upiId: paymentMode === "UPI" ? upiId ?? null : null,
+          cardDetails:
+            paymentMode === "Card" ? JSON.stringify(cardDetails) : null,
+          razorpayOrderId: razorpayOrder?.id ?? null,
+        },
+        include: { user: true },
+      });
 
       for (const item of orderItems) {
         if (item.variantId) {
@@ -321,9 +314,9 @@ const finalEmail = isValidEmail(address?.email)
   ? user.email
   : null;
 
-sendOrderNotification({
+await sendOrderNotification({
   email: user.email,
-  addressEmail: address?.email,
+  addressEmail: address?.email, // 🔥 important
   phone: address.phone,
   customerName: user.name,
   addressName: address.name,
@@ -338,18 +331,9 @@ sendOrderNotification({
   total: order.totalAmount,
   paymentMode,
   status: "ordered",
-}).catch((err) =>
-  console.error("Notify Error:", err)
-);
-   if (address.phone) {
-  sendWhatsAppMessage(
-    address.phone,
-    order,
-    orderItems
-  ).catch((err) =>
-    console.error("WhatsApp Error:", err)
-  );
-}
+});
+    if (address.phone)
+      await sendWhatsAppMessage(address.phone, order, orderItems);
 
     return NextResponse.json(
       { success: true, order, rzpOrder: razorpayOrder },
