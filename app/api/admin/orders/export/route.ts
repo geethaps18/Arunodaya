@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { Parser } from "json2csv";
-import { getShippingCharge } from "@/utils/shipping";
+
 export async function GET() {
   try {
     const orders = await prisma.order.findMany({
@@ -28,8 +28,7 @@ if (order.address) {
 }
 
 
-     const shippingCharge = getShippingCharge(address?.pincode || "");
-const finalTotal = (order.totalAmount || 0) + shippingCharge;
+ const finalTotal = order.totalAmount || 0;
 
 return {
   OrderID: order.id,
@@ -42,13 +41,11 @@ return {
   Pincode: address.pincode || "",
   PaymentMode: order.paymentMode,
 
-  Subtotal: order.totalAmount || 0,
-  Shipping: shippingCharge,
 
-  CODAmount:
-    order.paymentMode === "COD" ? finalTotal : 0,
 
-  TotalAmount: finalTotal,
+
+
+ Amount: finalTotal,
 };
     });
 
