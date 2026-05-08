@@ -243,20 +243,20 @@ const orderItems = await Promise.all(
   const shippingCharge = getShippingCharge(address?.pincode || "");
 const finalTotal = totalAmount + shippingCharge;
     /* ---------------- RAZORPAY ---------------- */
-    let razorpayOrder: any = null;
+   /* ---------------- RAZORPAY ---------------- */
+let razorpayOrder: any = null;
 
-    if (paymentMode === "Online") {
-      const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID!,
-        key_secret: process.env.RAZORPAY_KEY_SECRET!,
-      });
+if (paymentMode === "ONLINE") {
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID!,
+    key_secret: process.env.RAZORPAY_KEY_SECRET!,
+  });
 
-      razorpayOrder = await razorpay.orders.create({
-       amount: finalTotal * 100,
-        currency: "INR",
-      });
-    }
-
+  razorpayOrder = await razorpay.orders.create({
+    amount: finalTotal * 100,
+    currency: "INR",
+  });
+}
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
       const createdOrder = await tx.order.create({
@@ -314,9 +314,9 @@ const finalEmail = isValidEmail(address?.email)
   ? user.email
   : null;
 
-await sendOrderNotification({
+sendOrderNotification({
   email: user.email,
-  addressEmail: address?.email, // 🔥 important
+  addressEmail: address?.email,
   phone: address.phone,
   customerName: user.name,
   addressName: address.name,
@@ -331,7 +331,9 @@ await sendOrderNotification({
   total: order.totalAmount,
   paymentMode,
   status: "ordered",
-});
+}).catch((err) =>
+  console.error("Notify Error:", err)
+);
     if (address.phone)
       await sendWhatsAppMessage(address.phone, order, orderItems);
 
