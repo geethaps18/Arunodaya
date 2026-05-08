@@ -284,7 +284,7 @@ useEffect(() => {
 
     if (data.success) {
       // ✅ now order is saved
-      router.push(`/order-success/${data.order.id}`);
+      router.replace(`/order-success/${data.order.id}`);
     } else {
       alert("Order saving failed after payment");
     }
@@ -354,7 +354,7 @@ if (invalidItem) {
 
       if (data.success) {
         toast.success("Order placed successfully!");
-        router.push(`/order-success/${data.order.id}`);
+        router.replace(`/order-success/${data.order.id}`);
       } else {
         toast.error(data.error || "COD order failed");
       }
