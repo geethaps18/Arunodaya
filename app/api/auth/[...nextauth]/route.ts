@@ -32,7 +32,9 @@ if (!existingUser) {
     data: {
       email: user.email,
       name: user.name || "Google User",
-      phone: `google_${Date.now()}`,
+      phone: `google_${Math.random()
+  .toString(36)
+  .substring(2, 12)}`,
       role: "CUSTOMER",
       blocked: false,
     },
