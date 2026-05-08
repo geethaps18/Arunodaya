@@ -102,8 +102,7 @@ export async function POST(req: Request) {
     ]
       .filter(Boolean)
       .map((s) => s.trim());
-const shippingCharge = getShippingCharge(addressObj.pincode);
-const finalTotal = (order.totalAmount || 0) + shippingCharge;
+const finalTotal = order.totalAmount || 0;
     /* ---------------- Barcode ---------------- */
     const barcode = await bwipjs.toBuffer({
       bcid: "code128",
@@ -198,23 +197,19 @@ doc.moveDown(0.8);
     doc.moveDown(0.4);
 
     /* ================= PAYMENT ================= */
+/* ================= PAYMENT ================= */
 if (fs.existsSync(boldPath)) doc.font("b");
 
 doc.fontSize(9);
 
 if (order.paymentMode === "COD") {
-  doc.text(`Subtotal: ₹${order.totalAmount}`);
-
-  doc.text(
-    `Shipping: ${
-      shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`
-    }`
-  );
-
-  doc.text(`COD: ₹${finalTotal}`);
+  doc.text(`Payment: COD`);
+  doc.text(`Amount: ₹${finalTotal}`);
 } else {
   doc.text("Payment: Prepaid");
+  doc.text(`Amount: ₹${finalTotal}`);
 }
+
     doc.moveDown(0.6);
 
     /* ================= FOOTER ================= */

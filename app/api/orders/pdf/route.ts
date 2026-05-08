@@ -97,8 +97,7 @@ ${address.landmark || ""}
 ${address.city || ""}, ${address.state || ""} - ${address.pincode || ""}
 `.trim();
 
-const shippingCharge = getShippingCharge(address.pincode);
-const finalTotal = (order.totalAmount || 0) + shippingCharge;
+const finalTotal = order.totalAmount || 0;
     /* ---------------- Styling ---------------- */
     const gold = "#CBA135";
     const maroon = "#800000";
@@ -222,11 +221,7 @@ doc.moveDown(1);
 doc.fillColor("black").fontSize(12);
 doc.text(`Subtotal: ₹${order.totalAmount}`);
 
-doc.text(
-  `Shipping: ${
-    shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`
-  }`
-);
+
 
 doc.moveDown(0.5);
 
