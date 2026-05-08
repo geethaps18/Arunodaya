@@ -338,7 +338,8 @@ model Order {
   shippedAt        DateTime?
   outForDeliveryAt DateTime?
   deliveredAt      DateTime?
-
+  paymentStatus     String    @default("PENDING")
+razorpayPaymentId String?
   user    User?       @relation(fields: [userId], references: [id]) 
   items   OrderItem[]
   ratings Rating[]
