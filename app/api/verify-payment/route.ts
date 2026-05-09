@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   data: {
     paymentMode: "ONLINE",
     paymentStatus: "PAID",
-    status: "CONFIRMED",
+   status: "PENDING",
   },
 });
 

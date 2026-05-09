@@ -163,7 +163,9 @@ const products = await prisma.product.findMany({
 const orderItems = await Promise.all(
   items.map(async (item: any) => {
     const product = products.find((p) => p.id === item.productId)!;
-
+if (!product) {
+  throw new Error(`Product not found: ${item.productId}`);
+}
     // 🔥 FIX 1: GET VARIANT FIRST
     const variant = item.variantId
       ? await prisma.productVariant.findUnique({
@@ -226,6 +228,7 @@ if (paymentMode === "ONLINE") {
     currency: "INR",
   });
 }
+
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
      const createdOrder = await tx.order.create({
@@ -237,10 +240,7 @@ if (paymentMode === "ONLINE") {
 
 status: "PENDING",
 
-paymentStatus:
-  paymentMode === "ONLINE"
-    ? "PAID"
-    : "PENDING",
+paymentStatus: "PENDING",
 
     address,
 
@@ -261,8 +261,8 @@ paymentStatus:
   include: { user: true },
 });
 
-    await Promise.all(
-  orderItems.map(async (item) => {
+for (const item of orderItems) {
+  try {
     if (item.variantId) {
       await tx.productVariant.update({
         where: { id: item.variantId },
@@ -274,7 +274,7 @@ paymentStatus:
       });
     }
 
-    return tx.orderItem.create({
+    await tx.orderItem.create({
       data: {
         orderId: createdOrder.id,
         productId: item.productId,
@@ -290,8 +290,12 @@ paymentStatus:
         isFree: item.price === 0,
       },
     });
-  })
-);
+  } catch (err) {
+    console.error("❌ ORDER ITEM ERROR:", item);
+    console.error(err);
+    throw err;
+  }
+}
       return createdOrder;
     });
 

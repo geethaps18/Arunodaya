@@ -233,11 +233,47 @@ useEffect(() => {
 
   });
 
-  const data = await res.json();
-  if (!data.success) {
-    toast.error("Failed to create order");
-    return;
-  }
+
+  
+const data = await res.json();
+
+if (!data.success) {
+  toast.error("Failed to create order");
+  return;
+}
+
+// ✅ ADD HERE
+const orderItems = bagItems.map((item) => ({
+  productId: item.productId,
+  quantity: item.quantity,
+  price: item.price,
+  size: item.size,
+  color: item.color,
+  variantId: item.variantId,
+  isFree: item.price === 0,
+}));
+
+const createOrderRes = await fetch("/api/create-order", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId,
+    items: orderItems,
+    paymentMode: "ONLINE",
+    address: selectedAddress,
+  }),
+});
+
+const createdOrderData = await createOrderRes.json();
+
+if (!createdOrderData.success) {
+  toast.error("Failed to create order");
+  return;
+}
+
+// 🔥 THEN Razorpay options
 
   const options = {
     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
@@ -247,56 +283,36 @@ useEffect(() => {
     name: "Arunodaya Collections",
     description: "Order Payment",
     order_id: data.orderId,
-  handler: async function (response) {
+handler: async function (response: any) {
   setLoading(true);
 
-  
   console.log("Payment success:", response);
 
-  if (!userId || !selectedAddress || bagItems.length === 0) {
-    alert("Missing order data");
-    return;
-  }
-
-  // ✅ same like COD
-  const orderItems = bagItems.map((item) => ({
-    productId: item.productId,
-    quantity: item.quantity,
-    price: item.price,
-    size: item.size,
-    color: item.color,
-    variantId: item.variantId,
-     isFree: item.price === 0,
-  }));
-
   try {
-    const res = await fetch("/api/create-order", {
+    const verifyRes = await fetch("/api/verify-payment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId,
-        items: orderItems,
-        paymentMode: "ONLINE",
-        address: selectedAddress,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
       }),
     });
 
-    const data = await res.json();
+    const verifyData = await verifyRes.json();
 
-if (data.success && data.order?.id) {
-  router.replace(`/order-success/${data.order.id}`);
-  return;
-
+    if (verifyData.success) {
+      router.replace(`/order-success/${verifyData.orderId}`);
     } else {
-      alert("Order saving failed after payment");
+      toast.error("Payment verification failed");
     }
   } catch (err) {
     console.error(err);
-    alert("Something went wrong");
+    toast.error("Something went wrong");
   }
-    },
+},
     theme: {
       color: "black",
     },
