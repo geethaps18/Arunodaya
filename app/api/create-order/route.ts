@@ -9,9 +9,7 @@ import { offers } from "@/data/offers";
 import { getShippingCharge } from "@/utils/shipping";
 import { sendOrderNotification } from "@/utils/notify";
 /* ---------------- CONFIG ---------------- */
-const WHATSAPP_API_URL = "https://graph.facebook.com/v19.0";
-const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
-const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
+
 const EMAIL_USER = process.env.EMAIL_USER!;
 const EMAIL_PASS = process.env.EMAIL_PASS!;
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -90,36 +88,7 @@ async function sendOrderEmail(to: string, order: any, items: any[]) {
 }
 
 /* ---------------- WHATSAPP ---------------- */
-async function sendWhatsAppMessage(phone: string, order: any, items: any[]) {
-  const itemList = items
-    .map(
-      (i) =>
-        `➜ ${i.name} - ${i.size ?? "One Size"} (${i.quantity}) - ${i.price === 0 ? "FREE" : `₹${i.price}`}`
-    )
-    .join("\n");
 
-  await fetch(`${WHATSAPP_API_URL}/${WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to: phone,
-      type: "text",
-      text: {
-        body: `Thank you for shopping with Arunodaya 👋
-
-Order ID: ${order.id}
-
-${itemList}
-
-Total: ₹${order.totalAmount}`,
-      },
-    }),
-  });
-}
 function calculateBundleTotal(items: any[]) {
   let total = 0;
 
@@ -266,15 +235,12 @@ if (paymentMode === "ONLINE") {
 
     paymentMode: paymentMode || "COD",
 
-    status:
-      paymentMode === "ONLINE"
-        ? "PENDING"
-        : "CONFIRMED",
+status: "PENDING",
 
-    paymentStatus:
-      paymentMode === "ONLINE"
-        ? "PENDING"
-        : "PAID",
+paymentStatus:
+  paymentMode === "ONLINE"
+    ? "PAID"
+    : "PENDING",
 
     address,
 
@@ -295,42 +261,37 @@ if (paymentMode === "ONLINE") {
   include: { user: true },
 });
 
-      for (const item of orderItems) {
-        if (item.variantId) {
-         const variantExists = await tx.productVariant.findUnique({
-  where: { id: item.variantId },
-});
-
-if (variantExists) {
-  await tx.productVariant.update({
-    where: { id: item.variantId },
-    data: {
-      stock: {
-        decrement: item.quantity,
-      },
-    },
-  });
-}
-        }
-
-        await tx.orderItem.create({
-          data: {
-            orderId: createdOrder.id,
-            productId: item.productId,
-            siteId: item.siteId,
-            brandName: item.brandName,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            size: item.size,
-            color: item.color,
-            variantId: item.variantId,
-            image: item.image,
-            isFree: item.price === 0, // 🔥 ADD THIS LINE
+    await Promise.all(
+  orderItems.map(async (item) => {
+    if (item.variantId) {
+      await tx.productVariant.update({
+        where: { id: item.variantId },
+        data: {
+          stock: {
+            decrement: item.quantity,
           },
-        });
-      }
+        },
+      });
+    }
 
+    return tx.orderItem.create({
+      data: {
+        orderId: createdOrder.id,
+        productId: item.productId,
+        siteId: item.siteId,
+        brandName: item.brandName,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size,
+        color: item.color,
+        variantId: item.variantId,
+        image: item.image,
+        isFree: item.price === 0,
+      },
+    });
+  })
+);
       return createdOrder;
     });
 
@@ -366,8 +327,7 @@ sendOrderNotification({
 }).catch((err) =>
   console.error("Notify Error:", err)
 );
-    if (address.phone)
-      await sendWhatsAppMessage(address.phone, order, orderItems);
+
 
     return NextResponse.json(
       { success: true, order, rzpOrder: razorpayOrder },

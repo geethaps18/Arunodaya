@@ -247,7 +247,10 @@ useEffect(() => {
     name: "Arunodaya Collections",
     description: "Order Payment",
     order_id: data.orderId,
-   handler: async function (response) {
+  handler: async function (response) {
+  setLoading(true);
+
+  
   console.log("Payment success:", response);
 
   if (!userId || !selectedAddress || bagItems.length === 0) {
@@ -282,9 +285,10 @@ useEffect(() => {
 
     const data = await res.json();
 
-    if (data.success) {
-      // ✅ now order is saved
-      router.replace(`/order-success/${data.order.id}`);
+if (data.success && data.order?.id) {
+  router.replace(`/order-success/${data.order.id}`);
+  return;
+
     } else {
       alert("Order saving failed after payment");
     }
