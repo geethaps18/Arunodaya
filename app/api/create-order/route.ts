@@ -259,26 +259,58 @@ if (paymentMode === "ONLINE") {
 }
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
-      const createdOrder = await tx.order.create({
-        data: {
-          userId: user.id,
-         totalAmount: finalTotal,
-          paymentMode: paymentMode || "COD",
-          address,
-          upiId: paymentMode === "UPI" ? upiId ?? null : null,
-          cardDetails:
-            paymentMode === "Card" ? JSON.stringify(cardDetails) : null,
-          razorpayOrderId: razorpayOrder?.id ?? null,
-        },
-        include: { user: true },
-      });
+     const createdOrder = await tx.order.create({
+  data: {
+    userId: user.id,
+    totalAmount: finalTotal,
+
+    paymentMode: paymentMode || "COD",
+
+    status:
+      paymentMode === "ONLINE"
+        ? "PENDING"
+        : "CONFIRMED",
+
+    paymentStatus:
+      paymentMode === "ONLINE"
+        ? "PENDING"
+        : "PAID",
+
+    address,
+
+    upiId:
+      paymentMode === "UPI"
+        ? upiId ?? null
+        : null,
+
+    cardDetails:
+      paymentMode === "Card"
+        ? JSON.stringify(cardDetails)
+        : null,
+
+    razorpayOrderId:
+      razorpayOrder?.id ?? null,
+  },
+
+  include: { user: true },
+});
 
       for (const item of orderItems) {
         if (item.variantId) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: { stock: { decrement: item.quantity } },
-          });
+         const variantExists = await tx.productVariant.findUnique({
+  where: { id: item.variantId },
+});
+
+if (variantExists) {
+  await tx.productVariant.update({
+    where: { id: item.variantId },
+    data: {
+      stock: {
+        decrement: item.quantity,
+      },
+    },
+  });
+}
         }
 
         await tx.orderItem.create({
@@ -342,7 +374,8 @@ sendOrderNotification({
       { status: 201 }
     );
   } catch (err: any) {
-    console.error("🔥 Order Error:", err);
+    console.error("🔥 FULL ORDER ERROR:", err);
+console.error("🔥 STACK:", err?.stack);
     return NextResponse.json(
       { error: "Failed to place order" },
       { status: 500 }
