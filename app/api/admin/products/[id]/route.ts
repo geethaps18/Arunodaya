@@ -361,9 +361,9 @@ export async function DELETE(
     });
 
     // Finally delete product
-    await prisma.product.delete({
-      where: { id },
-    });
+ await prisma.product.deleteMany({
+  where: { id },
+});
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
