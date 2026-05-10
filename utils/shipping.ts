@@ -8,6 +8,7 @@ export const getShippingCharge = (pincode?: string) => {
     "577002",
     "577003",
     "577004",
+    "577005",
   ];
 
   const isDavanagereTown = DAVANAGERE_PINCODES.includes(clean);

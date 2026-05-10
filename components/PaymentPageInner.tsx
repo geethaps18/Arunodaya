@@ -258,12 +258,13 @@ const createOrderRes = await fetch("/api/create-order", {
   headers: {
     "Content-Type": "application/json",
   },
-  body: JSON.stringify({
-    userId,
-    items: orderItems,
-    paymentMode: "ONLINE",
-    address: selectedAddress,
-  }),
+body: JSON.stringify({
+  userId,
+  items: orderItems,
+  paymentMode: "ONLINE",
+  address: selectedAddress,
+  razorpayOrderId: data.orderId,
+}),
 });
 
 const createdOrderData = await createOrderRes.json();

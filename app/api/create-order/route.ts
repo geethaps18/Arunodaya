@@ -133,7 +133,15 @@ function calculateBundleTotal(items: any[]) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, items, paymentMode, address, upiId, cardDetails } = body;
+ const {
+  userId,
+  items,
+  paymentMode,
+  address,
+  upiId,
+  cardDetails,
+  razorpayOrderId,
+} = body;
 
     const user = await resolveUser(req, userId);
 
@@ -215,19 +223,7 @@ if (!product) {
 const finalTotal = totalAmount + shippingCharge;
     /* ---------------- RAZORPAY ---------------- */
    /* ---------------- RAZORPAY ---------------- */
-let razorpayOrder: any = null;
 
-if (paymentMode === "ONLINE") {
-  const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID!,
-    key_secret: process.env.RAZORPAY_KEY_SECRET!,
-  });
-
-  razorpayOrder = await razorpay.orders.create({
-    amount: finalTotal * 100,
-    currency: "INR",
-  });
-}
 
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
@@ -255,7 +251,7 @@ paymentStatus: "PENDING",
         : null,
 
     razorpayOrderId:
-      razorpayOrder?.id ?? null,
+      razorpayOrderId ?? null
   },
 
   include: { user: true },
@@ -333,10 +329,10 @@ sendOrderNotification({
 );
 
 
-    return NextResponse.json(
-      { success: true, order, rzpOrder: razorpayOrder },
-      { status: 201 }
-    );
+  return NextResponse.json(
+  { success: true, order },
+  { status: 201 }
+);
   } catch (err: any) {
     console.error("🔥 FULL ORDER ERROR:", err);
 console.error("🔥 STACK:", err?.stack);
