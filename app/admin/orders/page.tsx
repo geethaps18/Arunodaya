@@ -38,6 +38,7 @@ type OrderItem = {
 type Order = {
   id: string;
   status: string;
+  paymentStatus?: string;
   totalAmount?: number;
   paymentMode?: string;
   createdAt?: string;
@@ -454,9 +455,25 @@ return (
         {order.address?.phone ?? order.user?.phone ?? "-"}
       </div>
 
-      <div className="text-xs text-gray-500 mt-1">
-        Payment: <b>{order.paymentMode ?? "-"}</b>
-      </div>
+     <div className="text-xs text-gray-500 mt-1">
+  Payment:{" "}
+
+  {order.paymentMode === "ONLINE" ? (
+    order.paymentStatus === "PAID" ? (
+      <span className="text-green-600 font-semibold">
+        ONLINE PAID
+      </span>
+    ) : (
+      <span className="text-yellow-600 font-semibold">
+        ONLINE PENDING
+      </span>
+    )
+  ) : (
+    <span className="font-semibold">
+      {order.paymentMode ?? "COD"}
+    </span>
+  )}
+</div>
 
       {/* ⭐ ADD THIS */}
  <div className="text-xs text-gray-600 mt-1 leading-5">
