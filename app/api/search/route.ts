@@ -10,6 +10,7 @@ type ProductMin = {
   category: string | null;
   subCategory: string | null;
   subSubCategory: string | null;
+   subSubSubCategory: string | null;
   description?: string | null;
   colorNames?: string[];
 };
@@ -90,6 +91,7 @@ function buildWhere({ keywords, gender, color, maxPrice }: any) {
         { category: { contains: gender, mode: "insensitive" } },
         { subCategory: { contains: gender, mode: "insensitive" } },
         { subSubCategory: { contains: gender, mode: "insensitive" } },
+        { subSubSubCategory: { contains: gender, mode: "insensitive" } },
         { description: { contains: gender, mode: "insensitive" } },
       ],
     });
@@ -111,15 +113,19 @@ function buildWhere({ keywords, gender, color, maxPrice }: any) {
     const words = keywords.split(" ").filter(Boolean);
     const orList: any[] = [];
 
-    for (const w of words) {
-      orList.push(
-        { name: { contains: w, mode: "insensitive" } },
-        { description: { contains: w, mode: "insensitive" } },
-        { category: { contains: w, mode: "insensitive" } },
-        { subCategory: { contains: w, mode: "insensitive" } },
-        { subSubCategory: { contains: w, mode: "insensitive" } }
-      );
-    }
+   for (const w of words) {
+  orList.push(
+    { name: { contains: w, mode: "insensitive" } },
+    { description: { contains: w, mode: "insensitive" } },
+    { category: { contains: w, mode: "insensitive" } },
+    { subCategory: { contains: w, mode: "insensitive" } },
+    { subSubCategory: { contains: w, mode: "insensitive" } },
+
+    // ADD THESE HERE
+    { subSubSubCategory: { contains: w, mode: "insensitive" } },
+    { brandName: { contains: w, mode: "insensitive" } }
+  );
+}
 
     AND.push({ OR: orList });
   }
@@ -144,15 +150,42 @@ async function searchProducts(query: string) {
   ]);
 
   const where = buildWhere({ keywords, gender, color, maxPrice });
+const items = await prisma.product.findMany({
+  where,
 
-  const items = await prisma.product.findMany({
-    where,
-    take: 100,
-    orderBy: { purchases: "desc" },
-  });
+  take: 100,
+});
 
-  return { suggestions: generateSuggestions(q, items), products: items };
-}
+const rankedProducts = items.sort((a, b) => {
+  const aName = a.name?.toLowerCase() || "";
+  const bName = b.name?.toLowerCase() || "";
+
+  // EXACT MATCH
+  if (aName === q && bName !== q) return -1;
+  if (bName === q && aName !== q) return 1;
+
+  // STARTS WITH
+  if (aName.startsWith(q) && !bName.startsWith(q))
+    return -1;
+
+  if (bName.startsWith(q) && !aName.startsWith(q))
+    return 1;
+
+  // CONTAINS FULL QUERY
+  if (aName.includes(q) && !bName.includes(q))
+    return -1;
+
+  if (bName.includes(q) && !aName.includes(q))
+    return 1;
+
+  // PURCHASES
+  return (b.purchases || 0) - (a.purchases || 0);
+});
+
+return {
+  suggestions: generateSuggestions(q, rankedProducts),
+  products: rankedProducts,
+};}
 
 //-------------------------------
 // FLIPKART-LIKE SUGGESTIONS

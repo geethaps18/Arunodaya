@@ -4,16 +4,17 @@ import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import Header from "@/components/Header";
 import { useInfiniteProducts } from "@/hook/useInfiniteProducts";
+import LoadingRing from "@/components/LoadingRing";
 
 export default function SearchPageInner() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";   // 🔥 SAFE FIX
 
   // 🔥 Infinite scroll hook (only one source of products)
-  const { products } = useInfiniteProducts(
-    `search-${q}`,
-    `/api/search?q=${q}`
-  );
+const { products, loading } = useInfiniteProducts(
+  `search-${q}`,
+  `/api/search?q=${q}`
+);
 
   return (
     <main className="min-h-screen bg-white px-0.5 sm:px-6 lg:px-10 pt-20">
@@ -34,9 +35,14 @@ export default function SearchPageInner() {
           Type something to search 🔍
         </div>
       )}
-
+{/* Loading */}
+{loading && (
+  <div className="mt-10">
+    <LoadingRing />
+  </div>
+)}
       {/* No Results */}
-      {q && products.length === 0 && (
+     {q && !loading && products.length === 0 && (
         <div className="flex flex-col items-center justify-center mt-10 space-y-3">
           <img
             src="/images/empty-search.png"

@@ -25,7 +25,7 @@ const loadMoreRef = useRef<HTMLDivElement | null>(null);
   // ✅ ADD HERE 👇
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-
+const [loading, setLoading] = useState(true);
   const loadingRef = useRef(false);
 
   const pageRef = useRef(page);
@@ -144,9 +144,10 @@ useEffect(() => {
   }, []);
 
  
- return {
+return {
   products,
   total,
+  loading: isLoading,
   isLoading,
   isLoadingMore,
   loadMoreRef,
