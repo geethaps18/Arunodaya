@@ -70,13 +70,13 @@ const imageUrl =
               <div className="max-w-xl px-6 lg:px-20 text-white">
                 
                 {title && (
-                  <h1 className="text-4xl lg:text-6xl font-bold">
+                  <h1 className="text-2xl lg:text-6xl font-bold">
                     {title}
                   </h1>
                 )}
 
                 {subtitle && (
-                  <p className="mt-4 text-lg">
+                  <p className="mt-4 text-l lg:text-3xl">
                     {subtitle}
                   </p>
                 )}
