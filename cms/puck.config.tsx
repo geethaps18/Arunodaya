@@ -63,7 +63,7 @@ const imageUrl =
             />
 
             {/* 🔥 Overlay */}
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/20" />
 
             {/* 🔥 Content */}
             <div className="relative z-10 h-full flex items-center">
@@ -76,7 +76,7 @@ const imageUrl =
                 )}
 
                 {subtitle && (
-                  <p className="mt-4 text-l lg:text-3xl">
+                  <p className="mt-4 text-m lg:text-3xl">
                     {subtitle}
                   </p>
                 )}
