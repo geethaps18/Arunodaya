@@ -6,7 +6,10 @@ import Razorpay from "razorpay";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { offers } from "@/data/offers";
-import { getShippingCharge } from "@/utils/shipping";
+import {
+  getShippingCharge,
+  isCODAvailable,
+} from "@/utils/shipping";
 import { sendOrderNotification } from "@/utils/notify";
 /* ---------------- CONFIG ---------------- */
 
@@ -158,7 +161,18 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+if (
+  paymentMode === "COD" &&
+  !isCODAvailable(address?.pincode)
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Cash on Delivery is unavailable for this location",
+    },
+    { status: 400 }
+  );
+}
     /* ---------------- PRODUCTS ---------------- */
   /* ---------------- PRODUCTS ---------------- */
 

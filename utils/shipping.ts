@@ -1,17 +1,21 @@
+export const DAVANAGERE_PINCODES = [
+  "577001",
+  "577002",
+  "577003",
+  "577004",
+  "577005",
+];
+
 export const getShippingCharge = (pincode?: string) => {
   if (!pincode) return 49;
 
-  const clean = pincode.trim();
+  return DAVANAGERE_PINCODES.includes(pincode.trim())
+    ? 0
+    : 49;
+};
 
-  const DAVANAGERE_PINCODES = [
-    "577001",
-    "577002",
-    "577003",
-    "577004",
-    "577005",
-  ];
+export const isCODAvailable = (pincode?: string) => {
+  if (!pincode) return false;
 
-  const isDavanagereTown = DAVANAGERE_PINCODES.includes(clean);
-
-  return isDavanagereTown ? 0 : 49;
+  return DAVANAGERE_PINCODES.includes(pincode.trim());
 };

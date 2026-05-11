@@ -7,7 +7,8 @@ import LoadingRing from "./LoadingRing";
 import CheckoutStepper from "@/components/CheckoutStepper";
 import { getCookie } from "cookies-next";
 import { offers } from "@/data/offers";
-import { getShippingCharge } from "@/utils/shipping";
+import { getShippingCharge, isCODAvailable } from "@/utils/shipping";
+
 interface BagItem {
   id: string;
   productId: string;
@@ -116,6 +117,7 @@ const totalSelling = (() => {
 })();
 
 const shippingCharge = getShippingCharge(selectedAddress?.pincode);
+const codAvailable = isCODAvailable(selectedAddress?.pincode);
 
 const finalOrderTotal = totalSelling + shippingCharge;
 
@@ -442,26 +444,54 @@ if (loading)
           <h3 className="font-medium mb-3 text-lg">Choose Payment Method</h3>
 
           {/* COD */}
-          <label
-  className={`flex justify-between items-center p-8 border rounded-lg cursor-pointer transition-all ${
-    paymentMode === "COD"
-      ? "border-black shadow-md bg-gray-50"
-      : "bg-white hover:shadow-md"
+ <label
+  className={`flex justify-between items-center p-8 border rounded-lg transition-all ${
+    codAvailable
+      ? paymentMode === "COD"
+        ? "border-black shadow-md bg-gray-50 cursor-pointer"
+        : "bg-white hover:shadow-md cursor-pointer"
+      : "bg-gray-100 opacity-70 cursor-not-allowed"
   }`}
 >
-  <div className="flex  items-center gap-3 ">
+  <div className="flex items-center gap-3">
     <input
       type="radio"
       value="COD"
       checked={paymentMode === "COD"}
-      onChange={() => setPaymentMode("COD")}
+      disabled={!codAvailable}
+      onChange={() => {
+        if (!codAvailable) {
+          toast.error(
+            "Cash on Delivery is available only in Davanagere city limits"
+          );
+          return;
+        }
+
+        setPaymentMode("COD");
+      }}
       className="accent-black"
     />
-    <img src="/images/COD.png" alt="COD" className="w-10 h-10 rounded-full" />
-    <span className="font-medium">Cash on Delivery</span>
+
+    <img
+      src="/images/COD.png"
+      alt="COD"
+      className="w-10 h-10 rounded-full"
+    />
+
+    <div>
+      <span className="font-medium">
+        Cash on Delivery
+      </span>
+
+      {!codAvailable && (
+        <p className="text-xs text-red-500 mt-1">
+          Currently unavailable for this pincode.
+          Please continue with Online Payment.
+        </p>
+      )}
+    </div>
   </div>
 
-  {/* TOTAL */}
   <span className="text-sm font-semibold text-gray-900">
     {formattedTotal}
   </span>
