@@ -72,6 +72,11 @@ const isBuyNow = mode === "buynow";
   const [userId, setUserId] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+const existingDeliveryType =
+  (searchParams.get("deliveryType") as "HOME" | "PICKUP") || "HOME";
+
+const [deliveryType, setDeliveryType] =
+  useState<"HOME" | "PICKUP">(existingDeliveryType);
   const [bagItems, setBagItems] = useState<BagItem[]>([]);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -310,9 +315,10 @@ const totalSelling = (() => {
 // Discount
 const totalDiscount = totalMRP - totalSelling;
 
-const shippingCharge = getShippingCharge(
-  selectedAddress?.pincode
-);
+const shippingCharge =
+  deliveryType === "PICKUP"
+    ? 0
+    : getShippingCharge(selectedAddress?.pincode);
 const getDeliveryDate = (pincode?: string) => {
   const today = new Date();
 
@@ -499,7 +505,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
 const handleContinue = () => {
-  if (!selectedAddress) {
+if (deliveryType === "HOME" && !selectedAddress){
     toast.error("Please add or select an address");
     return;
   }
@@ -512,9 +518,9 @@ if (requiredFreeQty > 0 && freeItemsCount < requiredFreeQty) {
   return;
 }
 
-  router.push(
-    `/checkout/payment?addressId=${selectedAddress.id}&mode=${isBuyNow ? "buynow" : "bag"}`
-  );
+router.push(
+  `/checkout/payment?addressId=${selectedAddress?.id || ""}&deliveryType=${deliveryType}&mode=${isBuyNow ? "buynow" : "bag"}`
+);
 };
 
 
@@ -537,7 +543,54 @@ return (
       <div className="max-w-5xl mx-auto p-4 sm:p-6 relative grid md:grid-cols-3 gap-6">
 
       <div className="md:col-span-3 space-y-6">
+        <div className="border rounded-xl p-4 bg-white shadow-sm">
+  <h2 className="text-xl font-semibold mb-4">
+    How would you like to receive your order?
+  </h2>
+
+  <div className="grid grid-cols-2 gap-3">
+
+    <button
+      type="button"
+    onClick={() => {
+  setDeliveryType("HOME");
+
+  router.replace(
+    `/checkout/address?deliveryType=HOME&mode=${isBuyNow ? "buynow" : "bag"}`
+  );
+}}
+      className={`h-14 rounded-lg border font-medium transition-all
+      ${
+        deliveryType === "HOME"
+          ? "bg-gray-800 text-white border-gray-800"
+          : "bg-white text-black border-gray-300"
+      }`}
+    >
+      Home Delivery
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+  setDeliveryType("PICKUP");
+
+  router.replace(
+    `/checkout/address?deliveryType=PICKUP&mode=${isBuyNow ? "buynow" : "bag"}`
+  );
+}}
+      className={`h-14 rounded-lg border font-medium transition-all
+      ${
+        deliveryType === "PICKUP"
+          ? "bg-gray-800 text-white border-gray-800"
+          : "bg-white text-black border-gray-300"
+      }`}
+    >
+      Pickup From Store
+    </button>
+  </div>
+</div>
 {/* LEFT: Selected Address */}
+{deliveryType === "HOME" && (
 <div className="md:col-span-2">
   {selectedAddress ? (
     <div className="border p-3 rounded flex justify-between items-start bg-white">
@@ -590,8 +643,44 @@ return (
     </button>
   )}
 </div>
+)}
+{deliveryType === "PICKUP" && (
+  <div className="border rounded-xl p-5 bg-white shadow-sm">
 
+    <div className="flex items-start justify-between">
+      <div>
+        <h3 className="text-lg font-bold">
+          ARUNODAYA COLLECTIONS - DAVANAGERE
+        </h3>
 
+        <p className="text-sm text-gray-600 mt-2">
+          KTJ Nagar, Davanagere, Karnataka
+        </p>
+
+        <p className="text-sm mt-1">
+          Phone: +91 9876543210
+        </p>
+      </div>
+
+      <span className="text-green-600 font-medium text-sm">
+        Free Pickup
+      </span>
+    </div>
+
+    <div className="mt-4 bg-green-50 text-green-700 text-sm rounded-lg p-3">
+      Your order will be ready within 2 hours.
+      Please collect within 24 hours.
+    </div>
+
+    <a
+      href="https://maps.google.com"
+      target="_blank"
+      className="inline-block mt-4 text-blue-600 font-medium"
+    >
+      Get Directions
+    </a>
+  </div>
+)}
       
 {/* RIGHT: Order Summary */}
 <div className="space-y-2">
@@ -617,12 +706,23 @@ return (
   <p className="text-xs">Qty: {item.quantity}</p>
 
   {/* 🚚 DELIVERY DATE */}
-  <p className="text-xs text-green-700 mt-1">
-     Delivery by{" "}
-    <span className="font-semibold">
-      {getDeliveryDate(selectedAddress?.pincode)}
-    </span>
-  </p>
+ <p className="text-xs text-green-700 mt-1">
+  {deliveryType === "PICKUP" ? (
+    <>
+      Pickup ready in{" "}
+      <span className="font-semibold">
+        2 hours
+      </span>
+    </>
+  ) : (
+    <>
+      Delivery by{" "}
+      <span className="font-semibold">
+        {getDeliveryDate(selectedAddress?.pincode)}
+      </span>
+    </>
+  )}
+</p>
 </div>
     </div>
   ))}
@@ -684,16 +784,23 @@ return (
     </>
   )}
 
-  <div className="flex justify-between">
-  <span>Shipping</span>
-    <span>
-      {shippingCharge === 0 ? (
-        <span className="text-green-600 font-medium">FREE</span>
-      ) : (
-        `₹${shippingCharge}`
-      )}
-    </span>
-  </div>
+<div className="flex justify-between">
+  <span>
+    {deliveryType === "PICKUP"
+      ? "Store Pickup"
+      : "Shipping"}
+  </span>
+
+  <span>
+    {shippingCharge === 0 ? (
+      <span className="text-green-600 font-medium">
+        FREE
+      </span>
+    ) : (
+      `₹${shippingCharge}`
+    )}
+  </span>
+</div>
 
   <hr />
 
@@ -740,7 +847,8 @@ return (
 </div>
 
       {/* Address Modal */}
-      {showAddressModal && (
+      
+      {deliveryType === "HOME" && showAddressModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg rounded p-4 relative">
             <h2 className="font-bold text-lg mb-3">Select Delivery Address</h2>

@@ -4,21 +4,49 @@ import { sendOrderNotification } from "@/utils/notify";
 // DB → Notification mapping
 const DB_TO_NOTIFICATION: Record<string, any> = {
   PENDING: "ordered",
+
   CONFIRMED: "packed",
+
   SHIPPED: "shipped",
-  OUT_FOR_DELIVERY: "out_for_delivery",
+
+  OUT_FOR_DELIVERY:
+    "out_for_delivery",
+
   DELIVERED: "delivered",
+
+  READY_FOR_PICKUP:
+    "ready_for_pickup",
+
+  PICKED_UP:
+    "picked_up",
 };
 
 // DB → Timestamp field mapping
-const TIMESTAMP_FIELDS: Record<string, string | null> = {
-  PENDING: null,
-  CONFIRMED: "confirmedAt",
-  SHIPPED: "shippedAt",
-  OUT_FOR_DELIVERY: "outForDeliveryAt",
-  DELIVERED: "deliveredAt",
-};
+const TIMESTAMP_FIELDS: Record<
+  string,
+  string | null
+> = {
 
+  PENDING: null,
+
+  CONFIRMED:
+    "confirmedAt",
+
+  SHIPPED:
+    "shippedAt",
+
+  OUT_FOR_DELIVERY:
+    "outForDeliveryAt",
+
+  DELIVERED:
+    "deliveredAt",
+
+  READY_FOR_PICKUP:
+    "readyForPickupAt",
+
+  PICKED_UP:
+    "pickedUpAt",
+};
 export async function updateOrderStatus(orderId: string, newDbStatus: string) {
   try {
     // 1) Fetch order (before update for existence)
@@ -107,6 +135,14 @@ export async function updateOrderStatus(orderId: string, newDbStatus: string) {
       total: updatedOrder.totalAmount,
       paymentMode: updatedOrder.paymentMode,
       status: DB_TO_NOTIFICATION[newDbStatus] ?? "ordered",
+  deliveryType:
+  updatedOrder.deliveryType === "PICKUP"
+    ? "PICKUP"
+    : "HOME",
+
+pickupStore:
+  updatedOrder.pickupStore ??
+  undefined,
     });
 
     return {

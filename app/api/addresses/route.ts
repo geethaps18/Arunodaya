@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
         state: finalState,
         pincode,
         isDefault: !!isDefault,
+        
       },
     });
 

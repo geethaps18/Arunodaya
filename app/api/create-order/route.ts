@@ -136,7 +136,7 @@ function calculateBundleTotal(items: any[]) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
- const {
+const {
   userId,
   items,
   paymentMode,
@@ -144,6 +144,9 @@ export async function POST(req: Request) {
   upiId,
   cardDetails,
   razorpayOrderId,
+
+  deliveryType,
+  pickupStore,
 } = body;
 
     const user = await resolveUser(req, userId);
@@ -155,7 +158,10 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!items?.length || !address) {
+if (
+  !items?.length ||
+  (deliveryType !== "PICKUP" && !address)
+) {
       return NextResponse.json(
         { error: "Invalid order data" },
         { status: 400 }
@@ -163,6 +169,7 @@ export async function POST(req: Request) {
     }
 if (
   paymentMode === "COD" &&
+  deliveryType !== "PICKUP" &&
   !isCODAvailable(address?.pincode)
 ) {
   return NextResponse.json(
@@ -233,7 +240,10 @@ if (!product) {
   })
 );
   const totalAmount = calculateBundleTotal(orderItems);
-  const shippingCharge = getShippingCharge(address?.pincode || "");
+ const shippingCharge =
+  deliveryType === "PICKUP"
+    ? 0
+    : getShippingCharge(address?.pincode || "");
 const finalTotal = totalAmount + shippingCharge;
     /* ---------------- RAZORPAY ---------------- */
    /* ---------------- RAZORPAY ---------------- */
@@ -242,31 +252,38 @@ const finalTotal = totalAmount + shippingCharge;
     /* ---------------- DB TRANSACTION ---------------- */
     const order = await prisma.$transaction(async (tx) => {
      const createdOrder = await tx.order.create({
-  data: {
-    userId: user.id,
-    totalAmount: finalTotal,
+data: {
+  userId: user.id,
+  totalAmount: finalTotal,
 
-    paymentMode: paymentMode || "COD",
+  paymentMode: paymentMode || "COD",
 
-status: "PENDING",
+  deliveryType: deliveryType || "HOME",
 
-paymentStatus: "PENDING",
+  pickupStore:
+    deliveryType === "PICKUP"
+      ? pickupStore
+      : null,
 
-    address,
+  status: "PENDING",
 
-    upiId:
-      paymentMode === "UPI"
-        ? upiId ?? null
-        : null,
+  paymentStatus: "PENDING",
 
-    cardDetails:
-      paymentMode === "Card"
-        ? JSON.stringify(cardDetails)
-        : null,
+  address,
 
-    razorpayOrderId:
-      razorpayOrderId ?? null
-  },
+  upiId:
+    paymentMode === "UPI"
+      ? upiId ?? null
+      : null,
+
+  cardDetails:
+    paymentMode === "Card"
+      ? JSON.stringify(cardDetails)
+      : null,
+
+  razorpayOrderId:
+    razorpayOrderId ?? null
+},
 
   include: { user: true },
 });
@@ -324,10 +341,19 @@ const finalEmail = isValidEmail(address?.email)
 sendOrderNotification({
   email: user.email,
   addressEmail: address?.email,
-  phone: address.phone,
-  customerName: user.name,
-  addressName: address.name,
+ phone: address?.phone ?? "",
+customerName: user.name,
+addressName:
+  address?.name ??
+  "Store Pickup Customer",
   orderId: order.id,
+  deliveryType:
+  deliveryType || "HOME",
+
+pickupStore:
+  deliveryType === "PICKUP"
+    ? pickupStore
+    : null,
   items: orderItems.map((i) => ({
     name: i.name,
     qty: i.quantity,

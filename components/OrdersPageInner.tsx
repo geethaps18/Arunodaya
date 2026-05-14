@@ -109,6 +109,7 @@ export default function OrdersPage() {
       <main className="flex-1 max-w-3xl w-full mx-auto pt-[80px] pb-[80px] px-4">
         {/* ------------------ Search + Filter Bar ------------------ */}
         <div className="mb-6">
+          
           <div className="flex flex-col sm:flex-row items-center gap-3">
             {/* Search Bar */}
             <div className="relative flex-1 w-full">
@@ -131,13 +132,37 @@ export default function OrdersPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full sm:w-auto border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
             >
-              <option value="ALL">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="SHIPPED">Shipped</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="CANCELLED">Cancelled</option>
-              <option value="RETURNED">Returned</option>
-              <option value="REFUNDED">Refunded</option>
+           <option value="ALL">
+  All Status
+</option>
+
+<option value="PENDING">
+  Order Placed
+</option>
+
+<option value="CONFIRMED">
+  Confirmed
+</option>
+
+<option value="SHIPPED">
+  Shipped
+</option>
+
+<option value="OUT_FOR_DELIVERY">
+  Out for Delivery
+</option>
+
+<option value="DELIVERED">
+  Delivered
+</option>
+
+<option value="READY_FOR_PICKUP">
+  Ready for Pickup
+</option>
+
+<option value="PICKED_UP">
+  Picked Up
+</option>
             </select>
           </div>
         </div>

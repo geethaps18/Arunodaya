@@ -306,14 +306,63 @@ if (loading)
 
 const shippingCharge = order.totalAmount < 100 ? 100 : 0;
 const finalTotal = order.totalAmount + shippingCharge;
+const HOME_STEPS = [
+  {
+    key: "PENDING",
+    label: "Order Placed",
+    ts: order.createdAt,
+  },
 
-  const steps = [
-  { key: "PENDING", label: "Order Placed", ts: order.createdAt },
-  { key: "CONFIRMED", label: "Confirmed", ts: (order as any).confirmedAt },
-  { key: "SHIPPED", label: "Shipped", ts: (order as any).shippedAt },
-  { key: "OUT_FOR_DELIVERY", label: "Out for Delivery", ts: (order as any).outForDeliveryAt },
-  { key: "DELIVERED", label: "Delivered", ts: order.deliveredAt },
+  {
+    key: "CONFIRMED",
+    label: "Confirmed",
+    ts: (order as any).confirmedAt,
+  },
+
+  {
+    key: "SHIPPED",
+    label: "Shipped",
+    ts: (order as any).shippedAt,
+  },
+
+  {
+    key: "OUT_FOR_DELIVERY",
+    label: "Out for Delivery",
+    ts: (order as any).outForDeliveryAt,
+  },
+
+  {
+    key: "DELIVERED",
+    label: "Delivered",
+    ts: order.deliveredAt,
+  },
 ];
+
+const PICKUP_STEPS = [
+  {
+    key: "PENDING",
+    label: "Order Placed",
+    ts: order.createdAt,
+  },
+
+  {
+    key: "READY_FOR_PICKUP",
+    label: "Ready for Pickup",
+    ts: (order as any).readyForPickupAt,
+  },
+
+  {
+    key: "PICKED_UP",
+    label: "Picked Up",
+    ts: (order as any).pickedUpAt,
+  },
+];
+
+const steps =
+  (order as any).deliveryType ===
+  "PICKUP"
+    ? PICKUP_STEPS
+    : HOME_STEPS;
 
 const currentIndex = steps.findIndex(s => s.key === order.status);
 
@@ -406,7 +455,14 @@ const freeItems = sortedItems.filter((i) => i.isFree);
             className={`w-6 h-6 rounded-full flex items-center justify-center text-xs z-10
               ${isCompleted ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"}`}
           >
-            {idx === 2 ? <Truck size={14} /> : idx === 4 ? <Home size={14} /> : "✓"}
+          {step.key === "SHIPPED" ? (
+  <Truck size={14} />
+) : step.key === "DELIVERED" ||
+  step.key === "PICKED_UP" ? (
+  <Home size={14} />
+) : (
+  "✓"
+)}
           </div>
 
           {/* DASHED LINE */}
@@ -467,7 +523,14 @@ const freeItems = sortedItems.filter((i) => i.isFree);
             className={`w-8 h-8 rounded-full flex items-center justify-center
               ${isCompleted ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"}`}
           >
-            {idx === 2 ? <Truck size={16} /> : idx === 4 ? <Home size={16} /> : "✓"}
+         {step.key === "SHIPPED" ? (
+  <Truck size={14} />
+) : step.key === "DELIVERED" ||
+  step.key === "PICKED_UP" ? (
+  <Home size={14} />
+) : (
+  "✓"
+)}
           </div>
 
           {/* LABEL */}
@@ -492,14 +555,38 @@ const freeItems = sortedItems.filter((i) => i.isFree);
 
 
 
+{(order as any).deliveryType ===
+"PICKUP" ? (
 
-        {/* Estimated Delivery */}
-        <div className="bg-white p-4 border border-gray-200 rounded">
-          <div className="text-sm text-gray-700">
-           {calculateEstimatedDelivery()}
+  order.status ===
+  "PICKED_UP" ? (
 
-          </div>
-        </div>
+    <div>
+      Picked Up Successfully
+    </div>
+
+  ) : order.status ===
+    "READY_FOR_PICKUP" ? (
+
+    <div>
+      Ready For Pickup
+    </div>
+
+  ) : (
+
+    <div>
+      Pickup Available
+    </div>
+
+  )
+
+) : (
+
+  <div>
+    {calculateEstimatedDelivery()}
+  </div>
+
+)}
 
         {/* Products & Reviews */}
         <div className="flex flex-col gap-6">
@@ -541,7 +628,9 @@ const freeItems = sortedItems.filter((i) => i.isFree);
         
 {/* Delivery Address */}
 
-{order.address && (
+{(order as any).deliveryType !==
+  "PICKUP" &&
+  order.address && (
   <div className="bg-white p-4 border border-gray-200 rounded space-y-2">
     <div className="flex justify-between items-center">
       <h3 className="font-semibold">Delivery Address</h3>
@@ -703,7 +792,30 @@ const freeItems = sortedItems.filter((i) => i.isFree);
   </div>
 )}
 
+{(order as any).deliveryType ===
+  "PICKUP" && (
 
+  <div className="bg-white p-4 border border-gray-200 rounded space-y-2">
+
+    <h3 className="font-semibold">
+      Pickup Store
+    </h3>
+
+    <div className="text-sm text-gray-700">
+      ARUNODAYA COLLECTIONS
+    </div>
+
+    <div className="text-sm text-gray-500">
+      Davanagere, Karnataka
+    </div>
+
+    <div className="inline-block px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700 font-medium mt-2">
+      Pickup From Store
+    </div>
+
+  </div>
+
+)}
 {!canEditAddress && (
   <p className="text-xs text-gray-500">
     Address cannot be edited after the order is shipped.

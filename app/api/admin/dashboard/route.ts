@@ -3,98 +3,188 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
+    const now = new Date();
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const startOfMonth = new Date(
-      today.getFullYear(),
-      today.getMonth(),
+      now.getFullYear(),
+      now.getMonth(),
       1
     );
 
-    // ✅ BASIC COUNTS (ONLY SIMPLE QUERIES HERE)
+    /* ---------------- BASIC COUNTS ---------------- */
+
     const [
       totalOrders,
       totalProducts,
       totalCustomers,
-      pendingOrders,
-      deliveredOrders,
       wishlistCount,
+      products,
+      allOrders,
     ] = await Promise.all([
       prisma.order.count(),
+
       prisma.product.count(),
+
       prisma.user.count(),
-      prisma.order.count({
-        where: { status: { in: ["Order Placed", "Confirmed"] } },
-      }),
-      prisma.order.count({
-        where: { status: "Delivered" },
-      }),
+
       prisma.wishlist.count(),
+
+      prisma.product.findMany({
+        include: {
+          variants: true,
+        },
+      }),
+
+      prisma.order.findMany({
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      }),
     ]);
 
-    // ✅ FETCH PRODUCTS WITH VARIANTS
-    const products = await prisma.product.findMany({
-      include: { variants: true },
-    });
+    /* ---------------- PENDING / DELIVERED ---------------- */
 
-    // ✅ CORRECT OUT OF STOCK LOGIC
-    const outOfStockProducts = products.filter(
-      (p) =>
-        p.variants.length > 0 &&
-        p.variants.every((v) => (v.stock ?? 0) <= 0)
+    const pendingOrders = allOrders.filter(
+      (o) =>
+        o.status === "PENDING" ||
+        o.status === "CONFIRMED"
+    ).length;
+
+    const deliveredOrders = allOrders.filter(
+      (o) => o.status === "DELIVERED"
+    ).length;
+
+    /* ---------------- REAL REVENUE LOGIC ---------------- */
+
+    const paidOrders = allOrders.filter(
+      (o) =>
+        (
+          o.paymentMode === "ONLINE" &&
+          o.paymentStatus === "PAID"
+        ) ||
+        (
+          o.paymentMode === "COD" &&
+          o.status === "DELIVERED"
+        )
     );
 
-    const outOfStock = outOfStockProducts.length;
+    /* ---------------- TODAY SALES ---------------- */
 
-    // ✅ TODAY SALES
-    const todaySalesAgg = await prisma.order.aggregate({
-      where: { createdAt: { gte: today } },
-      _sum: { totalAmount: true },
-    });
+    const todaySales = paidOrders
+      .filter((o) => {
+        const d = new Date(o.createdAt);
 
-    // ✅ MONTHLY SALES
-    const monthlyRevenueAgg = await prisma.order.aggregate({
-      where: { createdAt: { gte: startOfMonth } },
-      _sum: { totalAmount: true },
-    });
+        return (
+          d >= today
+        );
+      })
+      .reduce(
+        (sum, o) =>
+          sum + (o.totalAmount || 0),
+        0
+      );
 
-    // ✅ TOP CATEGORY
-    const topSelling = await prisma.orderItem.findMany({
-      include: { product: true },
-    });
+    /* ---------------- MONTHLY REVENUE ---------------- */
 
-    const categoryCount: Record<string, number> = {};
+    const monthlyRevenue = paidOrders
+      .filter((o) => {
+        const d = new Date(o.createdAt);
 
-    topSelling.forEach((item) => {
-      const category = item.product?.category || "Unknown";
-      categoryCount[category] =
-        (categoryCount[category] || 0) + (item.quantity || 0);
+        return (
+          d >= startOfMonth
+        );
+      })
+      .reduce(
+        (sum, o) =>
+          sum + (o.totalAmount || 0),
+        0
+      );
+
+    /* ---------------- OUT OF STOCK ---------------- */
+
+    const outOfStockProducts =
+      products.filter(
+        (p) =>
+          p.variants.length > 0 &&
+          p.variants.every(
+            (v) =>
+              (v.stock ?? 0) <= 0
+          )
+      );
+
+    const outOfStock =
+      outOfStockProducts.length;
+
+    /* ---------------- TOP CATEGORY ---------------- */
+
+    const categoryCount: Record<
+      string,
+      number
+    > = {};
+
+    allOrders.forEach((order) => {
+      order.items.forEach((item) => {
+        const category =
+          item.product?.category ||
+          "Unknown";
+
+        categoryCount[category] =
+          (categoryCount[category] || 0) +
+          (item.quantity || 0);
+      });
     });
 
     const topCategory =
-      Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0]?.[0] ||
-      "N/A";
+      Object.entries(categoryCount).sort(
+        (a, b) => b[1] - a[1]
+      )[0]?.[0] || "N/A";
 
-    // ✅ FINAL RESPONSE
+    /* ---------------- RESPONSE ---------------- */
+
     return NextResponse.json({
       totalOrders,
+
       totalProducts,
+
       totalCustomers,
+
       pendingOrders,
+
       deliveredOrders,
+
       outOfStock,
+
       outOfStockProducts,
-      todaySales: todaySalesAgg._sum.totalAmount || 0,
-      monthlyRevenue: monthlyRevenueAgg._sum.totalAmount || 0,
+
+      todaySales,
+
+      monthlyRevenue,
+
       topCategory,
+
       wishlistCount,
     });
   } catch (error) {
-    console.error("DASHBOARD ERROR:", error);
+    console.error(
+      "DASHBOARD ERROR:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Failed to load dashboard data" },
-      { status: 500 }
+      {
+        error:
+          "Failed to load dashboard data",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

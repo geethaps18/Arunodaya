@@ -238,18 +238,46 @@ useEffect(() => {
 
 
 useEffect(() => {
-  if (!product?.category) return;
+  if (!product) return;
 
   const loadSimilar = async () => {
     try {
-      const res = await fetch(
-        `/api/products?category=${encodeURIComponent(product.category)}&limit=8`
-      );
+      const query = new URLSearchParams({
+        limit: "12",
+      });
+
+      // 🔥 Priority matching
+      if (product.subSubSubCategory) {
+        query.append(
+          "subSubSubCategory",
+          product.subSubSubCategory
+        );
+      } else if (product.subSubCategory) {
+        query.append(
+          "subSubCategory",
+          product.subSubCategory
+        );
+      } else if (product.subCategory) {
+        query.append(
+          "subCategory",
+          product.subCategory
+        );
+      } else if (product.category) {
+        query.append("category", product.category);
+      }
+
+      // 🔥 Optional same name keyword
+      if (product.name) {
+        query.append("name", product.name);
+      }
+
+      const res = await fetch(`/api/products?${query.toString()}`);
+
       if (!res.ok) return;
 
       const data = await res.json();
 
-      // ❗ exclude current product
+      // ❌ remove current product
       const filtered = data.products.filter(
         (p: ProductType) => p.id !== product.id
       );

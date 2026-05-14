@@ -336,10 +336,14 @@ model Order {
   otpVerified      Boolean   @default(false)
   confirmedAt      DateTime?
   shippedAt        DateTime?
+  readyForPickupAt DateTime?
+pickedUpAt       DateTime?
   outForDeliveryAt DateTime?
   deliveredAt      DateTime?
   paymentStatus     String    @default("PENDING")
 razorpayPaymentId String?
+deliveryType String @default("HOME")
+pickupStore  String?
   user    User?       @relation(fields: [userId], references: [id]) 
   items   OrderItem[]
   ratings Rating[]

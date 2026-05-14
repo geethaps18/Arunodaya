@@ -13,14 +13,29 @@ export type OrderItem = {
 export type NotificationOptions = {
   email?: string;
   phone: string;
+
   customerName?: string;
   addressName?: string;
   addressEmail?: string;
+
   orderId: string;
+
+  deliveryType?: "HOME" | "PICKUP";
+  pickupStore?: string;
+
   items: OrderItem[];
+
   total: number;
   paymentMode: string;
-  status: "ordered" | "packed" | "shipped" | "out_for_delivery" | "delivered";
+
+  status:
+    | "ordered"
+    | "packed"
+    | "shipped"
+    | "out_for_delivery"
+    | "delivered"
+    | "ready_for_pickup"
+| "picked_up"
 };
 
 // ✨ Modern Minimal Fashion Tone
@@ -61,6 +76,18 @@ Your order has been successfully delivered.
 We hope you love your new style.
 
 Thank you for choosing Arunodaya Collections.`,
+ready_for_pickup: (name) =>
+  `Hi ${name},
+
+Your order is now ready for pickup.
+You can visit the store and collect it at your convenience.`,
+
+picked_up: (name) =>
+  `Hi ${name},
+
+Your order has been successfully picked up.
+
+Thank you for shopping with Arunodaya Collections.`,
 };
 
 export async function sendOrderNotification(options: NotificationOptions) {
@@ -76,6 +103,8 @@ export async function sendOrderNotification(options: NotificationOptions) {
       total,
       paymentMode,
       status,
+      deliveryType,
+pickupStore,
     } = options;
 
     // --------------------------
@@ -169,7 +198,25 @@ ${item.color ? " - " + item.color : ""}
   <div><strong>Total:</strong> ₹${total.toFixed(2)}</div>
   <div><strong>Payment Mode:</strong> ${paymentMode}</div>
 </div>
+<div>
+  <strong>Delivery Type:</strong>
+  ${
+    deliveryType === "PICKUP"
+      ? "Store Pickup"
+      : "Home Delivery"
+  }
+</div>
 
+${
+  deliveryType === "PICKUP" && pickupStore
+    ? `
+<div>
+  <strong>Pickup Store:</strong>
+  ${pickupStore}
+</div>
+`
+    : ""
+}
   <div style="background:#111111; text-align:center; padding:14px; font-size:12px; color:#aaaaaa;">
     © ${new Date().getFullYear()} Arunodaya Collections
   </div>
@@ -194,7 +241,7 @@ if (!finalEmail) {
 }
 
 await transporter.sendMail({
-  from: `"Arunodaya Collections" <${process.env.EMAIL_USER}>`,
+  from: `"Arunodaya Collections" <arunodayacolloctions25@gmail.com>`,
   to: finalEmail,
   subject: `Order Update • #${orderId}`,
   html: emailHtml,

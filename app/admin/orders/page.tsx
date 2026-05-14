@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   FileDown,
@@ -50,6 +50,8 @@ type Order = {
   user?: { name?: string; phone?: string; email?: string } | null;
   address?: any;
   items: OrderItem[];
+  deliveryType?: "HOME" | "PICKUP";
+pickupStore?: string | null;
 };
 
 export default function AdminOrdersPage() {
@@ -57,27 +59,55 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | string>("All");
+  const [
+  deliveryFilter,
+  setDeliveryFilter,
+] = useState<
+  "ALL" | "HOME" | "PICKUP"
+>("ALL");
   const [limit, setLimit] = useState<number>(15);
   const [refreshToggle, setRefreshToggle] = useState(false);
   
 const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
-  const DB_TO_LABEL: Record<string, string> = {
-    PENDING: "Order Placed",
-    CONFIRMED: "Confirmed",
-    SHIPPED: "Shipped",
-    OUT_FOR_DELIVERY: "Out for Delivery",
-    DELIVERED: "Delivered",
-  };
+ const DB_TO_LABEL: Record<string, string> = {
+  PENDING: "Order Placed",
+
+  CONFIRMED: "Confirmed",
+
+  SHIPPED: "Shipped",
+
+  OUT_FOR_DELIVERY: "Out for Delivery",
+
+  DELIVERED: "Delivered",
+
+  READY_FOR_PICKUP: "Ready for Pickup",
+
+  PICKED_UP: "Picked Up",
+};
   const LABEL_TO_DB = Object.fromEntries(
     Object.entries(DB_TO_LABEL).map(([k, v]) => [v, k])
   );
-  const NEXT_STATUS_DB: Record<string, string | null> = {
-    PENDING: "CONFIRMED",
-    CONFIRMED: "SHIPPED",
-    SHIPPED: "OUT_FOR_DELIVERY",
-    OUT_FOR_DELIVERY: "DELIVERED",
-    DELIVERED: null,
-  };
+ const NEXT_STATUS_DB: Record<
+  string,
+  string | null
+> = {
+
+  // HOME DELIVERY FLOW
+  PENDING: "CONFIRMED",
+
+  CONFIRMED: "SHIPPED",
+
+  SHIPPED: "OUT_FOR_DELIVERY",
+
+  OUT_FOR_DELIVERY: "DELIVERED",
+
+  DELIVERED: null,
+
+  // PICKUP FLOW
+  READY_FOR_PICKUP: "PICKED_UP",
+
+  PICKED_UP: null,
+};
 
   const iconsByDB: Record<string, React.ReactElement> = {
     PENDING: <Package size={16} className="text-blue-500" />,
@@ -85,6 +115,19 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
     SHIPPED: <Truck size={16} className="text-orange-500" />,
     OUT_FOR_DELIVERY: <Home size={16} className="text-purple-600" />,
     DELIVERED: <CheckCircle size={16} className="text-green-700" />,
+    READY_FOR_PICKUP: (
+  <Package
+    size={16}
+    className="text-indigo-600"
+  />
+),
+
+PICKED_UP: (
+  <CheckCircle
+    size={16}
+    className="text-green-700"
+  />
+),
   };
 
   const colorsByDB: Record<string, string> = {
@@ -93,6 +136,11 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
     SHIPPED: "bg-orange-100 text-orange-700",
     OUT_FOR_DELIVERY: "bg-purple-100 text-purple-700",
     DELIVERED: "bg-green-100 text-green-700",
+    READY_FOR_PICKUP:
+  "bg-indigo-100 text-indigo-700",
+
+PICKED_UP:
+  "bg-green-100 text-green-700",
   };
 
   const fetchOrders = async () => {
@@ -229,25 +277,90 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
     }
   };
 
-  const filteredOrders = useMemo(() => {
-    const s = search.trim().toLowerCase();
-    return orders
-      .filter((o) => {
-        if (statusFilter === "All") return true;
-        const db = LABEL_TO_DB[statusFilter] ?? statusFilter;
-        return o.status === db;
-      })
-      .filter((o) => {
-        if (!s) return true;
-        if (o.id?.toLowerCase?.().includes(s)) return true;
-        if (o.user?.name?.toLowerCase?.().includes(s)) return true;
-        if (o.user?.phone?.toLowerCase?.().includes(s)) return true;
-        if (Array.isArray(o.items) && o.items.some((it) => (it.name ?? "").toLowerCase().includes(s)))
-          return true;
-        return false;
-      })
-      .slice(0, limit);
-  }, [orders, search, statusFilter, limit]);
+const filteredOrders = useMemo(() => {
+  const s = search.trim().toLowerCase();
+
+  return orders
+
+    // STATUS FILTER
+    .filter((o) => {
+
+      if (
+        statusFilter === "All"
+      )
+        return true;
+
+      const db =
+        LABEL_TO_DB[
+          statusFilter
+        ] ?? statusFilter;
+
+      return o.status === db;
+    })
+
+    // DELIVERY FILTER
+    .filter((o) => {
+
+      if (
+        deliveryFilter ===
+        "ALL"
+      )
+        return true;
+
+      return (
+        o.deliveryType ===
+        deliveryFilter
+      );
+    })
+
+    // SEARCH
+    .filter((o) => {
+
+      if (!s) return true;
+
+      if (
+        o.id
+          ?.toLowerCase?.()
+          .includes(s)
+      )
+        return true;
+
+      if (
+        o.user?.name
+          ?.toLowerCase?.()
+          .includes(s)
+      )
+        return true;
+
+      if (
+        o.user?.phone
+          ?.toLowerCase?.()
+          .includes(s)
+      )
+        return true;
+
+      if (
+        Array.isArray(o.items) &&
+        o.items.some((it) =>
+          (it.name ?? "")
+            .toLowerCase()
+            .includes(s)
+        )
+      )
+        return true;
+
+      return false;
+    })
+
+    .slice(0, limit);
+
+}, [
+  orders,
+  search,
+  statusFilter,
+  deliveryFilter,
+  limit,
+]);
 
   const formatTS = (ts?: string | null) => {
     if (!ts) return "";
@@ -268,7 +381,7 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
     { key: "DELIVERED", label: "Delivered", tsKey: "deliveredAt" },
   ];
 
-  
+  const router = useRouter();
  if (loading) {
   return (
     <div className="flex justify-center items-center py-20">
@@ -295,6 +408,7 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
 </div>
 
 
+
       <div className="flex gap-3 items-center">
         <div className="flex items-center bg-white shadow border px-3 py-2 rounded-lg flex-1">
           <SearchIcon size={18} className="text-gray-500" />
@@ -306,15 +420,63 @@ const getShipping = (amount: number) => (amount < 100 ? 100 : 0);
           />
         </div>
 
-        <div className="flex items-center bg-white shadow border px-3 py-2 rounded-lg">
-          <FilterIcon size={18} className="text-gray-500 mr-2" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option>All</option>
-            {Object.values(DB_TO_LABEL).map((label) => (
-              <option key={label}>{label}</option>
-            ))}
-          </select>
-        </div>
+      <div className="flex gap-3">
+
+  {/* STATUS FILTER */}
+  <div className="flex items-center bg-white shadow border px-3 py-2 rounded-lg">
+    <FilterIcon
+      size={18}
+      className="text-gray-500 mr-2"
+    />
+
+    <select
+      value={statusFilter}
+      onChange={(e) =>
+        setStatusFilter(
+          e.target.value
+        )
+      }
+      className="outline-none bg-transparent"
+    >
+      <option>All</option>
+
+      {Object.values(
+        DB_TO_LABEL
+      ).map((label) => (
+        <option key={label}>
+          {label}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* DELIVERY FILTER */}
+  <div className="flex items-center bg-white shadow border px-3 py-2 rounded-lg">
+
+    <select
+      value={deliveryFilter}
+      onChange={(e) =>
+        setDeliveryFilter(
+          e.target.value as any
+        )
+      }
+      className="outline-none bg-transparent"
+    >
+      <option value="ALL">
+        All Orders
+      </option>
+
+      <option value="HOME">
+        Home Delivery
+      </option>
+
+      <option value="PICKUP">
+        Pickup Orders
+      </option>
+    </select>
+  </div>
+
+</div>
       </div>
 
       <div className="space-y-6">
@@ -362,6 +524,43 @@ return (
 
 
                 <div className="flex gap-2">
+                  {order.paymentMode === "ONLINE" &&
+ order.paymentStatus !== "PAID" && (
+  <button
+    type="button"
+    onClick={async () => {
+      const confirmDelete = confirm(
+        "Delete this unpaid online order?"
+      );
+
+      if (!confirmDelete) return;
+
+      try {
+        const res = await fetch(
+          `/api/admin/orders/${order.id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed");
+        }
+
+        toast.success("Order deleted");
+
+        setOrders((prev) =>
+          prev.filter((o) => o.id !== order.id)
+        );
+      } catch (err) {
+        toast.error("Delete failed");
+      }
+    }}
+    className="flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm"
+  >
+    Delete
+  </button>
+)}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -391,6 +590,7 @@ return (
               
 
               {/* compact timeline */}
+              {order.deliveryType !== "PICKUP" && (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                   {steps.map((s, idx) => {
@@ -443,7 +643,7 @@ return (
 })}
 
                 </div>
-              </div>
+              </div>)}
 <div className="bg-gray-50 p-3 rounded-lg border text-sm text-gray-700">
   <div className="flex justify-between">
     <div>
@@ -474,8 +674,28 @@ return (
     </span>
   )}
 </div>
-
+{order.deliveryType === "PICKUP" && (
+  <div className="mt-2">
+    <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
+      Pickup From Store
+    </span>
+  </div>
+)}
       {/* ⭐ ADD THIS */}
+      {order.deliveryType === "PICKUP" ? (
+
+  <div className="mt-2">
+   
+
+    <div className="text-xs text-gray-500 mt-2">
+      Store:
+      {" "}
+      {order.pickupStore ||
+        "ARUNODAYA COLLECTIONS - DAVANAGERE"}
+    </div>
+  </div>
+
+) : (
  <div className="text-xs text-gray-600 mt-1 leading-5">
   <b>Address:</b><br />
 
@@ -510,7 +730,7 @@ return (
   {/* City, State, Pin */}
   {order.address?.city}, {order.address?.state} - {order.address?.pincode}
 </div>
-
+)}
 </div>
 
     <div className="text-right text-sm">
@@ -704,21 +924,135 @@ return (
               </div>
 
               {/* Move to next */}
-              {nextDb &&  (
+{order.deliveryType === "PICKUP" ? (
 
-                <div className="mt-2 flex justify-end">
-                 {nextDb && (
-<button
-  onClick={() => moveToNext(order.id, order.status)}
-  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700"
->
-    Move to {DB_TO_LABEL[nextDb]}
-    <ArrowRight size={14} />
-  </button>
+  <div className="mt-3 flex justify-end">
+
+    {order.status === "PENDING" && (
+      <button
+        onClick={async () => {
+
+          const t = toast.loading(
+            "Updating..."
+          );
+
+          try {
+
+            await fetch(
+              `/api/admin/orders/${order.id}/status`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                },
+                body: JSON.stringify({
+                  status:
+                    "READY_FOR_PICKUP",
+                }),
+              }
+            );
+
+            toast.success(
+              "Ready for pickup",
+              { id: t }
+            );
+
+            setRefreshToggle(
+              (v) => !v
+            );
+
+          } catch {
+
+            toast.error(
+              "Update failed",
+              { id: t }
+            );
+
+          }
+        }}
+        className="px-4 py-2 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-700"
+      >
+        Mark Ready for Pickup
+      </button>
+    )}
+
+    {order.status ===
+      "READY_FOR_PICKUP" && (
+      <button
+        onClick={async () => {
+
+          const t = toast.loading(
+            "Updating..."
+          );
+
+          try {
+
+            await fetch(
+              `/api/admin/orders/${order.id}/status`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                },
+                body: JSON.stringify({
+                  status:
+                    "PICKED_UP",
+                }),
+              }
+            );
+
+            toast.success(
+              "Order picked up",
+              { id: t }
+            );
+
+            setRefreshToggle(
+              (v) => !v
+            );
+
+          } catch {
+
+            toast.error(
+              "Update failed",
+              { id: t }
+            );
+
+          }
+        }}
+        className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700"
+      >
+        Mark as Picked Up
+      </button>
+    )}
+
+  </div>
+
+) : (
+
+  nextDb && (
+    <div className="mt-2 flex justify-end">
+
+      <button
+        onClick={() =>
+          moveToNext(
+            order.id,
+            order.status
+          )
+        }
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Move to {DB_TO_LABEL[nextDb]}
+        <ArrowRight size={14} />
+      </button>
+
+    </div>
+  )
+
 )}
 
-                </div>
-              )}
+
             </div>
           );
         })}

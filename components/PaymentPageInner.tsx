@@ -66,6 +66,8 @@ const [isAddressLoading, setIsAddressLoading] = useState(true);
   });
 
   const addressId = params.get("addressId");
+  const deliveryType =
+  (params.get("deliveryType") as "HOME" | "PICKUP") || "HOME";
   const shipping = Number(params.get("shipping") ?? 0);
   const discount = Number(params.get("discount") ?? 0);
 
@@ -116,8 +118,14 @@ const totalSelling = (() => {
   return total;
 })();
 
-const shippingCharge = getShippingCharge(selectedAddress?.pincode);
-const codAvailable = isCODAvailable(selectedAddress?.pincode);
+const shippingCharge =
+  deliveryType === "PICKUP"
+    ? 0
+    : getShippingCharge(selectedAddress?.pincode);
+const codAvailable =
+  deliveryType === "PICKUP"
+    ? true
+    : isCODAvailable(selectedAddress?.pincode);
 
 const finalOrderTotal = totalSelling + shippingCharge;
 
@@ -264,7 +272,16 @@ body: JSON.stringify({
   userId,
   items: orderItems,
   paymentMode: "ONLINE",
+
   address: selectedAddress,
+
+  deliveryType,
+
+  pickupStore:
+    deliveryType === "PICKUP"
+      ? "ARUNODAYA COLLECTIONS - DAVANAGERE"
+      : null,
+
   razorpayOrderId: data.orderId,
 }),
 });
@@ -301,6 +318,9 @@ handler: async function (response: any) {
         razorpay_order_id: response.razorpay_order_id,
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature,
+      
+
+
       }),
     });
 
@@ -336,7 +356,15 @@ handler: async function (response: any) {
   };
 
   const createCODOrder = async () => {
-    if (!userId || !selectedAddress || bagItems.length === 0) return;
+   if (
+  !userId ||
+  bagItems.length === 0 ||
+  (
+    deliveryType !== "PICKUP" &&
+    !selectedAddress
+  )
+)
+  return;
 
     try {
       setLoading(true);
@@ -369,6 +397,12 @@ if (invalidItem) {
           totalAmount: finalOrderTotal,
           paymentMode: "COD",
           address: selectedAddress,
+          deliveryType,
+
+pickupStore:
+  deliveryType === "PICKUP"
+    ? "ARUNODAYA COLLECTIONS - DAVANAGERE"
+    : null,
         }),
       });
 
@@ -425,7 +459,7 @@ if (loading)
   
 
         {/* --- Address Card --- */}
-        {selectedAddress && (
+       {deliveryType === "HOME" && selectedAddress && (
          <div className="border border-gray-200 p-5 rounded-xl mb-4 bg-gray-50">
  <h3 className="font-semibold text-gray-900">{selectedAddress.type} Address</h3>
             <p>
@@ -438,7 +472,26 @@ if (loading)
             </p>
           </div>
         )}     
+{deliveryType === "PICKUP" && (
+  <div className="border border-gray-200 p-5 rounded-xl mb-4 bg-green-50">
 
+    <h3 className="font-semibold text-green-700">
+      Store Pickup
+    </h3>
+
+    <p className="mt-2 font-medium">
+      ARUNODAYA COLLECTIONS - DAVANAGERE
+    </p>
+
+    <p className="text-sm text-gray-600 mt-1">
+      KTJ Nagar, Davanagere, Karnataka
+    </p>
+
+    <p className="text-sm text-green-700 mt-3">
+      Pickup ready within 2 hours
+    </p>
+  </div>
+)}
         {/* Payment Methods */}
         <div className="mb-24">
           <h3 className="font-medium mb-3 text-lg">Choose Payment Method</h3>
