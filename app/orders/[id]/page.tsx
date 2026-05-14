@@ -801,13 +801,17 @@ const freeItems = sortedItems.filter((i) => i.isFree);
       Pickup Store
     </h3>
 
-    <div className="text-sm text-gray-700">
-      ARUNODAYA COLLECTIONS
-    </div>
+      <h3 className="text-lg font-bold">
+          ARUNODAYA COLLECTIONS - DAVANAGERE
+        </h3>
 
-    <div className="text-sm text-gray-500">
-      Davanagere, Karnataka
-    </div>
+        <p className="text-sm text-gray-600 mt-2">
+         PB Road, Opposite Aahar 2000, Near Gandhi Circle, Davanagere – 577002,
+        </p>
+
+        <p className="text-sm mt-1">
+          Phone: +91 8073 033 273
+        </p>
 
     <div className="inline-block px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700 font-medium mt-2">
       Pickup From Store

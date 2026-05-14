@@ -479,13 +479,17 @@ if (loading)
       Store Pickup
     </h3>
 
-    <p className="mt-2 font-medium">
-      ARUNODAYA COLLECTIONS - DAVANAGERE
-    </p>
+     <h3 className="text-lg font-bold">
+          ARUNODAYA COLLECTIONS - DAVANAGERE
+        </h3>
 
-    <p className="text-sm text-gray-600 mt-1">
-      KTJ Nagar, Davanagere, Karnataka
-    </p>
+        <p className="text-sm text-gray-600 mt-2">
+          PB Road, Opposite Aahar 2000, Near Gandhi Circle, Davanagere – 577002,
+        </p>
+
+        <p className="text-sm mt-1">
+          Phone: +91 8073 033 273
+        </p>
 
     <p className="text-sm text-green-700 mt-3">
       Pickup ready within 2 hours

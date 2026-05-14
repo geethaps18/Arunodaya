@@ -654,11 +654,11 @@ return (
         </h3>
 
         <p className="text-sm text-gray-600 mt-2">
-          KTJ Nagar, Davanagere, Karnataka
+      PB Road, Opposite Aahar 2000, Near Gandhi Circle, Davanagere – 577002,
         </p>
 
         <p className="text-sm mt-1">
-          Phone: +91 9876543210
+          Phone: +91 8073 033 273
         </p>
       </div>
 

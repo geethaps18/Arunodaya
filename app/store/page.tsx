@@ -26,8 +26,8 @@ const stores: Store[] = [
   address:
     "AVK College Road, Ishwar Complex, P.J. Extension, Davanagere – 577002",
   city: "Davangere",
-  phone: "8088131360",
-  email: "arunodayacollections@gmail.com",
+  phone: "+91 8073 033 273",
+  email: "arunodayacollections25@gmail.com",
   mapUrl:
     "https://www.google.com/maps/search/Arunodaya+Collections+AVK+College+Road+Davanagere",
   categories: [
@@ -41,8 +41,8 @@ const stores: Store[] = [
   address:
     "PB Road, Opposite Aahar 2000, Near Gandhi Circle, Davanagere – 577002",
   city: "Davangere",
-  phone: "081528 74447",
-  email: "arunodayacollections@gmail.com",
+  phone: "+91 8073 033 273",
+  email: "arunodayacollections25@gmail.com",
   mapUrl:
     "https://www.google.com/maps/search/Arunodaya+Collections+PB+Road+Gandhi+Circle+Davanagere",
   categories: [
