@@ -32,8 +32,6 @@ const stores: Store[] = [
     "https://www.google.com/maps/search/Arunodaya+Collections+AVK+College+Road+Davanagere",
   categories: [
     "Ladies Wear",
-    "Men’s Wear",
-    "Kids Wear",
   ],
 },
 {
