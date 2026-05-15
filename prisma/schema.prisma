@@ -396,7 +396,7 @@ newColor          String?
 
   deliveryBoyId String? @db.ObjectId
 
-  order   Order    @relation(fields: [orderId], references: [id])
+  order   Order?   @relation(fields: [orderId], references: [id])
   product Product? @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())

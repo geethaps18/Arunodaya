@@ -524,43 +524,49 @@ return (
 
 
                 <div className="flex gap-2">
-                  {order.paymentMode === "ONLINE" &&
- order.paymentStatus !== "PAID" && (
-  <button
-    type="button"
-    onClick={async () => {
-      const confirmDelete = confirm(
-        "Delete this unpaid online order?"
+<button
+  type="button"
+  onClick={async () => {
+    const confirmDelete = confirm(
+      `Delete order ${order.id}?`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `/api/admin/orders/${order.id}`,
+        {
+          method: "DELETE",
+        }
       );
 
-      if (!confirmDelete) return;
+      const data = await res.json();
 
-      try {
-        const res = await fetch(
-          `/api/admin/orders/${order.id}`,
-          {
-            method: "DELETE",
-          }
+      if (!res.ok) {
+        throw new Error(
+          data?.error || "Failed"
         );
-
-        if (!res.ok) {
-          throw new Error("Failed");
-        }
-
-        toast.success("Order deleted");
-
-        setOrders((prev) =>
-          prev.filter((o) => o.id !== order.id)
-        );
-      } catch (err) {
-        toast.error("Delete failed");
       }
-    }}
-    className="flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm"
-  >
-    Delete
-  </button>
-)}
+
+      toast.success("Order deleted");
+
+      setOrders((prev) =>
+        prev.filter(
+          (o) => o.id !== order.id
+        )
+      );
+    } catch (err: any) {
+      toast.error(
+        err.message || "Delete failed"
+      );
+    }
+  }}
+  className="flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm"
+>
+  Delete
+</button>
+
                   <button
                     type="button"
                     onClick={(e) => {

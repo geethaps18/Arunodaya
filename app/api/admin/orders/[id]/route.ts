@@ -8,6 +8,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    // check order exists
     const order = await prisma.order.findUnique({
       where: {
         id,
@@ -21,24 +22,14 @@ export async function DELETE(
       );
     }
 
-    if (
-      order.paymentMode !== "ONLINE" ||
-      order.paymentStatus === "PAID"
-    ) {
-      return NextResponse.json(
-        { error: "Cannot delete paid order" },
-        { status: 400 }
-      );
-    }
-
-    // delete child items first
+    // delete all child order items first
     await prisma.orderItem.deleteMany({
       where: {
         orderId: id,
       },
     });
 
-    // then delete order
+    // delete order
     await prisma.order.delete({
       where: {
         id,
@@ -47,9 +38,10 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
+      message: "Order deleted successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.log("DELETE ORDER ERROR:", error);
 
     return NextResponse.json(
       { error: "Something went wrong" },
