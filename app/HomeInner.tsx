@@ -56,9 +56,7 @@ const highlightCategories: any = {
     { name: "Umbrella Set", image: "/images/umbrella.png",
       link: "/categories/women/ethnic-wear/kurta-sets/grand-umbrella-sets",
      },
-    { name: "Jeans Jacket", image: "/images/jacket.png",
-      link: "categories/women/western-wear/jeans-jacket",
-     },
+   
   
 
 
@@ -75,11 +73,12 @@ export default function HomeInner() {
     loadMoreRef,
   } = useInfiniteProducts("home", "/api/products?home=true");
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("Women");
+  
+
 
   const initialLoading = isLoading && products.length === 0;
-  const recentProducts = products.slice(0, 10);
-  
+ const [recentProducts, setRecentProducts] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState("Women");
 const [animateCategories, setAnimateCategories] = useState(false);
 const router = useRouter();
 
@@ -87,6 +86,13 @@ useEffect(() => {
   setAnimateCategories(true);
 }, []);
 
+useEffect(() => {
+  fetch("/api/products/new-arrivals")
+    .then((res) => res.json())
+    .then((data) => {
+      setRecentProducts(data.products || []);
+    });
+}, []);
   /* -------------------- CMS -------------------- */
 /* -------------------- CMS -------------------- */
 const [cmsData, setCmsData] = useState<any>(null);
@@ -106,19 +112,24 @@ const orderedContent = cmsData?.content
   : [];
 const heroBanners =
   cmsData?.content.filter((b: any) => b.type === "HeroBanner") || [];
-
+const sortedProducts = [...products].sort(
+  (a: any, b: any) =>
+    Number(String(a.price).replace(/,/g, "")) -
+    Number(String(b.price).replace(/,/g, ""))
+);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
+ <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f8f8] overflow-x-hidden">
       {/* ================= HEADER ================= */}
       <Header />
 
       {/* ================= PAGE CONTENT ================= */}
       <main className="pt-[72px] lg:pt-[9px] flex-grow">
+        
         {/* ================= HOME CATEGORY ROW ================= */}
    
-<section className="bg-white pt-8 pb-6">
-  <div className="max-w-7xl mx-auto px-4">
+<section className="bg-white pt-8 ">
+
 
     {/* Top Word Tabs */}
     <div className="flex justify-center gap-10 pb-4 lg:hidden ">
@@ -132,60 +143,13 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
 </Link>
       ))}
     </div>
-   {/* Highlight Cards - Single Row */}
-<div className="mt- overflow-x-auto scrollbar-hide lg:hidden">
-  <div className="flex gap-4 w-max px-1">
-
-{highlightCategories[activeTab].map((item: any) => {
-  const href =
-    item.link ||
-    `/categories/${activeTab.toLowerCase()}/${item.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`;
-
-  return (
-    <Link
-      key={item.name}
-      href={href}
-      className="relative w-[120px] h-[160px] flex-shrink-0 rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300"
-    >
-
-  <div className="relative w-full h-full">
-    <Image
-      src={item.image}
-      alt={item.name}
-      fill
-      sizes="120px"
-      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-    />
-  </div>
-
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-    <span className="text-white text-xs font-semibold text-center px-2">
-      {item.name}
-    </span>
-  </div>
-</Link>
-
-      );
-    })}
-
-  </div>
-</div>
-
-
-
-</div>
-</section>
-
-
+    
 
      {/* ================= HERO / CMS ================= */}
     
 
 {cmsData && (
-  <section className="w-full">
+  <section className="relative w-screen">
    <Swiper
   modules={[Autoplay, Pagination, Thumbs]}
   autoplay={{
@@ -222,6 +186,52 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
 )}
 
 
+   {/* Highlight Cards - Single Row */}
+<div className="mt-5 lg:hidden">
+  <div className="grid grid-cols-2 gap-4">
+
+{highlightCategories[activeTab].map((item: any) => {
+  const href =
+    item.link ||
+    `/categories/${activeTab.toLowerCase()}/${item.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`;
+
+  return (
+    <Link
+      key={item.name}
+      href={href}
+      className="relative w-[240px] h-[300px] flex-shrink-0 rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300"
+    >
+
+  <div className="relative w-full h-full">
+    <Image
+      src={item.image}
+      alt={item.name}
+      fill
+      sizes="120px"
+      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+    />
+  </div>
+
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+    <span className="text-white text-m font-semibold text-center px-2">
+      {item.name}
+    </span>
+  </div>
+</Link>
+
+      );
+    })}
+
+  </div>
+</div>
+
+
+</section>
+
+
 
         {/* ================= RECENT PRODUCTS ================= */}
         {!isLoading && recentProducts.length > 4 && (
@@ -241,7 +251,7 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
             ) : (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-4">
-                {products.map((product: any, index: number) => (
+                {sortedProducts.map((product: any, index: number) => (
   <AnimatedProductCard
     key={product.id}
     product={product}

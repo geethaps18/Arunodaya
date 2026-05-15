@@ -204,18 +204,34 @@ const effectivePrice =
 
 const [activeIndex, setActiveIndex] = useState(0);
 
-const getColorHex = (name: string) =>
-  product?.variants.find(
-    (v) => v.color === name
-  )?.colorHex ||
+const getColorHex = (name: string) => {
+  if (!name) return "#ccc";
 
-  COLOR_OPTIONS.find(
-    (c) => c.name === name
-  )?.hex ||
+  // 1. Try variant colorHex
+  const variant = product?.variants.find(
+    (v) =>
+      v.color?.trim().toLowerCase() ===
+      name.trim().toLowerCase()
+  );
 
-  "#ccc";
+  if (variant?.colorHex) {
+    return variant.colorHex;
+  }
 
+  // 2. Try static color options
+  const staticColor = COLOR_OPTIONS.find(
+    (c) =>
+      c.name.trim().toLowerCase() ===
+      name.trim().toLowerCase()
+  );
 
+  if (staticColor?.hex) {
+    return staticColor.hex;
+  }
+
+  // 3. Final fallback
+  return "#ccc";
+};
 
 useEffect(() => {
   if (!selectedColor || !variants.length) return;

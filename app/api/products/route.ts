@@ -123,7 +123,9 @@ if (subSubSubCategory) where.subSubSubCategory = subSubSubCategory;
       prisma.product.count({ where }),
       prisma.product.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: {
+  price: "asc",
+},
         skip,
         take: pageSize,
         include: {
