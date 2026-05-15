@@ -247,7 +247,10 @@ setSubSubSubCategory(subSubSubCat);
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
-        colorHex: v.colorHex || "#ccc",
+         colorHex:
+  selectedColors.find(
+    c => c.name === v.color
+  )?.hex || "#ccc",
         mrp: String(v.mrp),
         price: String(v.price),
         discount: String(v.discount),
@@ -1170,10 +1173,13 @@ Soft brushed interior"
   value={v.color}
   onChange={(e) => {
     const copy = [...variants];
-
-    const selected = selectedColors.find(
-      c => c.name === e.target.value
-    );
+const selected =
+  [
+    ...COLOR_OPTIONS,
+    ...selectedColors,
+  ].find(
+    c => c.name === e.target.value
+  );
 
     copy[idx].color = e.target.value;
     copy[idx].colorHex =
