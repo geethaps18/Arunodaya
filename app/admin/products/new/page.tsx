@@ -26,7 +26,7 @@ type Variant = {
   id: string;
   size?: string;
   color?: string;
-
+    colorHex?: string; 
   mrp: string;            // ✅ add
   price: string;
   discount: string;       // ✅ add
@@ -75,7 +75,7 @@ const [videoFile, setVideoFile] = useState<File | null>(null);
 const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
 const [selectedColors, setSelectedColors] =
-  useState<ColorOption[]>(COLOR_OPTIONS);
+  useState<ColorOption[]>([]);
 
 
   const [price, setPrice] = useState("");
@@ -150,6 +150,7 @@ const currentSizes = (() => {
   name: "",
   hex: "#000000",
 });
+
 const [subSubSubCategory, setSubSubSubCategory] =
   useState<SubCategory | null>(null);
 
@@ -252,6 +253,18 @@ useEffect(() => {
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
+  colorHex:
+  v.colorHex ||
+
+  selectedColors.find(
+    c => c.name === v.color
+  )?.hex ||
+
+  COLOR_OPTIONS.find(
+    c => c.name === v.color
+  )?.hex ||
+
+  "#ccc",
         mrp: String(v.mrp),
         price: String(v.price),
         discount: String(v.discount),
@@ -323,6 +336,10 @@ const slugify = (text?: string) =>
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
+        colorHex:
+  selectedColors.find(
+    c => c.name === v.color
+  )?.hex || "#ccc",
         mrp: String(v.mrp),
         price: String(v.price),
         discount: String(v.discount),
@@ -578,6 +595,10 @@ form.append("discountAmount", String(discountAmount));
   size: v.size,
   color: v.color,
   mrp: Number(v.mrp),
+  colorHex:
+  selectedColors.find(
+    c => c.name === v.color
+  )?.hex || "#ccc",
   price: Number(v.price),
   discount: Number(v.discount),
   discountAmount: Number(v.discountAmount),
@@ -964,6 +985,59 @@ setSubSubSubCategory(null); // ✅ ADD
 
         {activeTab === 3 && (
   <div className="relative">
+    <div className="mb-6">
+  <p className="text-sm font-medium mb-3">
+    Select Colors
+  </p>
+
+  <div className="flex flex-wrap gap-2">
+  {[
+  ...COLOR_OPTIONS,
+  ...selectedColors.filter(
+    (c) =>
+      !COLOR_OPTIONS.some(
+        (o) => o.name === c.name
+      )
+  ),
+].map((color) => {
+  const selected = selectedColors.some(
+  (c) => c.name === color.name
+);
+      return (
+        <button
+          key={color.name}
+          type="button"
+          onClick={() => {
+            if (selected) {
+              setSelectedColors((prev) =>
+                prev.filter((c) => c.name !== color.name)
+              );
+            } else {
+              setSelectedColors((prev) => [
+                ...prev,
+                color,
+              ]);
+            }
+          }}
+          className={`flex items-center gap-2 border rounded-full px-3 py-2 text-sm transition ${
+            selected
+              ? "bg-black text-white border-black"
+              : "bg-white border-gray-300"
+          }`}
+        >
+          <div
+            className="w-4 h-4 rounded-full border"
+            style={{
+              backgroundColor: color.hex,
+            }}
+          />
+
+          {color.name}
+        </button>
+      );
+    })}
+  </div>
+</div>
     {/* Custom Color */}
     <div className="border rounded p-3 space-y-2 mb-4">
       <p className="text-sm font-medium">Add Custom Color</p>
@@ -977,28 +1051,60 @@ setSubSubSubCategory(null); // ✅ ADD
         className="border px-3 py-2 w-full"
       />
 
-      <input
-        type="color"
-        value={customColor.hex}
-        onChange={(e) =>
-          setCustomColor({ ...customColor, hex: e.target.value })
-        }
-        className="w-16 h-10"
-      />
-
+<input
+  type="color"
+  value={customColor.hex || "#f97316"}
+  onChange={(e) =>
+    setCustomColor((prev) => ({
+      ...prev,
+      hex: e.target.value,
+    }))
+  }
+  className="w-16 h-10 cursor-pointer"
+/>
       <button
         type="button"
-        onClick={() => {
-          if (!customColor.name) return;
+onClick={() => {
+  if (!customColor.name.trim()) return;
 
-          if (selectedColors.some(c => c.name === customColor.name)) {
-            toast.error("Color already added");
-            return;
-          }
+  const normalizedName =
+    customColor.name.trim();
 
-          setSelectedColors(prev => [...prev, customColor]);
-          setCustomColor({ name: "", hex: "#000000" });
-        }}
+  const alreadyExists = selectedColors.some(
+    (c) =>
+      c.name.toLowerCase() ===
+        normalizedName.toLowerCase() ||
+      c.hex.toLowerCase() ===
+        customColor.hex.toLowerCase()
+  );
+
+  if (alreadyExists) {
+    toast.error("Color already added");
+    return;
+  }
+
+  const newColor = {
+    name: normalizedName,
+    hex: customColor.hex,
+  };
+
+  setSelectedColors((prev) => [
+    ...prev,
+    newColor,
+  ]);
+
+  setVariants((prev) =>
+    prev.map((v) => ({
+      ...v,
+      color: v.color || normalizedName,
+    }))
+  );
+
+  setCustomColor({
+    name: "",
+    hex: "#000000",
+  });
+}}
         className="px-3 py-1 bg-black text-white rounded"
       >
         Add Color

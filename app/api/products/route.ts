@@ -263,7 +263,7 @@ export async function POST(req: Request) {
 
     // 3️⃣ Fallback
     if (!finalBrandName) {
-      finalBrandName = site?.name || "BSCFASHION";
+      finalBrandName = site?.name || "Arunodaya";
     }
 
     /* ---------------------------------
@@ -324,17 +324,36 @@ for (const file of files) {
 }
 
 
-      variantData.push({
-        size: v.size ?? null,
-        color: v.color ?? null,
-       price:
-  v.price !== undefined && v.price !== ""
-    ? Number(v.price)
-    : price, // ✅ base product price
+   variantData.push({
+  size: v.size ?? null,
+  color: v.color ?? null,
+  colorHex: v.colorHex ?? "#000000",
 
-        stock: Number(v.stock) || 0,
-        images: uploadedImages,
-      });
+  mrp:
+    v.mrp !== undefined && v.mrp !== ""
+      ? Number(v.mrp)
+      : mrp,
+
+  price:
+    v.price !== undefined && v.price !== ""
+      ? Number(v.price)
+      : price,
+
+  discount:
+    v.discount !== undefined && v.discount !== ""
+      ? Number(v.discount)
+      : discount,
+
+  discountAmount:
+    v.discountAmount !== undefined &&
+    v.discountAmount !== ""
+      ? Number(v.discountAmount)
+      : discountAmount,
+
+  stock: Number(v.stock) || 0,
+
+  images: uploadedImages,
+});
     }
 
     /* ---------------------------------

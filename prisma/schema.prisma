@@ -7,7 +7,14 @@ generator client {
   provider   = "prisma-client-js"
   engineType = "binary"
 }
-
+model Color {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  hex         String
+  swatchImage String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 model PageContent {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   slug    String @unique
@@ -196,14 +203,21 @@ model ProductVariant {
   product Product @relation(fields: [productId], references: [id])
   bags    Bag[]
 
-
-
   title     String?
   size      String?
   color     String?
+  colorHex  String?
+
   sku       String?
+
+  mrp       Float?
   price     Float?
+
+  discount        Float?
+  discountAmount  Float?
+
   stock     Int      @default(0)
+
   images    String[]
 
   createdAt DateTime @default(now())
@@ -211,7 +225,6 @@ model ProductVariant {
 
   @@index([productId])
 }
-
 
 
 

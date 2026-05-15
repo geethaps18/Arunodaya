@@ -26,7 +26,7 @@ type Variant = {
   id: string;
   size?: string;
   color?: string;
-
+  colorHex?: string;
   mrp: string;            // ✅ add
   price: string;
   discount: string;       // ✅ add
@@ -77,7 +77,7 @@ const [videoFile, setVideoFile] = useState<File | null>(null);
 const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
 const [selectedColors, setSelectedColors] =
-  useState<ColorOption[]>(COLOR_OPTIONS);
+  useState<ColorOption[]>([]);
 
 
   const [price, setPrice] = useState("");
@@ -247,6 +247,7 @@ setSubSubSubCategory(subSubSubCat);
         id: crypto.randomUUID(),
         size: v.size,
         color: v.color,
+        colorHex: v.colorHex || "#ccc",
         mrp: String(v.mrp),
         price: String(v.price),
         discount: String(v.discount),
@@ -256,6 +257,34 @@ setSubSubSubCategory(subSubSubCat);
         previews: [], // 🔥 clear images
       }))
     );
+    
+const restoredColors = (
+  data.variants || []
+)
+  .filter((v:any) => v.color)
+  .map((v:any) => ({
+    name: v.color,
+
+    hex:
+      v.colorHex ||
+
+      COLOR_OPTIONS.find(
+        c => c.name === v.color
+      )?.hex ||
+
+      "#ccc",
+  }));
+
+const uniqueColors = restoredColors.filter(
+  (color, index, self) =>
+    index ===
+    self.findIndex(
+      c => c.name === color.name
+    )
+);
+
+setSelectedColors(uniqueColors);
+
   })();
 }, [duplicateId]);
 
@@ -323,17 +352,56 @@ setSubSubSubCategory(subSubSubCat);
 
     setProductPreviews(data.images || []);
 
-    setVariants(
-      (data.variants || []).map((v:any) => ({
-        id: crypto.randomUUID(),
-        size: v.size,
-        color: v.color,
-        price: String(v.price),
-        stock: String(v.stock),
-        images: [],
-        previews: v.images || [],
-      }))
-    );
+  setVariants(
+  (data.variants || []).map((v:any) => ({
+    id: crypto.randomUUID(),
+
+    size: v.size,
+
+    color: v.color,
+    colorHex: v.colorHex || "#ccc",
+
+    mrp: String(v.mrp ?? ""),
+    price: String(v.price ?? ""),
+
+    discount: String(v.discount ?? ""),
+    discountAmount: String(v.discountAmount ?? ""),
+
+    stock: String(v.stock),
+
+    images: [],
+    previews: v.images || [],
+  }))
+);
+
+const restoredColors = (
+  data.variants || []
+)
+  .filter((v:any) => v.color)
+  .map((v:any) => ({
+    name: v.color,
+
+    hex:
+      v.colorHex ||
+
+      COLOR_OPTIONS.find(
+        c => c.name === v.color
+      )?.hex ||
+
+      "#ccc",
+  }));
+
+const uniqueColors = restoredColors.filter(
+  (color, index, self) =>
+    index ===
+    self.findIndex(
+      c => c.name === color.name
+    )
+);
+
+setSelectedColors(uniqueColors);
+
+
   })();
 }, [mode, productId]);
 
@@ -386,6 +454,7 @@ function newVariant(): Variant {
     id: String(Date.now()) + Math.random().toString(36).slice(2),
     size: "",
     color: "",
+    colorHex:"",
     mrp: mrp || "",
     price: price || "",
     discount: "",
@@ -580,6 +649,19 @@ form.append("discountAmount", String(discountAmount));
      variants.map(v => ({
   size: v.size,
   color: v.color,
+ colorHex:
+    v.colorHex ||
+
+    selectedColors.find(
+      c => c.name === v.color
+    )?.hex ||
+
+    COLOR_OPTIONS.find(
+      c => c.name === v.color
+    )?.hex ||
+
+    "#ccc",
+
   mrp: Number(v.mrp),
   price: Number(v.price),
   discount: Number(v.discount),
@@ -968,6 +1050,60 @@ Soft brushed interior"
 
         {activeTab === 3 && (
   <div className="relative">
+    <div className="mb-6">
+  <p className="text-sm font-medium mb-3">
+    Select Colors
+  </p>
+
+  <div className="flex flex-wrap gap-2">
+  {[
+   ...COLOR_OPTIONS,
+   ...selectedColors.filter(
+     (c) =>
+       !COLOR_OPTIONS.some(
+         (o) => o.name === c.name
+       )
+   ),
+ ].map((color) => {
+   const selected = selectedColors.some(
+   (c) => c.name === color.name
+ );
+
+      return (
+        <button
+          key={color.name}
+          type="button"
+          onClick={() => {
+            if (selected) {
+              setSelectedColors((prev) =>
+                prev.filter((c) => c.name !== color.name)
+              );
+            } else {
+              setSelectedColors((prev) => [
+                ...prev,
+                color,
+              ]);
+            }
+          }}
+          className={`flex items-center gap-2 border rounded-full px-3 py-2 text-sm transition ${
+            selected
+              ? "bg-black text-white border-black"
+              : "bg-white border-gray-300"
+          }`}
+        >
+          <div
+            className="w-4 h-4 rounded-full border"
+            style={{
+              backgroundColor: color.hex,
+            }}
+          />
+
+          {color.name}
+        </button>
+      );
+    })}
+  </div>
+</div>
     {/* Custom Color */}
     <div className="border rounded p-3 space-y-2 mb-4">
       <p className="text-sm font-medium">Add Custom Color</p>
@@ -1031,12 +1167,20 @@ Soft brushed interior"
           </select>
 
           <select
-            value={v.color}
-            onChange={(e) => {
-              const copy = [...variants];
-              copy[idx].color = e.target.value;
-              setVariants(copy);
-            }}
+  value={v.color}
+  onChange={(e) => {
+    const copy = [...variants];
+
+    const selected = selectedColors.find(
+      c => c.name === e.target.value
+    );
+
+    copy[idx].color = e.target.value;
+    copy[idx].colorHex =
+      selected?.hex || "#ccc";
+
+    setVariants(copy);
+  }}
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">Select Color</option>

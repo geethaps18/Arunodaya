@@ -124,10 +124,11 @@ subSubSubCategory?: string; // 🔥 ADD THIS
 
   sizes: string[];
 
- variants: {
+variants: {
   id: string;
   size?: string | null;
   color?: string | null;
+  colorHex?: string | null;
   price?: number;
   stock?: number;
   images?: string[];
@@ -185,7 +186,14 @@ const [selectedVariant, setSelectedVariant] = useState<{
   id: string;
   size?: string | null;
   color?: string | null;
+  colorHex?: string | null;
+
+  mrp?: number;
   price?: number;
+
+  discount?: number;
+  discountAmount?: number;
+
   stock?: number;
   images?: string[];
 } | null>(null);
@@ -197,8 +205,15 @@ const effectivePrice =
 const [activeIndex, setActiveIndex] = useState(0);
 
 const getColorHex = (name: string) =>
-  COLOR_OPTIONS.find(c => c.name === name)?.hex ?? "#ccc";
+  product?.variants.find(
+    (v) => v.color === name
+  )?.colorHex ||
 
+  COLOR_OPTIONS.find(
+    (c) => c.name === name
+  )?.hex ||
+
+  "#ccc";
 
 
 

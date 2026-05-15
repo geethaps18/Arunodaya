@@ -114,6 +114,7 @@ discountAmount: product.discountAmount ?? null, // ✅ ADD THIS
   variants: product.variants.map(v => ({
     id: v.id,
     color:v.color,
+    colorHex:v.colorHex,
     size: v.size,
     price: v.price ?? product.price,
     stock: v.stock ?? 0,
