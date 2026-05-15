@@ -201,7 +201,7 @@ className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black 
     <Link
       key={item.name}
       href={href}
-      className="relative w-[240px] h-[300px] flex-shrink-0 rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300"
+      className="relative w-full h-[300px] flex-shrink-0 rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300"
     >
 
   <div className="relative w-full h-full">
