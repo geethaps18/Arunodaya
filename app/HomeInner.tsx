@@ -110,7 +110,7 @@ const orderedContent = cmsData?.content
   : [];
 const heroBanners =
   cmsData?.content.filter((b: any) => b.type === "HeroBanner") || [];
-  
+
 const sortedProducts = [...products]
   .filter(
     (product: any) =>
@@ -132,7 +132,7 @@ const sortedProducts = [...products]
         
         {/* ================= HOME CATEGORY ROW ================= */}
    
-<section className="bg-white pt-8 ">
+<section className="bg-white pt-6">
 
 
     {/* Top Word Tabs */}
@@ -187,7 +187,7 @@ const sortedProducts = [...products]
     });
 
     return (
-      <div key={mainCategory.id} className="mb-7">
+      <div key={mainCategory.id} className="mb-3">
         {/* SWIPER */}
       <Swiper
   modules={[FreeMode]}
@@ -238,7 +238,7 @@ const sortedProducts = [...products]
     
 
 {cmsData && (
-  <section className="relative w-screen">
+  <section className="relative w-screen-mt-1">
    <Swiper
   modules={[Autoplay, Pagination, Thumbs]}
   autoplay={{
