@@ -24,43 +24,85 @@ import "swiper/css/navigation";
 import { categories } from "@/data/categories";
 
 /* -------------------- Categories -------------------- */
-const highlightCategories: any = {
-  Women: [
-   {
-  name: "Arunodaya Gold",
-  image: "/images/gold.png",
-  main: "women",
-  sub: "ethnic-wear",
-  child: "arunodaya-gold",
-  link: "categories/women/ethnic-wear/arunodaya-gold",
+const buildWomenHighlights = () => {
+  const womenCategory = categories.find(
+    (cat) => cat.name === "Women"
+  );
 
-},
- { name: "Western Wear", image: "/images/western-wear.png" },
-    { name: "Embroidery Tops", image: "/images/embroidery.png" ,
-      link:"categories/women/western-wear/tops/embroidery-tops",
-    },
-    { name: "Kurta Sets", image: "/images/kurta-set.png" ,
-      link: "categories/women/ethnic-wear/kurta-sets",
-    },
-    { name: "CropTop Set", image: "/images/croptop-set.png",
-      link:"categories/women/western-wear/crop-top-sets",
-     },
-    { name: "Night Wear Set", image: "/images/night.png",
-      link: "categories/women/night-wear/night-wear-sets",
-     },
-    { name: "Coardset", image: "/images/coard.png",
-      link: "categories/women/ethnic-wear/kurta-sets/coard-sets",
-     },
-    { name: "Umbrella Set", image: "/images/umbrella.png",
-      link: "/categories/women/ethnic-wear/kurta-sets/grand-umbrella-sets",
-     },
-   
-  
+  if (!womenCategory) return [];
 
+  const items: any[] = [];
 
-  ],
+  womenCategory.subCategories.forEach((sub) => {
+
+    // LEVEL 1
+    items.push({
+      name: sub.name,
+      image: sub.image,
+      link: `/categories/women/${sub.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")}`,
+    });
+
+    // LEVEL 2
+    sub.subCategories?.forEach((child) => {
+
+      items.push({
+        name: child.name,
+        image: child.image,
+        link: `/categories/women/${sub.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")}/${child.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`,
+      });
+
+      // LEVEL 3
+      child.subCategories?.forEach((subchild) => {
+
+        items.push({
+          name: subchild.name,
+          image: subchild.image,
+          link: `/categories/women/${sub.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}/${child.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}/${subchild.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}`,
+        });
+
+        // LEVEL 4
+        subchild.subCategories?.forEach((deepchild) => {
+
+          items.push({
+            name: deepchild.name,
+            image: deepchild.image,
+            link: `/categories/women/${sub.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}/${child.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}/${subchild.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}/${deepchild.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}`,
+          });
+
+        });
+
+      });
+
+    });
+
+  });
+
+  return items;
 };
 
+const highlightCategories: any = {
+  Women: buildWomenHighlights(),
+};
 
 export default function HomeInner() {
   /* -------------------- Products -------------------- */
@@ -139,7 +181,10 @@ const sortedProducts = [...products]
  {/* ================= DYNAMIC CATEGORY SWIPERS ================= */}
 <section className="bg-white py-4 lg:hidden">
 
-  {categories.map((mainCategory) => {
+  {categories.map((mainCategory) => {  <h2 className="text-[22px] font-bold px-4 mb-3 font-[var(--font-newsreader)]">
+      {mainCategory.name}
+    </h2>
+  
 
     // collect all nested categories
     const allItems: any[] = [];
@@ -188,6 +233,18 @@ const sortedProducts = [...products]
 
     return (
       <div key={mainCategory.id} className="mb-3">
+         <div className="flex items-center justify-between px-4 mb-3">
+          <h2 className="text-[24px] font-bold font-[var(--font-newsreader)]">
+            {mainCategory.name}
+          </h2>
+
+          <Link
+            href={`/categories/${mainCategory.name.toLowerCase()}`}
+            className="text-sm text-gray-500"
+          >
+            View All
+          </Link>
+        </div>
         {/* SWIPER */}
       <Swiper
   modules={[FreeMode]}
