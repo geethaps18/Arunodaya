@@ -15,60 +15,7 @@ function genId() {
 
 export const categories: SubCategory[] = [
 
-  // ================= MEN =================
-  {
-    id: genId(),
-    name: "Men",
-    image: "/images/men.png",
-    subCategories: [
-
-      {
-        id: genId(),
-        name: "Top Wear",
-        image: "/images/shirt.png",
-        subCategories: [
-          { id: genId(), name: "Casual Shirts", image: "/images/casual-shirt.png", subCategories: [] },
-          { id: genId(), name: "Formal Shirts", image: "/images/formal-shirt.png", subCategories: [] },
-          { id: genId(), name: "Party Wear Shirts", image: "/images/party-shirt.png", subCategories: [] },
-          { id: genId(), name: "T-Shirts", image: "/images/tshirt.png", subCategories: [] },
-          { id: genId(), name: "Jackets", image: "/images/jackets-men.png", subCategories: [] },
-        ],
-      },
-
-      {
-        id: genId(),
-        name: "Bottom Wear",
-        image: "/images/jeans.png",
-        subCategories: [
-          { id: genId(), name: "Formal Pants", image: "/images/formal-trouser.png", subCategories: [] },
-          { id: genId(), name: "Jeans", image: "/images/jeans.png", subCategories: [] },
-          { id: genId(), name: "Cargo Pants", image: "/images/cargo-pant.png", subCategories: [] },
-          { id: genId(), name: "Baggy Jeans", image: "/images/baggy.png", subCategories: [] },
-        ],
-      },
-
-      {
-        id: genId(),
-        name: "Ethnic Wear",
-        image: "/images/kurtha-men.png",
-        subCategories: [
-          { id: genId(), name: "Kurta Sets", image: "/images/pyjama-set.png", subCategories: [] },
-        ],
-      },
-
-    {
-  id: genId(),
-  name: "Blazers & Suits",
-  image: "/images/blazer.png",
-  subCategories: [
-    { id: genId(), name: "Blazers", image: "/images/blazer.png", subCategories: [] }, // ✅ ADD THIS
-    { id: genId(), name: "Blazer Sets", image: "/images/blazer.png", subCategories: [] },
-  ],
-}
-    ],
-  },
-
-  // ================= WOMEN =================
+   // ================= WOMEN =================
   {
     id: genId(),
     name: "Women",
@@ -237,6 +184,61 @@ export const categories: SubCategory[] = [
     ],
   },
   
+
+  // ================= MEN =================
+  {
+    id: genId(),
+    name: "Men",
+    image: "/images/men.png",
+    subCategories: [
+
+      {
+        id: genId(),
+        name: "Top Wear",
+        image: "/images/shirt.png",
+        subCategories: [
+          { id: genId(), name: "Casual Shirts", image: "/images/casual-shirt.png", subCategories: [] },
+          { id: genId(), name: "Formal Shirts", image: "/images/formal-shirt.png", subCategories: [] },
+          { id: genId(), name: "Party Wear Shirts", image: "/images/party-shirt.png", subCategories: [] },
+          { id: genId(), name: "T-Shirts", image: "/images/tshirt.png", subCategories: [] },
+          { id: genId(), name: "Jackets", image: "/images/jackets-men.png", subCategories: [] },
+        ],
+      },
+
+      {
+        id: genId(),
+        name: "Bottom Wear",
+        image: "/images/jeans.png",
+        subCategories: [
+          { id: genId(), name: "Formal Pants", image: "/images/formal-trouser.png", subCategories: [] },
+          { id: genId(), name: "Jeans", image: "/images/jeans.png", subCategories: [] },
+          { id: genId(), name: "Cargo Pants", image: "/images/cargo-pant.png", subCategories: [] },
+          { id: genId(), name: "Baggy Jeans", image: "/images/baggy.png", subCategories: [] },
+        ],
+      },
+
+      {
+        id: genId(),
+        name: "Ethnic Wear",
+        image: "/images/kurtha-men.png",
+        subCategories: [
+          { id: genId(), name: "Kurta Sets", image: "/images/pyjama-set.png", subCategories: [] },
+        ],
+      },
+
+    {
+  id: genId(),
+  name: "Blazers & Suits",
+  image: "/images/blazer.png",
+  subCategories: [
+    { id: genId(), name: "Blazers", image: "/images/blazer.png", subCategories: [] }, // ✅ ADD THIS
+    { id: genId(), name: "Blazer Sets", image: "/images/blazer.png", subCategories: [] },
+  ],
+}
+    ],
+  },
+
+ 
 
   // ================= KIDS =================
   {

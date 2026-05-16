@@ -192,7 +192,7 @@ useEffect(() => {
     
 <>
 {/* 🔥 ANNOUNCEMENT BAR */}
-<div className="fixed top-0 left-0 w-full bg-gray-100 overflow-hidden z-[60]">
+<div className="fixed top-0 left-0 w-full  bg-[#edf3f8] overflow-hidden z-[60]">
   <div className="flex animate-marquee whitespace-nowrap py-2 text-gray-900 text-xs md:text-sm">
 
     <span className="px-8">
@@ -206,10 +206,10 @@ useEffect(() => {
   </div>
 </div>
 
-  <header
-    className="fixed top-[32px] left-0 w-full bg-white border-b border-black/10 z-50"
-    onMouseLeave={() => setActiveCategory(null)}
-  >
+<header
+  className="fixed top-[32px] left-0 w-full bg-gradient-to-r from-[#eef3f8] via-[#f8fafc] to-[#e9eff5] backdrop-blur-md border-b border-[#d6e0ea] z-50"
+  onMouseLeave={() => setActiveCategory(null)}
+>
 
     
 
@@ -239,7 +239,7 @@ useEffect(() => {
   onClick={() => router.push("/")}
 >
   <img
-    src="/images/arunodayalogo1.png"
+    src="/images/arclogo26.png"
     alt="Arunodaya Logo"
     className="h-full  object-cover"
   />

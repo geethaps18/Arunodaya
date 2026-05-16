@@ -16,14 +16,12 @@ import { puckConfig } from "@/cms/puck.config";
 import AnimatedProductCard from "@/components/AnimatedProductCard";
 import AnimatedCategoryCard from "@/components/AnimatedCategoryCard";
 import { useRouter } from "next/navigation";
-
-
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination,  Thumbs } from "swiper/modules";
+import { Autoplay, Pagination, Thumbs, FreeMode } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
+import { categories } from "@/data/categories";
 
 /* -------------------- Categories -------------------- */
 const highlightCategories: any = {
@@ -112,11 +110,17 @@ const orderedContent = cmsData?.content
   : [];
 const heroBanners =
   cmsData?.content.filter((b: any) => b.type === "HeroBanner") || [];
-const sortedProducts = [...products].sort(
-  (a: any, b: any) =>
-    Number(String(a.price).replace(/,/g, "")) -
-    Number(String(b.price).replace(/,/g, ""))
-);
+  
+const sortedProducts = [...products]
+  .filter(
+    (product: any) =>
+      Number(String(product.price).replace(/,/g, "")) > 165
+  )
+  .sort(
+    (a: any, b: any) =>
+      Number(String(a.price).replace(/,/g, "")) -
+      Number(String(b.price).replace(/,/g, ""))
+  );
 
   return (
  <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f8f8] overflow-x-hidden">
@@ -132,17 +136,102 @@ const sortedProducts = [...products].sort(
 
 
     {/* Top Word Tabs */}
-    <div className="flex justify-center gap-10 pb-4 lg:hidden ">
-      {["Women", "Men", "Kids",].map((tab) => (
-<Link
-  key={tab}
-  href={`/categories/${tab.toLowerCase()}`}
-className="text-[26px] font-medium tracking-wide text-gray-900 hover:text-black transition-all duration-300 font-[var(--font-newsreader)]"
+ {/* ================= DYNAMIC CATEGORY SWIPERS ================= */}
+<section className="bg-white py-4 lg:hidden">
+
+  {categories.map((mainCategory) => {
+
+    // collect all nested categories
+    const allItems: any[] = [];
+
+    mainCategory.subCategories.forEach((sub) => {
+
+      allItems.push({
+        name: sub.name,
+        image: sub.image,
+        link: `/categories/${mainCategory.name.toLowerCase()}/${sub.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`,
+      });
+
+      sub.subCategories?.forEach((child) => {
+
+        allItems.push({
+          name: child.name,
+          image: child.image,
+          link: `/categories/${mainCategory.name.toLowerCase()}/${sub.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}/${child.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}`,
+        });
+
+        child.subCategories?.forEach((subchild) => {
+
+          allItems.push({
+            name: subchild.name,
+            image: subchild.image,
+            link: `/categories/${mainCategory.name.toLowerCase()}/${sub.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}/${child.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}/${subchild.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}`,
+          });
+
+        });
+
+      });
+
+    });
+
+    return (
+      <div key={mainCategory.id} className="mb-7">
+        {/* SWIPER */}
+      <Swiper
+  modules={[FreeMode]}
+  slidesPerView={5.5}
+  spaceBetween={0.5}
+  freeMode={true}
+  grabCursor={true}
+  className="px-0.5"
 >
-  {tab}
-</Link>
-      ))}
-    </div>
+          {allItems.map((item, index) => (
+            <SwiperSlide key={index}>
+
+              <Link
+                href={item.link}
+                className="flex flex-col items-center"
+              >
+
+                {/* IMAGE */}
+            <div className="relative w-[58px] h-[58px] rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                className="object-cover"
+                  />
+
+                </div>
+
+                {/* NAME */}
+                <p className="text-[11px] text-center mt-1 leading-tight line-clamp-2">
+                  {item.name}
+                </p>
+
+              </Link>
+
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+      </div>
+    );
+  })}
+
+</section>
     
 
      {/* ================= HERO / CMS ================= */}
