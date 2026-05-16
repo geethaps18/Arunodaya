@@ -355,7 +355,7 @@ const sortedProducts = [...products]
       src={item.image}
       alt={item.name}
       fill
-      sizes="120px"
+      sizes="10px"
       className="object-cover  group-hover:scale-105 transition-transform duration-500"
     />
   </div>
