@@ -356,7 +356,7 @@ const sortedProducts = [...products]
       alt={item.name}
       fill
       sizes="120px"
-      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+      className="object-cover  group-hover:scale-105 transition-transform duration-500"
     />
   </div>
 
