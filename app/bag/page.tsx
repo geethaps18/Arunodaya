@@ -27,8 +27,46 @@ export default function BagPage() {
   const { wishlist, toggleWishlist } = useWishlist();
 const freeItemInCart = bagItems.some(item => item.price === 0);
   // --- Discount logic (can move into context if global) ---
+  
 const freeItems = bagItems.filter(i => i.price === 0);
 const normalItems = bagItems.filter(i => i.price !== 0);
+useEffect(() => {
+  const paidQty = normalItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  let allowedFreeQty = 0;
+
+  if (paidQty >= 6) {
+    allowedFreeQty = 3;
+  } else if (paidQty >= 3) {
+    allowedFreeQty = 1;
+  }
+
+  const currentFreeQty = freeItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  // 🔥 REMOVE EXTRA FREE ITEMS
+  if (currentFreeQty > allowedFreeQty) {
+
+    const extraItems = [...freeItems];
+
+    let removeCount = currentFreeQty - allowedFreeQty;
+
+    extraItems.forEach((item) => {
+      if (removeCount <= 0) return;
+
+      removeFromCart(item.uniqueKey);
+
+      removeCount--;
+    });
+
+    toast.error("Free gifts updated based on cart quantity");
+  }
+}, [bagItems]);
   const totalMRP = bagItems.reduce((sum, item) => {
   const mrp = item.product.mrp ?? item.price; // fallback safety
   return sum + mrp * item.quantity;
