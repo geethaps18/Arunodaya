@@ -334,7 +334,7 @@ const sortedProducts = [...products]
 
    {/* Highlight Cards - Single Row */}
 <div className="mt-5 lg:hidden">
-  <div className="grid grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-2">
 
 {highlightCategories[activeTab].map((item: any) => {
   const href =
