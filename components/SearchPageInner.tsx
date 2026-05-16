@@ -17,7 +17,7 @@ const { products, loading } = useInfiniteProducts(
 );
 
   return (
-    <main className="min-h-screen bg-white px-0.5 sm:px-6 lg:px-10 pt-20">
+    <main className="min-h-screen bg-white px-0.5 sm:px-6 lg:px-10 pt-28">
       <Header />
 
       {/* Search Title */}

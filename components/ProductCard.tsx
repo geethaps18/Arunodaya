@@ -36,14 +36,15 @@ const slugify = (text?: string) =>
     .replace(/\s+/g, "-")
     .replace(/--+/g, "-")
 
+const productSlug = slugify(product?.name)
+
 const categorySlug =
   slugify(product?.subSubSubCategory) ||
   slugify(product?.subSubCategory) ||
   slugify(product?.subCategory)
 
-const offer = categorySlug
-  ? offers[categorySlug as keyof typeof offers]
-  : undefined
+const offer =
+  offers[productSlug as keyof typeof offers]
 
 const offerText = getOfferDisplay(offer)
   /* -------------------- FETCH RATING -------------------- */
