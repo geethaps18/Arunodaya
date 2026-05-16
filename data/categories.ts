@@ -271,11 +271,10 @@ export const categories: SubCategory[] = [
         { id: genId(), name: "Kids Gown", image: "/images/girls-gown.png", subCategories: [] },
         { id: genId(), name: "Kids Sharara Sets", image: "/images/girls-sharara.png", subCategories: [] },
         { id: genId(), name: "Frocks", image: "/images/frock.png", subCategories: [] },
-        { id: genId(), name: "Kids T-Shirts", image: "/images/tshirt.png", subCategories: [] },
+        { id: genId(), name: "Kids T-Shirts", image: "/images/boys-tshirt.png", subCategories: [] },
         { id: genId(), name: "Kids Jeans Set", image: "/images/jeans-boy.png", subCategories: [] },
-        { id: genId(), name: "Night Dress", image: "/images/nighty.png", subCategories: [] },
-        { id: genId(), name: "Western Wear", image: "/images/western.png", subCategories: [] },
-        { id: genId(), name: "Mom's Care", image: "/images/mom.png", subCategories: [] },
+        { id: genId(), name: "Night Dress", image: "/images/boys-nightpants.png", subCategories: [] },
+   
       ],
     },
 
