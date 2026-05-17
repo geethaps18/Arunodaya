@@ -676,7 +676,7 @@ return (
     </div>
 
     <a
-      href="https://maps.google.com"
+      href="https://www.google.com/maps/search/Arunodaya+Collections+PB+Road+Gandhi+Circle+Davanagere"
       target="_blank"
       className="inline-block mt-4 text-blue-600 font-medium"
     >
