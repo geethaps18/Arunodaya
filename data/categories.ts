@@ -35,7 +35,7 @@ export const categories: SubCategory[] = [
             name: "Kurtas",
             image: "/images/kurta.png",
             subCategories: [
-               { id: genId(), name: "Fishcut Top", image: "/images/fishcut-top.png", subCategories: [] },
+               { id: genId(), name: "Fishcut Top", image: "/images/fishcut.png", subCategories: [] },
               { id: genId(), name: "Short Umbrella", image: "/images/umbrella.png", subCategories: [] },
               { id: genId(), name: "Regular Kurta", image: "/images/regular-kurta.png", subCategories: [] },
               { id: genId(), name: "Silk Kurta", image: "/images/silk-kurta.png", subCategories: [] },
