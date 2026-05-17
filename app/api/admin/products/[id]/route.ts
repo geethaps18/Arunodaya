@@ -167,8 +167,12 @@ export async function PUT(
     const categoryPath = form.get("categoryPath")
       ? JSON.parse(form.get("categoryPath")!.toString())
       : [];
-
-    const [category, subCategory, subSubCategory] = categoryPath;
+const [
+  category,
+  subCategory,
+  subSubCategory,
+  subSubSubCategory,
+] = categoryPath;
 
     // ---------------- FETCH PREVIOUS PRODUCT ----------------
     const prevProduct = await prisma.product.findUnique({
@@ -230,12 +234,13 @@ const features = form.get("features")
 
 
     // ---------------- UPDATE PRODUCT ----------------
-  const updateData: any = {
+ const updateData: any = {
   name,
   description,
   category,
   subCategory,
   subSubCategory,
+  subSubSubCategory,
   images: finalImages,
 
   fit,
@@ -243,8 +248,8 @@ const features = form.get("features")
   features,
 
   siteId: prevProduct.siteId,
-brandId: brandId,              // 🔥 NEW
-brandName: resolvedBrandName,  // 🔥 UPDATED
+  brandId: brandId,
+  brandName: resolvedBrandName,
 
   isPlatform: prevProduct.isPlatform,
 };
@@ -292,20 +297,22 @@ brandName: resolvedBrandName,  // 🔥 UPDATED
           ...uploadedImages,
         ];
 
-        await prisma.productVariant.create({
-          data: {
-            productId: id,
-            size: v.size ?? null,
-            color: v.color ?? null,
-          price:
-  v.price !== undefined && v.price !== ""
-    ? Number(v.price)
-    : prevProduct.price,
+     await prisma.productVariant.create({
+  data: {
+    productId: id,
+    size: v.size ?? null,
+    color: v.color ?? null,
+    colorHex: v.colorHex ?? "#000000",
 
-            stock: Number(v.stock) || 0,
-            images: finalVariantImages,
-          },
-        });
+    price:
+      v.price !== undefined && v.price !== ""
+        ? Number(v.price)
+        : prevProduct.price,
+
+    stock: Number(v.stock) || 0,
+    images: finalVariantImages,
+  },
+});
       }
     }
 

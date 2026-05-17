@@ -46,8 +46,14 @@ const where: Prisma.ProductWhereInput = {
   brand: {
     select: { name: true },
   },
-  variants: {
-    select: { stock: true },
+ variants: {
+  select: {
+    stock: true,
+    color: true,
+    colorHex: true,
+    images: true,
+  },
+
   },
   _count: {
     select: { stockReminders: true },

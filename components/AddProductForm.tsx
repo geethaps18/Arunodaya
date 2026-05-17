@@ -664,10 +664,8 @@ form.append("discountAmount", String(discountAmount));
       JSON.stringify(
      variants.map(v => ({
   size: v.size,
-  color: v.color,
+color: v.color ?? "",
  colorHex:
-  v.colorHex ||
-
   selectedColors.find(
     c =>
       c.name.trim().toLowerCase() ===
@@ -680,13 +678,15 @@ form.append("discountAmount", String(discountAmount));
       v.color?.trim().toLowerCase()
   )?.hex ||
 
+  v.colorHex ||
+
   "#ccc",
 
-  mrp: Number(v.mrp),
-  price: Number(v.price),
-  discount: Number(v.discount),
-  discountAmount: Number(v.discountAmount),
-  stock: Number(v.stock),
+ mrp: String(v.mrp ?? ""),
+price: String(v.price ?? ""),
+discount: String(v.discount ?? ""),
+discountAmount: String(v.discountAmount ?? ""),
+stock: String(v.stock ?? ""),
   existingImages: v.previews.filter(p => p.startsWith("http")),
 }))
 
@@ -1215,7 +1215,7 @@ Soft brushed interior"
 
           <select
   value={v.color}
- onChange={(e) => {
+onChange={(e) => {
   const copy = [...variants];
 
   const selected =
@@ -1230,22 +1230,22 @@ Soft brushed interior"
 
   copy[idx].color = e.target.value;
 
- copy[idx].colorHex =
-  selected?.hex ||
+  copy[idx].colorHex =
+    selected?.hex ||
 
-  COLOR_OPTIONS.find(
-    c =>
-      c.name.trim().toLowerCase() ===
-      e.target.value.trim().toLowerCase()
-  )?.hex ||
+    COLOR_OPTIONS.find(
+      c =>
+        c.name.trim().toLowerCase() ===
+        e.target.value.trim().toLowerCase()
+    )?.hex ||
 
-  selectedColors.find(
-    c =>
-      c.name.trim().toLowerCase() ===
-      e.target.value.trim().toLowerCase()
-  )?.hex ||
+    selectedColors.find(
+      c =>
+        c.name.trim().toLowerCase() ===
+        e.target.value.trim().toLowerCase()
+    )?.hex ||
 
-  "#ccc";
+    "#ccc";
 
   setVariants(copy);
 }}

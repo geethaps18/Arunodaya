@@ -231,7 +231,10 @@ const updated = await prisma.product.update({
 
       price: v.price,
       stock: v.stock,
-      images: v.images || [],
+      images:
+  v.images?.length
+    ? v.images
+    : v.existingImages || [],
     })) || [],
 },
   },

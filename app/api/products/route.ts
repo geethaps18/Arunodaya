@@ -135,6 +135,7 @@ if (subSubSubCategory) where.subSubSubCategory = subSubSubCategory;
               id: true,
               size: true,
               color: true,
+              colorHex: true,
               stock: true,
               images: true,
             },

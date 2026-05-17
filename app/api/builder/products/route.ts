@@ -64,9 +64,14 @@ export async function GET(req: Request) {
         brand: {
           select: { name: true },
         },
-        variants: {
-          select: { stock: true },
-        },
+      variants: {
+  select: {
+    stock: true,
+    color: true,
+    colorHex: true,
+    images: true,
+  },
+},
         _count: {
           select: { stockReminders: true },
         },

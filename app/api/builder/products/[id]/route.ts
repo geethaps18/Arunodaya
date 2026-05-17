@@ -238,20 +238,23 @@ if (variantsRaw) {
       ...uploadedImages,
     ];
 
-    await prisma.productVariant.create({
-      data: {
-        productId: id,
-        size: v.size ?? null,
-        color: v.color ?? null,
-      price:
-  v.price !== undefined && v.price !== ""
-    ? Number(v.price)
-    : prevProduct.price,
+  await prisma.productVariant.create({
+  data: {
+    productId: id,
+    size: v.size ?? null,
+    color: v.color ?? null,
 
-        stock: Number(v.stock) || 0,
-        images: finalVariantImages,
-      },
-    });
+    colorHex: v.colorHex ?? "#000000", // ✅ ADD THIS
+
+    price:
+      v.price !== undefined && v.price !== ""
+        ? Number(v.price)
+        : prevProduct.price,
+
+    stock: Number(v.stock) || 0,
+    images: finalVariantImages,
+  },
+});
   }
 }
 

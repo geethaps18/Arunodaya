@@ -254,29 +254,49 @@ const subSubSubCat =
   ) || null;
 
 setSubSubSubCategory(subSubSubCat);
+const restoredColors = (
+  data.variants || []
+)
+  .filter((v:any) => v.color)
+  .map((v:any) => ({
+    name: v.color,
 
+    hex:
+      v.colorHex ||
+
+      COLOR_OPTIONS.find(
+        c =>
+          c.name.trim().toLowerCase() ===
+          v.color?.trim().toLowerCase()
+      )?.hex ||
+
+      "#ccc",
+  }));
+
+const uniqueColors = restoredColors.filter(
+  (color, index, self) =>
+    index ===
+    self.findIndex(
+      c =>
+        c.name.trim().toLowerCase() ===
+        color.name.trim().toLowerCase()
+    )
+);
+
+setSelectedColors(uniqueColors);
     setVariants(
       (data.variants || []).map((v: any) => ({
         id: crypto.randomUUID(),
         size: v.size,
-        color: v.color,
-  colorHex:
-  v.colorHex ||
+        color: v.color?? "",
+  colorHex: v.colorHex || "#ccc",
 
-  selectedColors.find(
-    c => c.name === v.color
-  )?.hex ||
 
-  COLOR_OPTIONS.find(
-    c => c.name === v.color
-  )?.hex ||
-
-  "#ccc",
-        mrp: String(v.mrp),
-        price: String(v.price),
-        discount: String(v.discount),
-        discountAmount: String(v.discountAmount),
-        stock: String(v.stock),
+      mrp: String(v.mrp ?? ""),
+price: String(v.price ?? ""),
+discount: String(v.discount ?? ""),
+discountAmount: String(v.discountAmount ?? ""),
+stock: String(v.stock ?? ""),
         images: [],
         previews: v.images || [],
       }))
@@ -344,21 +364,48 @@ const subSubSubCat =
   ) || null;
 
 setSubSubSubCategory(subSubSubCat);
+const restoredColors = (
+  data.variants || []
+)
+  .filter((v:any) => v.color)
+  .map((v:any) => ({
+    name: v.color,
+
+    hex:
+      v.colorHex ||
+
+      COLOR_OPTIONS.find(
+        c =>
+          c.name.trim().toLowerCase() ===
+          v.color?.trim().toLowerCase()
+      )?.hex ||
+
+      "#ccc",
+  }));
+
+const uniqueColors = restoredColors.filter(
+  (color, index, self) =>
+    index ===
+    self.findIndex(
+      c =>
+        c.name.trim().toLowerCase() ===
+        color.name.trim().toLowerCase()
+    )
+);
+
+setSelectedColors(uniqueColors);
 
     setVariants(
       (data.variants || []).map((v:any) => ({
         id: crypto.randomUUID(),
         size: v.size,
-        color: v.color,
-        colorHex:
-  selectedColors.find(
-    c => c.name === v.color
-  )?.hex || "#ccc",
-        mrp: String(v.mrp),
-        price: String(v.price),
-        discount: String(v.discount),
-        discountAmount: String(v.discountAmount),
-        stock: String(v.stock),
+       color: v.color ?? "",
+colorHex: v.colorHex || "#ccc",
+       mrp: String(v.mrp ?? ""),
+price: String(v.price ?? ""),
+discount: String(v.discount ?? ""),
+discountAmount: String(v.discountAmount ?? ""),
+stock: String(v.stock ?? ""),
         images: [],
         previews: [], // 🔥 clear variant images
       }))
@@ -609,10 +656,22 @@ form.append("discountAmount", String(discountAmount));
   size: v.size,
   color: v.color,
   mrp: Number(v.mrp),
-  colorHex:
+ colorHex:
   selectedColors.find(
-    c => c.name === v.color
-  )?.hex || "#ccc",
+    c =>
+      c.name.trim().toLowerCase() ===
+      v.color?.trim().toLowerCase()
+  )?.hex ||
+
+  COLOR_OPTIONS.find(
+    c =>
+      c.name.trim().toLowerCase() ===
+      v.color?.trim().toLowerCase()
+  )?.hex ||
+
+  v.colorHex ||
+
+  "#ccc",
   price: Number(v.price),
   discount: Number(v.discount),
   discountAmount: Number(v.discountAmount),
