@@ -88,7 +88,7 @@ export const offers = {
 
   /* ================= WOMEN ================= */
 
-  "regular-kurta": {
+  "regular": {
     price: 250,
     bundles: [
       { qty: 2, price: 400 },
