@@ -240,10 +240,13 @@ if (!product) {
   })
 );
   const totalAmount = calculateBundleTotal(orderItems);
- const shippingCharge =
+const shippingCharge =
   deliveryType === "PICKUP"
     ? 0
-    : getShippingCharge(address?.pincode || "");
+    : getShippingCharge(
+        address?.pincode || "",
+        totalAmount
+      );
 const finalTotal = totalAmount + shippingCharge;
     /* ---------------- RAZORPAY ---------------- */
    /* ---------------- RAZORPAY ---------------- */

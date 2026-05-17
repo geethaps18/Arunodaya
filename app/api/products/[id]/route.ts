@@ -197,20 +197,49 @@ export async function PUT(
       );
 
     const body = await req.json();
-    const { name, description, price, stock, category } = body;
+  const {
+  name,
+  description,
+  price,
+  stock,
+  category,
+  variants,
+} = body;
 
-    const updated = await prisma.product.update({
-      where: { id },
-      data: {
-        ...(name && { name }),
-        ...(description && { description }),
-        ...(price !== undefined && { price }),
-        ...(stock !== undefined && { stock }),
-        ...(category && { category }),
-      },
-     
-    });
+const updated = await prisma.product.update({
+  where: { id },
 
+  data: {
+    ...(name && { name }),
+    ...(description && { description }),
+    ...(price !== undefined && { price }),
+    ...(stock !== undefined && { stock }),
+    ...(category && { category }),
+
+    // ✅ delete old variants
+  variants: {
+  deleteMany: {},
+
+  create:
+    variants?.map((v: any) => ({
+      size: v.size,
+      color: v.color,
+
+      colorHex:
+        v.colorHex ||
+        "#000000",
+
+      price: v.price,
+      stock: v.stock,
+      images: v.images || [],
+    })) || [],
+},
+  },
+
+  include: {
+    variants: true,
+  },
+});
     return NextResponse.json(
       { message: "Product updated!", product: updated },
       { status: 200 }

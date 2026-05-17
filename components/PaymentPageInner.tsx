@@ -121,7 +121,10 @@ const totalSelling = (() => {
 const shippingCharge =
   deliveryType === "PICKUP"
     ? 0
-    : getShippingCharge(selectedAddress?.pincode);
+    : getShippingCharge(
+        selectedAddress?.pincode,
+        totalSelling
+      );
 const codAvailable =
   deliveryType === "PICKUP"
     ? true

@@ -203,22 +203,32 @@ const effectivePrice =
 
 
 const [activeIndex, setActiveIndex] = useState(0);
-
 const getColorHex = (name: string) => {
   if (!name) return "#ccc";
 
-  // 1. Try variant colorHex
-  const variant = product?.variants.find(
-    (v) =>
-      v.color?.trim().toLowerCase() ===
-      name.trim().toLowerCase()
-  );
+  // ✅ latest matching variants
+  const matchingVariants =
+    product?.variants.filter(
+      (v) =>
+        v.color?.trim().toLowerCase() ===
+        name.trim().toLowerCase()
+    ) || [];
 
-  if (variant?.colorHex) {
-    return variant.colorHex;
+  // ✅ use LAST valid custom hex
+  const variantWithHex = [...matchingVariants]
+    .reverse()
+    .find(
+      (v) =>
+        v.colorHex &&
+        v.colorHex !== "#ccc" &&
+        v.colorHex !== "#000000"
+    );
+
+  if (variantWithHex?.colorHex) {
+    return variantWithHex.colorHex;
   }
 
-  // 2. Try static color options
+  // fallback static colors
   const staticColor = COLOR_OPTIONS.find(
     (c) =>
       c.name.trim().toLowerCase() ===
@@ -229,10 +239,8 @@ const getColorHex = (name: string) => {
     return staticColor.hex;
   }
 
-  // 3. Final fallback
   return "#ccc";
 };
-
 useEffect(() => {
   if (!selectedColor || !variants.length) return;
 
@@ -359,17 +367,16 @@ useEffect(() => {
 }, [selectedVariant]);
 
 
-
- useEffect(() => {
+useEffect(() => {
   if (!id) return;
-
-  if (productCache.has(id)) {
-    return; // already set from initial state
-  }
 
   const load = async () => {
     try {
-      const res = await fetch(`/api/products/${id}`);
+      // ✅ always fetch latest product
+      const res = await fetch(`/api/products/${id}`, {
+        cache: "no-store",
+      });
+
       if (!res.ok) return;
 
       const data = (await res.json()) as ProductWithReviews;
@@ -381,7 +388,9 @@ useEffect(() => {
         reviewCount: data.reviewCount ?? 0,
       };
 
+      // ✅ update cache also
       productCache.set(id, finalProduct);
+
       setProduct(finalProduct);
     } catch (err) {
       console.error(err);
@@ -390,7 +399,6 @@ useEffect(() => {
 
   load();
 }, [id]);
-
 
   
 useEffect(() => {

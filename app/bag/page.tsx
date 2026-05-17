@@ -454,17 +454,38 @@ onChange={() => {
     
   )}
 
-<div className="flex justify-between items-center text-sm">
-  <span className="text-gray-700 font-medium">Shipping</span>
+{/* SHIPPING */}
+{finalOrderTotal >= 500 ? (
+  <>
+    <div className="flex justify-between items-center text-sm">
+      <span className="text-gray-700 font-medium">Shipping</span>
 
-  <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-    Calculated at checkout
-  </span>
-</div>
+      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">
+        FREE
+      </span>
+    </div>
 
-<p className="text-xs text-gray-500 mt-2 leading-relaxed">
-  Free delivery in <span className="font-medium text-gray-700">Davanagere</span> · ₹49 outside
-</p>
+    <p className="text-xs text-green-700 mt-2 leading-relaxed">
+      🎉 You unlocked free delivery on this order
+    </p>
+  </>
+) : (
+  <>
+    <div className="flex justify-between items-center text-sm">
+      <span className="text-gray-700 font-medium">Shipping</span>
+
+      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+        ₹49
+      </span>
+    </div>
+
+    <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+      Add ₹{500 - finalOrderTotal} more to get FREE delivery 🚚
+    </p>
+  </>
+)}
+
+
 
   <hr />
 

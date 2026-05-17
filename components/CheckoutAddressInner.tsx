@@ -318,7 +318,10 @@ const totalDiscount = totalMRP - totalSelling;
 const shippingCharge =
   deliveryType === "PICKUP"
     ? 0
-    : getShippingCharge(selectedAddress?.pincode);
+    : getShippingCharge(
+        selectedAddress?.pincode,
+        totalSelling
+      );
 const getDeliveryDate = (pincode?: string) => {
   const today = new Date();
 

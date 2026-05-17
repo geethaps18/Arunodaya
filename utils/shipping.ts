@@ -6,16 +6,33 @@ export const DAVANAGERE_PINCODES = [
   "577005",
 ];
 
-export const getShippingCharge = (pincode?: string) => {
-  if (!pincode) return 49;
+const FREE_DELIVERY_MIN = 500;
 
-  return DAVANAGERE_PINCODES.includes(pincode.trim())
-    ? 0
-    : 49;
+export const getShippingCharge = (
+  pincode?: string,
+  orderTotal: number = 0
+) => {
+  // ✅ Local Davanagere delivery always FREE
+  if (
+    pincode &&
+    DAVANAGERE_PINCODES.includes(pincode.trim())
+  ) {
+    return 0;
+  }
+
+  // ✅ Outside Davanagere → free above ₹500
+  if (orderTotal >= FREE_DELIVERY_MIN) {
+    return 0;
+  }
+
+  // ✅ Default shipping
+  return 49;
 };
 
 export const isCODAvailable = (pincode?: string) => {
   if (!pincode) return false;
 
-  return DAVANAGERE_PINCODES.includes(pincode.trim());
+  return DAVANAGERE_PINCODES.includes(
+    pincode.trim()
+  );
 };

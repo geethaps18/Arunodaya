@@ -35,6 +35,7 @@ export const categories: SubCategory[] = [
             name: "Kurtas",
             image: "/images/kurta.png",
             subCategories: [
+               { id: genId(), name: "Fishcut Top", image: "/images/fishcut-top.png", subCategories: [] },
               { id: genId(), name: "Short Umbrella", image: "/images/umbrella.png", subCategories: [] },
               { id: genId(), name: "Regular Kurta", image: "/images/regular-kurta.png", subCategories: [] },
               { id: genId(), name: "Silk Kurta", image: "/images/silk-kurta.png", subCategories: [] },
@@ -90,9 +91,9 @@ export const categories: SubCategory[] = [
             name: "Tops",
             image: "/images/top.png",
             subCategories: [
-              { id: genId(), name: "Silk Tops", image: "/images/top.png", subCategories: [] },
-               { id: genId(), name: "Woodies", image: "/images/women-woodies.png", subCategories: [] },
-                { id: genId(), name: "Corean T-shirt", image: "/images/corean-top.png", subCategories: [] },
+            
+               { id: genId(), name: "Hoodies", image: "/images/women-woodies.png", subCategories: [] },
+                { id: genId(), name: "Korean T-shirt", image: "/images/corean-top.png", subCategories: [] },
               { id: genId(), name: "T-Shirts", image: "/images/w-tshirt.png", subCategories: [] },
                { id: genId(), name: "Western Top", image: "/images/western-top.png", subCategories: [] },
                { id: genId(), name: "Short Kurta", image: "/images/short-kurtha.png", subCategories: [] },

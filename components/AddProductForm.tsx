@@ -242,15 +242,30 @@ const subSubSubCat =
 setSubSubSubCategory(subSubSubCat);
 
     // Variants
-    setVariants(
-      (data.variants || []).map((v:any) => ({
-        id: crypto.randomUUID(),
-        size: v.size,
-        color: v.color,
-         colorHex:
-  selectedColors.find(
-    c => c.name === v.color
-  )?.hex || "#ccc",
+ setVariants(
+  (data.variants || []).map((v:any) => ({
+    id: crypto.randomUUID(),
+
+    size: v.size,
+
+    color: v.color,
+
+    colorHex:
+      v.colorHex ||
+
+      selectedColors.find(
+        c =>
+          c.name.trim().toLowerCase() ===
+          v.color?.trim().toLowerCase()
+      )?.hex ||
+
+      COLOR_OPTIONS.find(
+        c =>
+          c.name.trim().toLowerCase() ===
+          v.color?.trim().toLowerCase()
+      )?.hex ||
+
+      "#ccc",
         mrp: String(v.mrp),
         price: String(v.price),
         discount: String(v.discount),
@@ -271,9 +286,11 @@ const restoredColors = (
     hex:
       v.colorHex ||
 
-      COLOR_OPTIONS.find(
-        c => c.name === v.color
-      )?.hex ||
+   COLOR_OPTIONS.find(
+  c =>
+    c.name.trim().toLowerCase() ===
+    v.color?.trim().toLowerCase()
+)?.hex||
 
       "#ccc",
   }));
@@ -384,21 +401,17 @@ const restoredColors = (
   .map((v:any) => ({
     name: v.color,
 
-    hex:
-      v.colorHex ||
-
-      COLOR_OPTIONS.find(
-        c => c.name === v.color
-      )?.hex ||
-
-      "#ccc",
+    // ✅ exact stored hex only
+    hex: v.colorHex || "#ccc",
   }));
 
 const uniqueColors = restoredColors.filter(
   (color, index, self) =>
     index ===
     self.findIndex(
-      c => c.name === color.name
+      c =>
+        c.name.trim().toLowerCase() ===
+        color.name.trim().toLowerCase()
     )
 );
 
@@ -653,17 +666,21 @@ form.append("discountAmount", String(discountAmount));
   size: v.size,
   color: v.color,
  colorHex:
-    v.colorHex ||
+  v.colorHex ||
 
-    selectedColors.find(
-      c => c.name === v.color
-    )?.hex ||
+  selectedColors.find(
+    c =>
+      c.name.trim().toLowerCase() ===
+      v.color?.trim().toLowerCase()
+  )?.hex ||
 
-    COLOR_OPTIONS.find(
-      c => c.name === v.color
-    )?.hex ||
+  COLOR_OPTIONS.find(
+    c =>
+      c.name.trim().toLowerCase() ===
+      v.color?.trim().toLowerCase()
+  )?.hex ||
 
-    "#ccc",
+  "#ccc",
 
   mrp: Number(v.mrp),
   price: Number(v.price),
@@ -1064,12 +1081,16 @@ Soft brushed interior"
    ...selectedColors.filter(
      (c) =>
        !COLOR_OPTIONS.some(
-         (o) => o.name === c.name
+         (o) =>
+  o.name.trim().toLowerCase() ===
+  c.name.trim().toLowerCase()
        )
    ),
  ].map((color) => {
    const selected = selectedColors.some(
-   (c) => c.name === color.name
+   (c) =>
+  c.name.trim().toLowerCase() ===
+  color.name.trim().toLowerCase()
  );
 
       return (
@@ -1078,9 +1099,13 @@ Soft brushed interior"
           type="button"
           onClick={() => {
             if (selected) {
-              setSelectedColors((prev) =>
-                prev.filter((c) => c.name !== color.name)
-              );
+  setSelectedColors((prev) =>
+  prev.filter(
+    (c) =>
+      c.name.trim().toLowerCase() !==
+      color.name.trim().toLowerCase()
+  )
+);
             } else {
               setSelectedColors((prev) => [
                 ...prev,
@@ -1131,17 +1156,36 @@ Soft brushed interior"
 
       <button
         type="button"
-        onClick={() => {
-          if (!customColor.name) return;
+       onClick={() => {
+  if (!customColor.name.trim()) return;
 
-          if (selectedColors.some(c => c.name === customColor.name)) {
-            toast.error("Color already added");
-            return;
-          }
+  const normalizedName =
+    customColor.name.trim();
 
-          setSelectedColors(prev => [...prev, customColor]);
-          setCustomColor({ name: "", hex: "#000000" });
-        }}
+  if (
+    selectedColors.some(
+      c =>
+        c.name.trim().toLowerCase() ===
+        normalizedName.toLowerCase()
+    )
+  ) {
+    toast.error("Color already added");
+    return;
+  }
+
+  setSelectedColors(prev => [
+    ...prev,
+    {
+      name: normalizedName,
+      hex: customColor.hex,
+    },
+  ]);
+
+  setCustomColor({
+    name: "",
+    hex: "#000000",
+  });
+}}
         className="px-3 py-1 bg-black text-white rounded"
       >
         Add Color
@@ -1171,22 +1215,40 @@ Soft brushed interior"
 
           <select
   value={v.color}
-  onChange={(e) => {
-    const copy = [...variants];
-const selected =
-  [
-    ...COLOR_OPTIONS,
-    ...selectedColors,
-  ].find(
-    c => c.name === e.target.value
-  );
+ onChange={(e) => {
+  const copy = [...variants];
 
-    copy[idx].color = e.target.value;
-    copy[idx].colorHex =
-      selected?.hex || "#ccc";
+  const selected =
+    [
+      ...COLOR_OPTIONS,
+      ...selectedColors,
+    ].find(
+      c =>
+        c.name.trim().toLowerCase() ===
+        e.target.value.trim().toLowerCase()
+    );
 
-    setVariants(copy);
-  }}
+  copy[idx].color = e.target.value;
+
+ copy[idx].colorHex =
+  selected?.hex ||
+
+  COLOR_OPTIONS.find(
+    c =>
+      c.name.trim().toLowerCase() ===
+      e.target.value.trim().toLowerCase()
+  )?.hex ||
+
+  selectedColors.find(
+    c =>
+      c.name.trim().toLowerCase() ===
+      e.target.value.trim().toLowerCase()
+  )?.hex ||
+
+  "#ccc";
+
+  setVariants(copy);
+}}
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">Select Color</option>
