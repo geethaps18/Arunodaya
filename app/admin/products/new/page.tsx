@@ -241,12 +241,19 @@ useEffect(() => {
 
     setSubCategory(subCat);
 
-    const subSubCat =
-      subCat?.subCategories?.find(
-        s => slugify(s.name) === data.subSubCategory
-      ) || null;
+ const subSubCat =
+  subCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubCategory
+  ) || null;
 
-    setSubSubCategory(subSubCat);
+setSubSubCategory(subSubCat);
+
+const subSubSubCat =
+  subSubCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubSubCategory
+  ) || null;
+
+setSubSubSubCategory(subSubSubCat);
 
     setVariants(
       (data.variants || []).map((v: any) => ({
@@ -324,12 +331,19 @@ const slugify = (text?: string) =>
 
     setSubCategory(subCat);
 
-   const subSubCat =
+  const subSubCat =
   subCat?.subCategories?.find(
     s => slugify(s.name) === data.subSubCategory
   ) || null;
 
-    setSubSubCategory(subSubCat);
+setSubSubCategory(subSubCat);
+
+const subSubSubCat =
+  subSubCat?.subCategories?.find(
+    s => slugify(s.name) === data.subSubSubCategory
+  ) || null;
+
+setSubSubSubCategory(subSubSubCat);
 
     setVariants(
       (data.variants || []).map((v:any) => ({

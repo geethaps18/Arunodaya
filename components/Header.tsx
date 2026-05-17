@@ -144,14 +144,26 @@ useEffect(() => {
   const fetchProductCount = async () => {
     try {
       if (pathname.startsWith("/categories")) {
-        const segments = pathname.split("/").filter(Boolean).slice(1);
-        const mainCat = segments[0] || "";
-        const sub1 = segments[1] || "";
-        const sub2 = segments[2] || "";
+     const segments = pathname.split("/").filter(Boolean).slice(1);
 
-        const res = await fetch(
-          `/api/products?category=${mainCat}&subCategory=${sub1}&subSubCategory=${sub2}`
-        );
+const mainCat = segments[0] || "";
+const sub1 = segments[1] || "";
+const sub2 = segments[2] || "";
+const sub3 = segments[3] || "";
+
+const params = new URLSearchParams({
+  category: mainCat,
+  subCategory: sub1,
+  subSubCategory: sub2,
+});
+
+if (sub3) {
+  params.append("subSubSubCategory", sub3);
+}
+
+const res = await fetch(
+  `/api/products?${params.toString()}`
+);
 
         const data = await res.json();
 
